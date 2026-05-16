@@ -772,8 +772,8 @@ header::after{display:none}
    since the iframe now provides the brand surface. */
 .cmd-brand img{display:none}
 /* Localized halo behind the search box for contrast on top of the aurora.
-   Sits below the SHAI mark + "SUPERHOST HOSPITALITY AI" tagline that the
-   splash centers vertically. */
+   Sits below the SHAI mark + "STRATEGIC HOSPITALITY ANALYTICAL INTELLIGENCE" tagline
+   that the splash centers vertically. */
 .cmd-brand::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 42% 28% at 50% 72%, rgba(11,31,58,0.42) 0%, rgba(11,31,58,0.08) 55%, transparent 85%);pointer-events:none;z-index:1}
 /* Search box: horizontally centered, dropped below the SHAI tagline.
    Background fully TRANSPARENT — the aurora flows straight through. The
@@ -1682,7 +1682,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
     <button class="hamburger" onclick="toggleSidebar()">☰</button>
     <div class="logo">
       <a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
-        <img src="/brand/shai-banner.png" alt="SHAI — Superhost Hospitality AI" style="height:42px;width:auto;display:block;border-radius:4px;object-fit:contain">
+        <img src="/brand/shai-logo-transparent.png" alt="SHAI — Strategic Hospitality Analytical Intelligence" style="height:42px;width:auto;display:block;object-fit:contain">
         <div style="border-left:1px solid rgba(255,255,255,0.18);padding-left:12px;margin-left:2px">
           <div class="logo-sub" style="font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.62)">EXECUTIVE OPERATIONS HUB</div>
         </div>
@@ -6667,7 +6667,7 @@ async function buildScorecardPages(){
 
       ${p.note?`<div style="margin-top:8px;padding:8px 10px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--fg2)"><strong>Notes:</strong> ${esc(p.note)}</div>`:''}
       <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--fg3);margin-top:10px">
-        <span>Superhost Hospitality · SHAI Performance Score Card</span>
+        <span>SHAI · Performance Score Card</span>
         <span>Generated: ${new Date().toLocaleDateString()}</span>
       </div>
     </div>`;
@@ -7689,7 +7689,7 @@ function emailPropSummary(){
 function openExport(){
   const active=S.properties.filter(p=>p.active);
   document.getElementById('export-sub').textContent=`${active.length} properties · Period ${S.period} · ${new Date().toLocaleDateString()}`;
-  const lines=['SUPERHOST HOSPITALITY — PORTFOLIO SNAPSHOT',`Period: ${S.period}  |  Generated: ${new Date().toLocaleString()}`,'─'.repeat(80),'',`${'Property'.padEnd(44)} ${'RDO'.padEnd(10)} ${'Score'.padEnd(7)} ${'RevPAR'.padEnd(9)} ${'vs Bud'.padEnd(9)} ${'Occ%'.padEnd(7)} ${'GOP%'.padEnd(7)} ${'Flow%'.padEnd(8)} RevPAR Idx`,'─'.repeat(80)];
+  const lines=['SHAI COMPANIES — PORTFOLIO SNAPSHOT',`Period: ${S.period}  |  Generated: ${new Date().toLocaleString()}`,'─'.repeat(80),'',`${'Property'.padEnd(44)} ${'RDO'.padEnd(10)} ${'Score'.padEnd(7)} ${'RevPAR'.padEnd(9)} ${'vs Bud'.padEnd(9)} ${'Occ%'.padEnd(7)} ${'GOP%'.padEnd(7)} ${'Flow%'.padEnd(8)} RevPAR Idx`,'─'.repeat(80)];
   active.forEach(p=>{const m=p.manual||{},st=p.str||{};const bd=m.revpar&&m.revparBud?((m.revpar/m.revparBud)*100-100):null;lines.push(`${p.name.substring(0,43).padEnd(43)} ${p.rdo.padEnd(10)} ${(p.score??'N/A')+''.padEnd(6)} ${'$'+(m.revpar??'—')+''.padEnd(7)} ${(bd!=null?(bd>=0?'+':'')+bd.toFixed(1)+'%':'—').padEnd(8)} ${(m.occ?m.occ+'%':'—').padEnd(6)} ${(m.gop?m.gop+'%':'—').padEnd(6)} ${(p.flow!=null?(p.flow>=0?'+':'')+p.flow.toFixed(1)+'%':'—').padEnd(7)} ${st.revparIdx??'—'}`);});
   document.getElementById('export-area').textContent=lines.join('\n');
   document.getElementById('export-modal').classList.add('open');
@@ -8131,7 +8131,7 @@ function _buildBrandCompareMarkdown(brand, props) {
   const lines = [];
 
   // ── BANNER ──
-  lines.push(`# SUPERHOST HOSPITALITY  |  ${brand.toUpperCase()} COST COMPARISON · ${periodCaps}`);
+  lines.push(`# SHAI COMPANIES  |  ${brand.toUpperCase()} COST COMPARISON · ${periodCaps}`);
   lines.push(`${props.length} active properties · POR · ${periodLabel} · ${status}`);
   lines.push('');
 
@@ -8892,7 +8892,7 @@ function renderMsg(role,text,handoff){
       <div style="font-size:9px;color:rgba(160,195,255,.85);letter-spacing:2.5px;text-transform:uppercase;font-weight:600;font-family:'DM Sans',Arial,sans-serif">${modeLabel}</div>
       <div style="height:1px;flex:1;max-width:60px;background:linear-gradient(270deg,transparent,rgba(100,160,255,.3))"></div>
     </div>
-    <div style="text-align:center;font-size:8px;color:rgba(120,160,220,.5);letter-spacing:1.5px;font-family:'DM Mono',monospace">${S.period||new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'})} · SUPERHOST HOSPITALITY</div>
+    <div style="text-align:center;font-size:8px;color:rgba(120,160,220,.5);letter-spacing:1.5px;font-family:'DM Mono',monospace">${S.period||new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'})} · SHAI COMPANIES</div>
   </div>`:'';
   // Download bar for skill outputs — SHAI branded
   const downloadBar=isSkillResponse?`<div class="skill-actions" style="display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(100,160,255,.1)"><span style="font-size:8px;color:rgba(160,195,255,.4);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-right:auto">Export</span><button class="btn" style="font-size:11px;padding:4px 10px;border-radius:6px" onclick="downloadSkillPDF('${skillId}','${modeLabel.replace(/'/g,"\\'")}')">↓ PDF</button><button class="btn" style="font-size:11px;padding:4px 10px;border-radius:6px" onclick="downloadSkillWord('${skillId}','${modeLabel.replace(/'/g,"\\'")}')">↓ Word</button><button class="btn" style="font-size:11px;padding:4px 10px;border-radius:6px" onclick="copySkillText('${skillId}')">⎘ Copy</button></div>`:'';
@@ -9163,7 +9163,7 @@ function _skillExportHTML(skillId,title){
   @media print{ body{font-size:10.5pt} table.branded-table{font-size:9.5pt} }
 </style></head><body>
 ${content}
-<div class="footer">SHAI · Superhost Hospitality AI · ${title} · ${dateStr} · Confidential</div>
+<div class="footer">SHAI · Strategic Hospitality Analytical Intelligence · ${title} · ${dateStr} · Confidential</div>
 </body></html>`;
 }
 
