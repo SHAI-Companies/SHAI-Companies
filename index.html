@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Superhost — Executive Operations Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0D2137;--navy2:#122840;--navy3:#1a3550;
+  --teal:#1A7E8F;--teal2:#22a0b5;
+  --gold:#C8963F;--gold2:#e0aa52;
+  --white:#FFF;--off:#F2F5F8;
+  --gray:#8899aa;--gray2:#c8d4de;
+  --red:#dc3545;--amber:#d97706;--green:#16a34a;
+  --border:rgba(255,255,255,.07);
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}
+body{font-family:'Instrument Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;font-size:13px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 15% 15%,rgba(26,126,143,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(200,150,63,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* ─ PIN SCREEN ─ */
+#pin-screen{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#pin-screen h2{font-family:'DM Serif Display',serif;font-size:22px}
+#pin-screen p{font-size:12px;color:var(--gray)}
+#pin-input{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:9px;padding:10px 16px;color:var(--white);font-family:'DM Mono',monospace;font-size:22px;text-align:center;letter-spacing:6px;width:180px;outline:none}
+#pin-input:focus{border-color:rgba(26,126,143,.5)}
+#pin-err{color:var(--red);font-size:11px;height:16px}
+
+/* ─ LAYOUT ─ */
+.app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+.body{display:flex;flex:1;overflow:hidden}
+
+/* ─ HEADER ─ */
+header{display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:52px;border-bottom:1px solid var(--border);background:rgba(13,33,55,.95);backdrop-filter:blur(12px);flex-shrink:0;z-index:50;gap:10px}
+.logo{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.logo-mark{width:26px;height:26px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:13px;flex-shrink:0}
+.logo-name{font-family:'DM Serif Display',serif;font-size:14px}
+.logo-sub{font-size:8px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.ps-badge{display:flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;cursor:pointer;white-space:nowrap}
+.ps-badge.demo{background:rgba(217,119,6,.14);border:1px solid rgba(217,119,6,.28);color:var(--amber)}
+.ps-badge.live{background:rgba(22,163,74,.14);border:1px solid rgba(22,163,74,.28);color:var(--green)}
+.ps-badge.connecting{background:rgba(26,126,143,.14);border:1px solid rgba(26,126,143,.28);color:var(--teal2)}
+.ps-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.period-sel{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:3px 7px;color:var(--white);font-family:inherit;font-size:11px;cursor:pointer;outline:none}
+.period-sel option{background:var(--navy2)}
+.hdr-btn{background:var(--teal);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;transition:.15s;white-space:nowrap}
+.hdr-btn:hover{background:var(--teal2)}
+.hdr-btn:disabled{opacity:.4;cursor:not-allowed}
+.hdr-btn.gold{background:var(--gold)}
+.hdr-btn.gold:hover{background:var(--gold2)}
+.hdr-btn.outline{background:transparent;border:1px solid var(--border);color:var(--gray2)}
+.hdr-btn.outline:hover{border-color:var(--teal);color:var(--white)}
+.live-time{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--gray);white-space:nowrap}
+
+/* ─ SIDEBAR ─ */
+.sidebar{width:200px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;background:rgba(13,33,55,.5);padding:12px 0;overflow-y:auto;transition:transform .25s ease}
+.sb-section{padding:0 9px;margin-bottom:16px}
+.sb-label{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gray);padding:0 7px;margin-bottom:4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:6px;cursor:pointer;transition:.12s;font-size:11.5px;color:var(--gray);font-weight:500;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.04);color:var(--white)}
+.nav-item.active{background:rgba(26,126,143,.13);border-color:rgba(26,126,143,.2);color:var(--white)}
+.nav-icon{width:13px;text-align:center;font-size:11px;flex-shrink:0}
+.nav-badge{margin-left:auto;color:#fff;font-size:8.5px;padding:1px 5px;border-radius:8px;font-weight:700;background:var(--teal);flex-shrink:0}
+.nav-badge.red{background:var(--red)}
+.sb-footer{margin-top:auto;padding:9px;border-top:1px solid var(--border)}
+.mini-stats{background:rgba(26,126,143,.08);border:1px solid rgba(26,126,143,.17);border-radius:7px;padding:8px}
+.mst{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal2);margin-bottom:6px;font-weight:600}
+.ms{display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:3px;color:var(--gray2)}
+.ms span:last-child{font-family:'DM Mono',monospace;color:var(--white);font-weight:600}
+
+/* ─ HAMBURGER (mobile) ─ */
+.hamburger{display:none;background:none;border:none;color:var(--gray2);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+
+/* ─ CONTENT ─ */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.panel{flex:1;overflow-y:auto;padding:18px;display:none}
+.panel.active{display:block}
+
+/* ─ AI PANEL ─ */
+#p-ai{display:none;flex-direction:column;padding:0}
+#p-ai.active{display:flex}
+.chat-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:13px}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;gap:10px;min-height:240px;padding:20px}
+.welcome-orb{width:52px;height:52px;background:linear-gradient(135deg,var(--teal),var(--navy3));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 36px rgba(26,126,143,.35);animation:orb 3s ease-in-out infinite}
+@keyframes orb{0%,100%{box-shadow:0 0 36px rgba(26,126,143,.35)}50%{box-shadow:0 0 56px rgba(26,126,143,.5)}}
+.welcome h2{font-family:'DM Serif Display',serif;font-size:19px}
+.welcome p{font-size:11.5px;color:var(--gray);max-width:380px;line-height:1.7}
+.qp-grid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:500px}
+.qp{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:5px 11px;font-size:11px;color:var(--gray2);cursor:pointer;transition:.12s}
+.qp:hover{background:rgba(26,126,143,.11);border-color:rgba(26,126,143,.28);color:var(--white)}
+.msg{display:flex;gap:10px;max-width:820px;animation:msgin .2s ease}
+@keyframes msgin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.avatar{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;font-weight:700}
+.avatar.ai{background:linear-gradient(135deg,var(--teal),var(--navy3));box-shadow:0 0 7px rgba(26,126,143,.28)}
+.avatar.user{background:linear-gradient(135deg,var(--gold),#906020);font-family:'DM Serif Display',serif;font-size:12px}
+.bubble{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:12px;line-height:1.75;color:var(--off);max-width:calc(100% - 36px)}
+.bubble p{margin-bottom:5px}.bubble p:last-child{margin-bottom:0}
+.msg.user .bubble{background:rgba(26,126,143,.1);border-color:rgba(26,126,143,.2)}
+.bubble strong{color:var(--gold2);font-weight:600}
+.bubble em{color:var(--gray2);font-style:italic}
+.bubble .sh{color:var(--teal2);font-weight:700;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin:9px 0 3px;display:block}
+.bubble ul,.bubble ol{padding-left:13px;margin:4px 0}
+.bubble li{margin-bottom:2px}
+.meta{font-size:8.5px;color:var(--gray);margin-top:3px;font-family:'DM Mono',monospace}
+.thinking{display:flex;gap:10px;align-items:flex-start}
+.dots{display:flex;gap:4px;align-items:center;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px}
+.dots span{width:4px;height:4px;background:var(--teal);border-radius:50%;animation:db 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-4px);opacity:1}}
+.chat-foot{padding:12px 16px 15px;border-top:1px solid var(--border);background:rgba(13,33,55,.8);backdrop-filter:blur(8px);flex-shrink:0}
+.mode-row{display:flex;gap:4px;margin-bottom:7px;flex-wrap:wrap}
+.mode-btn{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:600;cursor:pointer;transition:.12s;border:1px solid var(--border);color:var(--gray);background:transparent;user-select:none}
+.mode-btn.active{background:rgba(26,126,143,.13);border-color:rgba(26,126,143,.28);color:var(--teal2)}
+.input-row{display:flex;gap:7px;align-items:flex-end}
+textarea.ci{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--white);font-family:inherit;resize:none;min-height:36px;max-height:100px;outline:none;line-height:1.5;transition:.12s}
+textarea.ci:focus{border-color:rgba(26,126,143,.38)}
+textarea.ci::placeholder{color:var(--gray)}
+.send{width:36px;height:36px;background:var(--teal);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:.12s;flex-shrink:0;color:#fff}
+.send:hover{background:var(--teal2);transform:scale(1.04)}
+.send:disabled{opacity:.3;cursor:not-allowed;transform:none}
+
+/* ─ SHARED ─ */
+.sec{font-family:'DM Serif Display',serif;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px;transition:.12s;cursor:default}
+.kpi:hover{border-color:rgba(26,126,143,.2)}
+.kpi-label{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);font-weight:600;margin-bottom:5px}
+.kpi-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;line-height:1}
+.kpi-sub{display:flex;align-items:center;gap:4px;margin-top:4px;font-size:9.5px;flex-wrap:wrap}
+.up{color:var(--green);font-family:'DM Mono',monospace;font-weight:600}
+.dn{color:var(--red);font-family:'DM Mono',monospace;font-weight:600}
+.flat{color:var(--amber);font-family:'DM Mono',monospace;font-weight:600}
+.vs{color:var(--gray)}
+.banner{background:rgba(200,150,63,.07);border:1px solid rgba(200,150,63,.18);border-radius:7px;padding:7px 11px;font-size:11px;color:rgba(200,150,63,.9);display:flex;align-items:flex-start;gap:6px;margin-bottom:14px;line-height:1.5}
+
+/* ─ TABLE ─ */
+table.pt{width:100%;border-collapse:collapse;font-size:11px}
+table.pt th{text-align:left;padding:5px 8px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+table.pt th:hover{color:var(--white)}
+table.pt th.r,table.pt td.r{text-align:right}
+table.pt td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--gray2);font-family:'DM Mono',monospace;font-size:10.5px;white-space:nowrap}
+table.pt tr:hover td{background:rgba(255,255,255,.02)}
+table.pt td.name{font-family:'Instrument Sans',sans-serif;font-weight:500;color:var(--white);cursor:pointer;white-space:normal;min-width:160px}
+table.pt td.name:hover{color:var(--teal2)}
+.tl{display:inline-flex;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tl.g{background:var(--green);box-shadow:0 0 4px var(--green)}
+.tl.a{background:var(--amber);box-shadow:0 0 4px var(--amber)}
+.tl.r{background:var(--red);box-shadow:0 0 4px var(--red)}
+.bar-wrap{width:55px;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle}
+.bar{height:100%;border-radius:2px;transition:width .3s}
+
+/* ─ BADGES ─ */
+.sb{display:inline-flex;padding:2px 6px;border-radius:10px;font-family:'DM Mono',monospace;font-size:9.5px;font-weight:600}
+.sb.exc{background:rgba(22,163,74,.17);color:#4ade80;border:1px solid rgba(22,163,74,.27)}
+.sb.on{background:rgba(26,126,143,.17);color:#5dd;border:1px solid rgba(26,126,143,.27)}
+.sb.wa{background:rgba(217,119,6,.17);color:#fbbf24;border:1px solid rgba(217,119,6,.27)}
+.sb.at{background:rgba(200,150,63,.17);color:var(--gold2);border:1px solid rgba(200,150,63,.27)}
+.sb.ne{background:rgba(220,53,69,.17);color:#f87171;border:1px solid rgba(220,53,69,.27)}
+.flow-badge{display:inline-flex;padding:1px 6px;border-radius:9px;font-family:'DM Mono',monospace;font-size:9.5px;font-weight:600}
+.flow-badge.pos{background:rgba(22,163,74,.11);color:#4ade80;border:1px solid rgba(22,163,74,.2)}
+.flow-badge.neg{background:rgba(220,53,69,.11);color:#f87171;border:1px solid rgba(220,53,69,.2)}
+.flow-badge.neutral{background:rgba(217,119,6,.11);color:#fbbf24;border:1px solid rgba(217,119,6,.2)}
+.idx-badge{display:inline-flex;padding:1px 6px;border-radius:9px;font-family:'DM Mono',monospace;font-size:9.5px;font-weight:600}
+.idx-badge.hi{background:rgba(22,163,74,.11);color:#4ade80;border:1px solid rgba(22,163,74,.2)}
+.idx-badge.lo{background:rgba(220,53,69,.11);color:#f87171;border:1px solid rgba(220,53,69,.2)}
+.idx-badge.mid{background:rgba(217,119,6,.11);color:#fbbf24;border:1px solid rgba(217,119,6,.2)}
+
+/* ─ SPARKLINE ─ */
+.spark{display:inline-flex;align-items:flex-end;gap:1px;height:16px;vertical-align:middle}
+.spark-bar{width:3px;border-radius:1px;background:var(--teal);opacity:.7}
+
+/* ─ COMPARE ─ */
+.cmp-table td.better{color:var(--green) !important;font-weight:600}
+.cmp-table td.worse{color:var(--red) !important;font-weight:600}
+.cmp-table td.same{color:var(--gray) !important}
+.period-pick{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+
+/* ─ STALE ─ */
+.stale{font-size:8.5px;color:var(--amber);font-family:'DM Mono',monospace}
+.fresh{font-size:8.5px;color:var(--green);font-family:'DM Mono',monospace}
+
+/* ─ RDO / OWNER CARDS ─ */
+.rdo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.card3{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:14px;transition:.12s;cursor:pointer}
+.card3:hover{border-color:rgba(26,126,143,.25);background:rgba(26,126,143,.04)}
+.card3-name{font-family:'DM Serif Display',serif;font-size:15px;margin-bottom:2px}
+.card3-sub{font-size:9.5px;color:var(--gray);margin-bottom:10px}
+.cstat{display:flex;justify-content:space-between;font-size:9.5px;margin-bottom:3px;color:var(--gray)}
+.cstat span:last-child{font-family:'DM Mono',monospace;color:var(--gray2);font-weight:500}
+.owner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:12px;margin-bottom:18px}
+
+/* ─ ALERTS ─ */
+.alert-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.alert-item.red{border-left:3px solid var(--red)}
+.alert-item.amber{border-left:3px solid var(--amber)}
+.alert-item.green{border-left:3px solid var(--green)}
+.alert-body{flex:1;min-width:0}
+.alert-title{font-weight:600;font-size:11.5px;margin-bottom:3px}
+.alert-text{font-size:10.5px;color:var(--gray2);line-height:1.6}
+.alert-foot{display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap}
+.alert-time{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--gray)}
+
+/* ─ BUTTONS ─ */
+.btn{background:rgba(26,126,143,.13);border:1px solid rgba(26,126,143,.2);color:var(--teal2);padding:3px 8px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;transition:.12s;font-family:inherit}
+.btn:hover{background:rgba(26,126,143,.23)}
+.btn.red{background:rgba(220,53,69,.09);border-color:rgba(220,53,69,.17);color:#f87171}
+.btn.red:hover{background:rgba(220,53,69,.17)}
+.btn.gold{background:rgba(200,150,63,.11);border-color:rgba(200,150,63,.2);color:var(--gold2)}
+.btn.amber{background:rgba(217,119,6,.11);border-color:rgba(217,119,6,.2);color:#fbbf24}
+.btn-primary{background:var(--teal);border:none;color:#fff;padding:6px 13px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;transition:.12s}
+.btn-primary:hover{background:var(--teal2)}
+.btn-secondary{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--gray2);padding:6px 11px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;transition:.12s}
+.btn-secondary:hover{background:rgba(255,255,255,.09);color:var(--white)}
+
+/* ─ FORMS ─ */
+.fg{margin-bottom:10px}
+.fg label{display:block;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gray);font-weight:600;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--white);font-family:inherit;font-size:12px;outline:none;transition:.12s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:rgba(26,126,143,.38)}
+.fg textarea{resize:vertical;min-height:50px}
+.fg select option{background:var(--navy2)}
+.status-msg{font-size:10.5px;padding:5px 10px;border-radius:6px;margin-top:6px}
+.status-msg.success{background:rgba(22,163,74,.13);border:1px solid rgba(22,163,74,.25);color:#4ade80}
+.status-msg.error{background:rgba(220,53,69,.13);border:1px solid rgba(220,53,69,.25);color:#f87171}
+.status-msg.info{background:rgba(26,126,143,.13);border:1px solid rgba(26,126,143,.25);color:var(--teal2)}
+.admin-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:15px;margin-bottom:12px}
+.admin-card h3{font-size:12px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ─ PIPELINE ─ */
+.pipeline-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:9px}
+.pipeline-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.pipeline-name{font-weight:600;font-size:13px}
+.pipeline-meta{font-size:10px;color:var(--gray);margin-top:2px}
+.milestone-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:11px}
+.milestone-row:last-child{border-bottom:none}
+.ms-check{width:14px;height:14px;border-radius:3px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:9px}
+.ms-check.done{background:var(--green);border-color:var(--green)}
+.days-badge{font-family:'DM Mono',monospace;font-size:9.5px;padding:1px 6px;border-radius:8px;flex-shrink:0}
+.days-badge.urgent{background:rgba(220,53,69,.15);color:#f87171;border:1px solid rgba(220,53,69,.25)}
+.days-badge.soon{background:rgba(217,119,6,.15);color:#fbbf24;border:1px solid rgba(217,119,6,.25)}
+.days-badge.ok{background:rgba(22,163,74,.15);color:#4ade80;border:1px solid rgba(22,163,74,.25)}
+
+/* ─ COMPLIANCE ─ */
+.compliance-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:9px}
+.score-ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;flex-shrink:0}
+
+/* ─ MODAL ─ */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px}
+.modal-ov.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:11px;width:min(740px,100%);max-height:90vh;overflow-y:auto;padding:20px;position:relative}
+.m-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.m-title{font-family:'DM Serif Display',serif;font-size:18px}
+.m-sub{font-size:10.5px;color:var(--gray);margin-top:2px}
+.close-btn{background:none;border:none;color:var(--gray);font-size:17px;cursor:pointer;transition:.12s;padding:2px;flex-shrink:0}
+.close-btn:hover{color:var(--white)}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.dkpi{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:7px;padding:10px}
+.dkpi label{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);font-weight:600;display:block;margin-bottom:4px}
+.dkpi input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--white);font-family:'DM Mono',monospace;font-size:17px;width:100%;outline:none;padding-bottom:2px;transition:.12s}
+.dkpi input:focus{border-bottom-color:var(--teal2)}
+.dkpi .unit{font-size:9.5px;color:var(--gray);margin-top:2px}
+.save-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
+
+/* ─ NOTES ─ */
+.note-area{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--gray2);font-family:inherit;resize:vertical;min-height:72px;width:100%;outline:none;transition:.12s;line-height:1.6}
+.note-area:focus{border-color:rgba(26,126,143,.35);color:var(--white)}
+.note-history{font-size:10px;color:var(--gray);margin-top:5px}
+
+/* ─ GENERATE PANEL ─ */
+.gen-output{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;line-height:1.75;color:var(--off);min-height:100px;white-space:pre-wrap;font-family:'Instrument Sans',sans-serif}
+.gen-output.loading{display:flex;align-items:center;justify-content:center;color:var(--gray)}
+
+/* ─ EXPORT ─ */
+.export-area{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:7px;padding:13px;font-family:'DM Mono',monospace;font-size:10.5px;line-height:1.7;color:var(--gray2);white-space:pre;overflow-x:auto;max-height:340px;overflow-y:auto;margin:12px 0}
+
+/* ─ PDF PRINT ─ */
+@media print{
+  body{background:#fff;color:#000;font-size:11pt}
+  .sidebar,.header,.hdr-right,.chat-foot,.no-print{display:none!important}
+  .content,.panel{overflow:visible!important;height:auto!important}
+  #p-scorecard{display:block!important}
+  .print-only{display:block!important}
+  .scorecard-page{page-break-after:always;padding:20px}
+  .scorecard-page:last-child{page-break-after:auto}
+  @page{margin:1.5cm;size:A4 portrait}
+}
+.print-only{display:none}
+
+/* ─ TOOLS ─ */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:10px}
+.tool-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;gap:7px}
+.tool-card:hover{border-color:rgba(26,126,143,.25);transform:translateY(-1px)}
+.tool-icon{font-size:19px;width:36px;height:36px;background:rgba(26,126,143,.09);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.tool-name{font-weight:600;font-size:11.5px}
+.tool-desc{font-size:10.5px;color:var(--gray);line-height:1.5}
+.tool-launch{font-size:9.5px;color:var(--teal2);font-weight:600;margin-top:auto}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--navy3);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;font-size:11.5px;color:var(--white);max-width:300px;box-shadow:0 8px 28px rgba(0,0,0,.4);transform:translateY(70px);opacity:0;transition:.25s ease;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+kbd{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:3px;padding:1px 4px;font-family:'DM Mono',monospace;font-size:9.5px;color:var(--gray)}
+.tab-row{display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{padding:7px 13px;font-size:11.5px;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.12s;font-weight:500}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--white);border-bottom-color:var(--teal)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+@media(max-width:800px){.rdo-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}.hamburger{display:block}}
+@media(max-width:600px){.sidebar{position:fixed;left:0;top:52px;height:calc(100vh - 52px);z-index:45;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen" style="display:none">
+  <div class="logo-mark" style="width:44px;height:44px;font-size:22px;border-radius:10px">S</div>
+  <h2>Superhost Executive Hub</h2>
+  <p>Enter your PIN to continue</p>
+  <input type="password" id="pin-input" placeholder="••••" maxlength="8" onkeydown="if(event.key==='Enter')submitPin()">
+  <div id="pin-err"></div>
+  <button class="btn-primary" onclick="submitPin()">Unlock</button>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+<div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+<header>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="logo">
+      <div class="logo-mark">S</div>
+      <div><div class="logo-name">Superhost Hospitality</div><div class="logo-sub">Executive Operations Hub</div></div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="ps-badge demo" id="ps-badge" onclick="navTo('admin')" title="Click to configure">
+      <span class="ps-dot"></span><span id="ps-txt">Demo</span>
+    </div>
+    <select class="period-sel" id="period-sel" onchange="onPeriodChange(this.value)">
+      <option value="2026-04">Apr 2026</option>
+      <option value="2026-03">Mar 2026</option>
+      <option value="2026-02">Feb 2026</option>
+      <option value="2026-01">Jan 2026</option>
+    </select>
+    <button class="hdr-btn outline" id="refresh-btn" onclick="refreshData()">⟳</button>
+    <button class="hdr-btn outline" onclick="openExport()">↓ Export</button>
+    <button class="hdr-btn" onclick="navTo('generate')">⚡ Generate</button>
+    <button class="hdr-btn gold" onclick="navTo('ai')" title="⌘K">✦ AI</button>
+    <div class="live-time" id="live-time"></div>
+  </div>
+</header>
+
+<div class="body">
+<nav class="sidebar" id="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Command</div>
+    <div class="nav-item active" data-nav="ai"          onclick="navTo('ai')">         <span class="nav-icon">✦</span>AI Command</div>
+    <div class="nav-item"        data-nav="dashboard"   onclick="navTo('dashboard')">  <span class="nav-icon">◈</span>Dashboard</div>
+    <div class="nav-item"        data-nav="leaderboard" onclick="navTo('leaderboard')"><span class="nav-icon">⊟</span>Leaderboard</div>
+    <div class="nav-item"        data-nav="compare"     onclick="navTo('compare')">    <span class="nav-icon">⇄</span>Compare</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Portfolio</div>
+    <div class="nav-item" data-nav="rdo"        onclick="navTo('rdo')">       <span class="nav-icon">◉</span>RDO Teams</div>
+    <div class="nav-item" data-nav="ownership"  onclick="navTo('ownership')"> <span class="nav-icon">🏦</span>Ownership</div>
+    <div class="nav-item" data-nav="forecast"   onclick="navTo('forecast')">  <span class="nav-icon">◌</span>Forecast</div>
+    <div class="nav-item" data-nav="compliance" onclick="navTo('compliance')"><span class="nav-icon">✓</span>Brand QA</div>
+    <div class="nav-item" data-nav="pipeline"   onclick="navTo('pipeline')">  <span class="nav-icon">🏗</span>Pipeline<span class="nav-badge" id="pipe-badge">0</span></div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Tools</div>
+    <div class="nav-item" data-nav="generate" onclick="navTo('generate')"><span class="nav-icon">⚡</span>Generate</div>
+    <div class="nav-item" data-nav="alerts"   onclick="navTo('alerts')">  <span class="nav-icon">⚡</span>Alerts<span class="nav-badge red" id="alert-badge">0</span></div>
+    <div class="nav-item" data-nav="tools"    onclick="navTo('tools')">   <span class="nav-icon">⊞</span>AI Toolkit</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">System</div>
+    <div class="nav-item" data-nav="data-entry" onclick="navTo('data-entry')"><span class="nav-icon">✎</span>Data Entry</div>
+    <div class="nav-item" data-nav="admin"      onclick="navTo('admin')">     <span class="nav-icon">⚙</span>Admin</div>
+  </div>
+  <div class="sb-footer">
+    <div class="mini-stats">
+      <div class="mst">Portfolio</div>
+      <div class="ms"><span>Active Props</span><span>17</span></div>
+      <div class="ms"><span>In Development</span><span id="sb-pipeline">—</span></div>
+      <div class="ms"><span>Brand Families</span><span>4</span></div>
+      <div class="ms"><span>RDOs</span><span>3</span></div>
+      <div class="ms"><span>Owners</span><span>6</span></div>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- AI -->
+<div id="p-ai" class="panel active">
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="welcome" id="welcome">
+      <div class="welcome-orb">✦</div>
+      <h2>Executive AI Command</h2>
+      <p>Full portfolio loaded. Ask anything — or use <kbd>⌘K</kbd> to focus from anywhere.</p>
+      <div class="qp-grid">
+        <div class="qp" onclick="useQP(this)">Portfolio NOI vs. budget this period</div>
+        <div class="qp" onclick="useQP(this)">Which properties have negative flow-through?</div>
+        <div class="qp" onclick="useQP(this)">Draft GM accountability email — NOI miss</div>
+        <div class="qp" onclick="useQP(this)">Which RDO territory needs most attention?</div>
+        <div class="qp" onclick="useQP(this)">Prep me for an ownership call</div>
+        <div class="qp" onclick="useQP(this)">Stress-test a GM forecast</div>
+        <div class="qp" onclick="useQP(this)">Flag at-risk properties</div>
+        <div class="qp" onclick="useQP(this)">Compare this period to last period</div>
+      </div>
+    </div>
+  </div>
+  <div class="chat-foot">
+    <div class="mode-row">
+      <div class="mode-btn active" onclick="setMode(this,'exec')">⚙ Executive</div>
+      <div class="mode-btn" onclick="setMode(this,'owner')">🏦 Owner Lens</div>
+      <div class="mode-btn" onclick="setMode(this,'gm')">📋 GM Coach</div>
+      <div class="mode-btn" onclick="setMode(this,'rev')">📈 Revenue</div>
+      <div class="mode-btn" onclick="setMode(this,'draft')">✉ Drafting</div>
+    </div>
+    <div class="input-row">
+      <textarea class="ci" id="chat-in" placeholder="Ask about portfolio, GMs, performance, strategy…" rows="1" onkeydown="onKey(event)" oninput="autoH(this)"></textarea>
+      <button class="send" id="send-btn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="p-dashboard" class="panel">
+  <!-- Empty state — hidden once data exists -->
+  <div id="empty-state-banner" style="display:none;background:rgba(26,126,143,.08);border:1px solid rgba(26,126,143,.22);border-radius:9px;padding:16px 18px;margin-bottom:16px;gap:14px;align-items:flex-start">
+    <div style="font-size:22px;flex-shrink:0">👋</div>
+    <div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:4px">Welcome to the Superhost Executive Hub</div>
+      <div style="font-size:11.5px;color:var(--gray2);line-height:1.65;margin-bottom:10px">No live data yet. Start by entering KPIs for your active properties, then every panel — leaderboard, forecast, flow analysis, generate — populates automatically.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="navTo('data-entry')">✎ Go to Data Entry</button>
+        <button class="btn-secondary" onclick="navTo('admin')">⚙ Configure ProfitSword</button>
+        <button class="btn-secondary" onclick="document.getElementById('empty-state-banner').style.display='none'">Dismiss</button>
+      </div>
+    </div>
+  </div>
+  <div class="kpi-row" id="kpi-row"></div>
+  <div class="sec">RDO Snapshot</div>
+  <div class="rdo-grid" id="rdo-snap"></div>
+  <div class="sec">Active Alerts</div>
+  <div id="dash-alerts"></div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="p-leaderboard" class="panel">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:13px;flex-wrap:wrap">
+    <div class="sec" style="margin-bottom:0;flex:1;min-width:140px">Property Leaderboard</div>
+    <select class="period-sel" id="lb-filter" onchange="buildLeaderboard(this.value)">
+      <option value="all">All Properties</option>
+      <option value="Tim">Tim's Portfolio</option><option value="Jennifer">Jennifer's Portfolio</option><option value="Mark">Mark's Portfolio</option>
+      <option value="Lakhany Group">Lakhany Group</option><option value="Capitol One">Capitol One</option><option value="Gateway">Gateway</option>
+      <option value="Alpental Capital">Alpental Capital</option><option value="INDC">INDC</option><option value="Gulfstream">Gulfstream</option>
+      <option value="Hilton">Hilton</option><option value="Marriott">Marriott</option><option value="IHG">IHG</option><option value="Choice">Choice</option>
+    </select>
+    <select class="period-sel" id="lb-sort" onchange="buildLeaderboard()">
+      <option value="score">Score</option><option value="revpar">RevPAR</option><option value="gop">GOP%</option>
+      <option value="flow">Flow%</option><option value="occ">Occ%</option><option value="revparIdx">RevPAR Index</option>
+    </select>
+  </div>
+  <div style="overflow-x:auto">
+  <table class="pt" id="lb-table">
+    <thead><tr>
+      <th>#</th><th>Property</th><th>Owner</th><th>RDO</th><th>St</th>
+      <th class="r">Score</th><th class="r">RevPAR</th><th class="r">vs Bud</th>
+      <th class="r">Occ%</th><th class="r">ADR</th><th class="r">GOP%</th>
+      <th class="r">Flow%</th><th class="r">RevPAR Idx</th>
+      <th>Status</th><th>Pace</th><th>Updated</th>
+    </tr></thead>
+    <tbody id="lb-body"></tbody>
+  </table></div>
+</div>
+
+<!-- COMPARE -->
+<div id="p-compare" class="panel">
+  <div class="sec">Period-over-Period Comparison</div>
+  <div class="period-pick">
+    <div class="fg" style="margin-bottom:0;min-width:130px"><label>Period A</label>
+      <select class="period-sel" id="cmp-p1" style="width:100%">
+        <option value="2026-04">Apr 2026</option><option value="2026-03">Mar 2026</option>
+        <option value="2026-02">Feb 2026</option><option value="2026-01">Jan 2026</option>
+      </select>
+    </div>
+    <div style="color:var(--gray);font-size:16px;padding-top:18px">vs</div>
+    <div class="fg" style="margin-bottom:0;min-width:130px"><label>Period B</label>
+      <select class="period-sel" id="cmp-p2" style="width:100%">
+        <option value="2026-03">Mar 2026</option><option value="2026-04">Apr 2026</option>
+        <option value="2026-02">Feb 2026</option><option value="2026-01">Jan 2026</option>
+      </select>
+    </div>
+    <button class="btn-primary" style="margin-top:16px" onclick="runCompare()">Compare</button>
+  </div>
+  <div id="cmp-summary" class="kpi-row" style="margin-bottom:16px"></div>
+  <div style="overflow-x:auto"><table class="pt cmp-table" id="cmp-table"><thead><tr id="cmp-thead"></tr></thead><tbody id="cmp-body"></tbody></table></div>
+</div>
+
+<!-- RDO -->
+<div id="p-rdo" class="panel">
+  <div class="sec">Regional Directors of Operations</div>
+  <div class="rdo-grid" id="rdo-cards"></div>
+  <div class="sec">Action Items</div>
+  <div id="rdo-actions"></div>
+  <div class="sec" style="margin-top:16px">Property Assignment</div>
+  <div style="overflow-x:auto">
+  <table class="pt"><thead><tr><th>Property</th><th>Brand</th><th>St</th><th>Owner</th><th class="r">Score</th><th class="r">Flow%</th><th class="r">RevPAR Idx</th><th>Updated</th><th>RDO</th></tr></thead>
+  <tbody id="rdo-prop-body"></tbody></table></div>
+</div>
+
+<!-- OWNERSHIP -->
+<div id="p-ownership" class="panel">
+  <div class="sec">Ownership Groups</div>
+  <div class="owner-grid" id="owner-grid"></div>
+  <div class="sec">Portfolio by Ownership</div>
+  <div style="overflow-x:auto">
+  <table class="pt"><thead><tr><th>Property</th><th>Brand</th><th>St</th><th>RDO</th><th class="r">Score</th><th class="r">RevPAR</th><th class="r">vs Bud</th><th class="r">GOP%</th><th class="r">Flow%</th><th>Owner</th></tr></thead>
+  <tbody id="owner-prop-body"></tbody></table></div>
+</div>
+
+<!-- FORECAST -->
+<div id="p-forecast" class="panel">
+  <div class="banner">📈 Forecast pace calculated from entered data. Connect ProfitSword for live MTD actuals.</div>
+  <div class="kpi-row" id="fc-kpis"></div>
+  <div class="sec">30-Day Forward Outlook</div>
+  <div id="fc-weeks"></div>
+  <div class="sec" style="margin-top:16px">GM Forecast Credibility</div>
+  <div id="fc-cred"></div>
+  <div class="sec" style="margin-top:16px">Flow-Through Tracker</div>
+  <div id="fc-flow"></div>
+</div>
+
+<!-- BRAND QA / COMPLIANCE -->
+<div id="p-compliance" class="panel">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:13px;flex-wrap:wrap">
+    <div class="sec" style="margin-bottom:0;flex:1">Brand QA &amp; Compliance</div>
+    <select class="period-sel" id="comp-sort" onchange="buildComplianceList()">
+      <option value="name">Sort: Name</option>
+      <option value="score">Sort: QA Score</option>
+      <option value="next">Sort: Next Inspection</option>
+      <option value="pips">Sort: Open PIPs</option>
+      <option value="status">Sort: Status</option>
+    </select>
+    <select class="period-sel" id="comp-filter" onchange="buildComplianceList()">
+      <option value="all">All Statuses</option>
+      <option value="compliant">Compliant</option>
+      <option value="watch">Watch</option>
+      <option value="at-risk">At Risk</option>
+      <option value="in-pip">In PIP</option>
+    </select>
+    <button class="btn-primary" onclick="openComplianceModal()">+ Add / Update</button>
+  </div>
+  <div class="banner">✓ Track QA scores, last inspection dates, upcoming windows, and open PIPs across all brand families.</div>
+  <div id="compliance-list"></div>
+</div>
+
+<!-- PIPELINE -->
+<div id="p-pipeline" class="panel">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:13px;flex-wrap:wrap">
+    <div class="sec" style="margin-bottom:0;flex:1">Development Pipeline</div>
+    <select class="period-sel" id="pipe-sort" onchange="buildPipelineList()">
+      <option value="opening">Sort: Opening Date</option>
+      <option value="name">Sort: Name</option>
+      <option value="phase">Sort: Phase</option>
+      <option value="rdo">Sort: RDO</option>
+    </select>
+    <select class="period-sel" id="pipe-filter" onchange="buildPipelineList()">
+      <option value="all">All Phases</option>
+      <option value="planning">Planning</option>
+      <option value="construction">Construction</option>
+      <option value="pre-opening">Pre-Opening</option>
+      <option value="soft-open">Soft Open</option>
+    </select>
+    <button class="btn-primary" onclick="openPipelineModal()">+ Add Property</button>
+  </div>
+  <div class="banner">🏗 Track opening timelines, pre-opening milestones, and brand status for all development properties.</div>
+  <div id="pipeline-list"></div>
+</div>
+
+<!-- GENERATE -->
+<div id="p-generate" class="panel">
+  <div class="sec">Auto-Generate Documents</div>
+  <div class="banner">⚡ One-click generation using your live portfolio data. Output is ready to send or paste into your scorecard.</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px" id="gen-cards"></div>
+  <!-- GM Prep property selector (inline, no prompt()) -->
+  <div id="gm-prep-selector" style="display:none;background:rgba(26,126,143,.07);border:1px solid rgba(26,126,143,.2);border-radius:9px;padding:14px;margin-bottom:14px">
+    <div style="font-size:11.5px;font-weight:600;margin-bottom:9px;color:var(--teal2)">📋 Select Property for GM Prep</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="gm-prep-prop-sel" style="flex:1;min-width:200px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--white);font-family:inherit;font-size:12px;outline:none">
+        <option value="">— Select a property —</option>
+      </select>
+      <button class="btn-primary" onclick="confirmGMProp()">Generate</button>
+      <button class="btn-secondary" onclick="document.getElementById('gm-prep-selector').style.display='none'">Cancel</button>
+    </div>
+  </div>
+  <div id="gen-output-wrap" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="sec" style="margin-bottom:0;flex:1" id="gen-output-title">Output</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="copyGenOutput()">⎘ Copy</button>
+        <button class="btn" onclick="emailGenOutput()">✉ Email</button>
+        <button class="btn" onclick="printScorecard()" id="print-btn" style="display:none">🖨 Print PDF</button>
+        <button class="btn red" onclick="closeGenOutput()">✕</button>
+      </div>
+    </div>
+    <div class="gen-output" id="gen-output"></div>
+  </div>
+</div>
+
+<!-- ALERTS -->
+<div id="p-alerts" class="panel">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <div class="sec" style="margin-bottom:0;flex:1">Active Alerts</div>
+    <button class="btn" onclick="toggleAlertForm()">+ New Alert</button>
+  </div>
+  <div id="alert-form" style="display:none;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:13px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+      <div class="fg" style="margin-bottom:0"><label>Title</label><input type="text" id="af-title" placeholder="Alert description"></div>
+      <div class="fg" style="margin-bottom:0"><label>Priority</label><select id="af-level"><option value="red">🔴 Critical</option><option value="amber" selected>🟡 Watch</option><option value="green">🟢 Info</option></select></div>
+      <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Details</label><textarea id="af-body" placeholder="Context, action required…"></textarea></div>
+    </div>
+    <div style="display:flex;gap:7px"><button class="btn-primary" onclick="submitAlert()">Add</button><button class="btn-secondary" onclick="toggleAlertForm()">Cancel</button></div>
+  </div>
+  <div id="alerts-list"></div>
+</div>
+
+<!-- TOOLS -->
+<div id="p-tools" class="panel">
+  <div class="banner">✦ Each card launches a targeted AI conversation with your full portfolio context pre-loaded.</div>
+  <div class="tools-grid" id="tools-grid"></div>
+</div>
+
+<!-- DATA ENTRY -->
+<div id="p-data-entry" class="panel">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+    <div class="sec" style="margin-bottom:0;flex:1">Property Data Entry</div>
+    <button class="btn-primary" onclick="saveAll()">💾 Save All</button>
+  </div>
+  <div class="banner" style="margin-bottom:13px">Enter actual + budget KPIs. Include GOP$, Revenue, and their budget equivalents to calculate flow-through. <strong>Save All</strong> commits all at once.</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px" id="de-cards"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="p-admin" class="panel">
+  <div class="sec">System Administration</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="admin-card">
+      <h3>🔗 ProfitSword</h3>
+      <div class="fg"><label>Username</label><input type="text" id="ps-user" placeholder="API username"></div>
+      <div class="fg"><label>Password</label><input type="password" id="ps-pass" placeholder="API password"></div>
+      <div class="fg"><label>DataSet ID</label><input type="text" id="ps-dsid" placeholder="-3 for actuals"></div>
+      <div class="fg"><label>Base URL</label><input type="text" id="ps-url" placeholder="https://profitsage.net/api"></div>
+      <div style="display:flex;gap:7px;margin-top:8px"><button class="btn-primary" onclick="savePSConfig()">Save</button><button class="btn-secondary" onclick="testPS()">Test</button></div>
+      <div id="ps-status"></div>
+    </div>
+    <div class="admin-card">
+      <h3>✦ AI (Groq) + Security</h3>
+      <div class="fg">
+        <label>Groq API Key</label>
+        <input type="password" id="ai-key" placeholder="gsk_…">
+        <div style="font-size:9.5px;color:var(--gray);margin-top:4px">Free at <strong style="color:var(--teal2)">console.groq.com</strong> → API Keys. No credit card required.</div>
+      </div>
+      <div class="fg"><label>Active Period</label><select id="admin-period"></select></div>
+      <div class="fg"><label>Hub PIN (optional — set HUB_PIN in .env)</label><input type="text" id="hub-pin-display" disabled placeholder="Set via .env file"></div>
+      <button class="btn-primary" onclick="saveAIConfig()">Save</button>
+      <div id="ai-status"></div>
+    </div>
+  </div>
+  <div class="admin-card">
+    <h3>🏨 ProfitSword Site Tag Mapping</h3>
+    <p style="font-size:10.5px;color:var(--gray);margin-bottom:6px">Map each property to its PS site tag. "Fetch Sites" auto-matches by name. Red border = unmapped — ProfitSword refresh will skip these.</p>
+    <div id="tag-map-summary" style="font-size:10.5px;margin-bottom:10px"></div>
+    <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="btn-secondary" onclick="fetchSites()">Fetch Sites from PS</button>
+      <button class="btn-primary" onclick="saveTagMap()">Save Mapping</button>
+      <button class="btn-primary" style="background:var(--gold)" onclick="refreshAll()">⟳ Refresh All from PS</button>
+    </div>
+    <div id="tag-map-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:7px"></div>
+    <div id="ps-status2"></div>
+  </div>
+  <div class="admin-card">
+    <h3>⚙ Data Management</h3>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px">
+      <button class="btn-secondary" onclick="openExport()">↓ Export Snapshot</button>
+      <button class="btn-secondary" onclick="document.getElementById('restore-input').click()">↑ Restore from JSON</button>
+      <button class="btn-secondary" onclick="downloadBackup()">💾 Download Backup</button>
+      <button class="btn red" onclick="clearData()">Clear Period Data</button>
+    </div>
+    <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreFromJSON(this)">
+    <div style="font-size:10px;color:var(--gray);line-height:1.5">Auto-backup runs on every Save All. Restore from a previously exported JSON snapshot to recover data.</div>
+    <div id="backup-status" style="margin-top:7px"></div>
+    <div id="refresh-status" style="margin-top:4px"></div>
+  </div>
+</div>
+
+<!-- SCORECARD PRINT VIEW -->
+<div id="p-scorecard" class="panel" style="display:none">
+  <div class="no-print" style="margin-bottom:14px;display:flex;gap:8px;align-items:center">
+    <button class="btn-primary" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="btn-secondary" onclick="navTo('generate')">← Back</button>
+    <span style="font-size:11px;color:var(--gray)">Use browser Print → Save as PDF for best results</span>
+  </div>
+  <div id="scorecard-pages"></div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /body -->
+</div><!-- /app -->
+
+<!-- PROPERTY MODAL -->
+<div class="modal-ov" id="prop-modal">
+  <div class="modal">
+    <div class="m-hdr">
+      <div><div class="m-title" id="modal-title"></div><div class="m-sub" id="modal-sub"></div></div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchModalTab('kpis',this)">KPIs</div>
+      <div class="tab" onclick="switchModalTab('str',this)">STR / Comp Set</div>
+      <div class="tab" onclick="switchModalTab('notes',this)">Notes</div>
+    </div>
+    <div class="tab-panel active" id="mt-kpis">
+      <div class="detail-grid" id="modal-fields"></div>
+      <div id="modal-flow-display" style="font-size:11px;color:var(--gray);margin-bottom:8px"></div>
+    </div>
+    <div class="tab-panel" id="mt-str">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="dkpi"><label>Occ Index (MPI)</label><input type="number" step="0.1" id="mstr-occIdx" placeholder="100.0"><div class="unit">vs 100 = fair share</div></div>
+        <div class="dkpi"><label>ADR Index (ARI)</label><input type="number" step="0.1" id="mstr-adrIdx" placeholder="100.0"><div class="unit">vs 100 = fair share</div></div>
+        <div class="dkpi"><label>RevPAR Index (RGI)</label><input type="number" step="0.1" id="mstr-revparIdx" placeholder="100.0"><div class="unit">vs 100 = fair share</div></div>
+        <div class="dkpi"><label>Comp Set Occ%</label><input type="number" step="0.1" id="mstr-compOcc" placeholder="75.0"></div>
+        <div class="dkpi"><label>Comp Set ADR</label><input type="number" step="0.01" id="mstr-compAdr" placeholder="125.00"></div>
+        <div class="dkpi"><label>Comp Set RevPAR</label><input type="number" step="0.01" id="mstr-compRevpar" placeholder="95.00"></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="mt-notes">
+      <div class="fg"><label>Operational Notes (persists across periods)</label>
+        <textarea class="note-area" id="modal-note" placeholder="GM status, active issues, context, open items…"></textarea>
+      </div>
+      <div class="note-history" id="modal-note-history"></div>
+    </div>
+    <div class="save-row">
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="genGMPrep()">⚡ GM Prep</button>
+        <button class="btn gold" onclick="emailPropSummary()">✉ Email Summary</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveModal()">💾 Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIPELINE MODAL -->
+<div class="modal-ov" id="pipeline-modal">
+  <div class="modal" style="max-width:560px">
+    <div class="m-hdr"><div class="m-title" id="pipe-modal-title">Add Development Property</div><button class="close-btn" onclick="closePipelineModal()">✕</button></div>
+    <div class="fg"><label>Property Name</label><input type="text" id="pm-name" placeholder="e.g. Home2 Suites Fort Wayne"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fg"><label>Brand</label><input type="text" id="pm-brand" placeholder="Hampton Inn"></div>
+      <div class="fg"><label>State</label><input type="text" id="pm-state" placeholder="IN"></div>
+      <div class="fg"><label>Owner</label><input type="text" id="pm-owner" placeholder="Ownership group"></div>
+      <div class="fg"><label>RDO</label><select id="pm-rdo"><option>Jennifer</option><option>Mark</option><option>Tim</option></select></div>
+      <div class="fg"><label>Expected Opening</label><input type="date" id="pm-opening"></div>
+      <div class="fg"><label>Phase</label><select id="pm-phase"><option value="planning">Planning</option><option value="construction">Construction</option><option value="pre-opening">Pre-Opening</option><option value="soft-open">Soft Open</option></select></div>
+      <div class="fg"><label>Brand Status</label><select id="pm-brand-status"><option value="pending">Pending Approval</option><option value="approved">Approved</option><option value="licensed">Licensed</option><option value="pre-opening">Pre-Opening Review</option></select></div>
+      <div class="fg"><label>Rooms</label><input type="number" id="pm-rooms" placeholder="120"></div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="pm-notes" placeholder="Key issues, milestones, contacts…"></textarea></div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:6px">
+      <button class="btn-secondary" onclick="closePipelineModal()">Cancel</button>
+      <button class="btn-primary" onclick="savePipelineItem()">Save Property</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLIANCE MODAL -->
+<div class="modal-ov" id="compliance-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="m-hdr"><div class="m-title">Brand QA / Compliance</div><button class="close-btn" onclick="closeComplianceModal()">✕</button></div>
+    <div class="fg"><label>Property</label><select id="cm-prop" style="width:100%"></select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fg"><label>QA Score (0–100)</label><input type="number" id="cm-score" placeholder="87" min="0" max="100"></div>
+      <div class="fg"><label>Brand Family</label><select id="cm-brand"><option>Hilton</option><option>Marriott</option><option>IHG</option><option>Choice</option></select></div>
+      <div class="fg"><label>Last Inspection Date</label><input type="date" id="cm-last"></div>
+      <div class="fg"><label>Next Window</label><input type="date" id="cm-next"></div>
+      <div class="fg"><label>Open PIPs</label><input type="number" id="cm-pips" placeholder="0" min="0"></div>
+      <div class="fg"><label>Status</label><select id="cm-status"><option value="compliant">Compliant</option><option value="watch">Watch</option><option value="at-risk">At Risk</option><option value="in-pip">In PIP</option></select></div>
+    </div>
+    <div class="fg"><label>Notes / Open Items</label><textarea id="cm-notes" placeholder="Outstanding action items, brand contacts, escalations…"></textarea></div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:6px">
+      <button class="btn-secondary" onclick="closeComplianceModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCompliance()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-ov" id="export-modal">
+  <div class="modal" style="max-width:660px">
+    <div class="m-hdr">
+      <div><div class="m-title">Export Portfolio Snapshot</div><div class="m-sub" id="export-sub"></div></div>
+      <button class="close-btn" onclick="closeExport()">✕</button>
+    </div>
+    <div style="display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="exportJSON()">↓ JSON</button>
+      <button class="btn-secondary" onclick="exportCSV()">↓ CSV</button>
+      <button class="btn-secondary" onclick="copyText()">⎘ Copy</button>
+      <button class="btn-secondary" onclick="navTo('p-scorecard');closeExport();buildScorecardPages()">🖨 Scorecard PDF</button>
+    </div>
+    <div class="export-area" id="export-area"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ CONFIG ═══════════════════════════════════════════════════════
+const API = (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? '' : 'http://localhost:3000';
+let HUB_TOKEN = sessionStorage.getItem('hub_token') || '';
+
+function apiFetch(url, opts={}) {
+  opts.headers = { ...(opts.headers||{}), 'x-hub-token': HUB_TOKEN };
+  return fetch(API+url, opts);
+}
+
+const OWNERS = {
+  'Lakhany Group':    {contact:'Samir Lakhany',   propIds:[1,6,17,7]},
+  'Capitol One':      {contact:'Sam Patel',        propIds:[2]},
+  'Gateway':          {contact:'Rich / Steve / Bob',propIds:[8,9,19]},
+  'Alpental Capital': {contact:'Greg Wilson',      propIds:[15,5]},
+  'INDC':             {contact:'Alex Hlav',        propIds:[3,4]},
+  'Gulfstream':       {contact:'Fahr Juneja',      propIds:[10,11,12,13,14,16,18]}
+};
+
+const MODES = {
+  exec:  {label:'⚙ Executive',  system:`You are the strategic AI advisor for Chris, above-property executive at Superhost Hospitality (Naperville IL), 24 years experience. 17 active properties: Embassy Suites, Hampton Inn, DoubleTree, Tru, TownePlace Suites, Home2 Suites, Hilton Garden Inn, Mainstay Suites, Quality Inn, Holiday Inn. States: IL MI NC TX KY IN GA. COO: Tim Foley. RDOs: Jennifer Kruk, Mark Gammill. RSMs: Teresa Bitner, Nate Taylor. Owners: Lakhany Group (Samir), Capitol One (Sam Patel), Gateway (Rich/Steve/Bob), Alpental Capital (Greg Wilson), INDC (Alex Hlav), Gulfstream (Fahr Juneja). NOI-first. Surfaces bad news directly. Variances >5% require explanation. GM forecasts assessed against MTD actuals. Flow%=(Actual GOP$−Budget GOP$)÷(Budget Rev−Actual Rev). Score 0-200. Be direct, quantify in dollars, use hotel industry terminology.`},
+  owner: {label:'🏦 Owner Lens', system:`You advise Chris at Superhost on ownership communication. Translate operations into capital language. NOI, asset protection, ROI. Six ownership groups: Lakhany Group (Samir Lakhany), Capitol One (Sam Patel), Gateway (Rich/Steve/Bob), Alpental Capital (Greg Wilson), INDC (Alex Hlav), Gulfstream (Fahr Juneja). Write as a steward of their capital. Quantify in dollars. Bad news first.`},
+  gm:    {label:'📋 GM Coach',   system:`You help Chris coach and hold accountable GMs across 17 properties. COO: Tim Foley. RDOs: Jennifer Kruk, Mark Gammill. Direct and constructive. Focus on accountability, operational execution, skill development. Design frameworks that separate performance from intention.`},
+  rev:   {label:'📈 Revenue',    system:`Revenue management advisor for Chris at Superhost. Focus on RevPAR drivers, pace, channel mix, rate strategy, STR index positioning. Tactical and forward-looking. Challenge sandbagging. Quantify revenue impact in dollars.`},
+  draft: {label:'✉ Drafting',    system:`Help Chris draft executive communications: GM accountability emails, ownership reports, brand correspondence, internal memos. Write in his voice: direct, professional, no filler. Firm with GMs, strategic with ownership, collaborative with brands.`}
+};
+
+const PROP_LIST = [
+  {id:1, name:'Embassy Suites Chicago Naperville',       brand:'Embassy Suites',   brandFamily:'Hilton',  state:'IL',rdo:'Tim',     rsm:'Teresa Bitner',owner:'Lakhany Group',   active:true},
+  {id:2, name:'Hampton Inn Suites Chicago Schaumburg',   brand:'Hampton Inn',       brandFamily:'Hilton',  state:'IL',rdo:'Jennifer',rsm:'Teresa Bitner',owner:'Capitol One',     active:true},
+  {id:3, name:'Tru by Hilton Holland',                   brand:'Tru',               brandFamily:'Hilton',  state:'MI',rdo:'Jennifer',rsm:'Nate Taylor',  owner:'INDC',            active:true},
+  {id:4, name:'Home2 Suites Holland',                    brand:'Home2 Suites',      brandFamily:'Hilton',  state:'MI',rdo:'Jennifer',rsm:'Teresa Bitner',owner:'INDC',            active:true},
+  {id:5, name:'DoubleTree Winston Salem',                brand:'DoubleTree',        brandFamily:'Hilton',  state:'NC',rdo:'Jennifer',rsm:'Teresa Bitner',owner:'Alpental Capital',active:true},
+  {id:6, name:'Home2 Suites Normal',                     brand:'Home2 Suites',      brandFamily:'Hilton',  state:'IL',rdo:'Jennifer',rsm:'Teresa Bitner',owner:'Lakhany Group',   active:true},
+  {id:7, name:'Home2 Suites Fort Wayne',                 brand:'Home2 Suites',      brandFamily:'Hilton',  state:'IN',rdo:'Jennifer',rsm:'Nate Taylor',  owner:'Lakhany Group',   active:false,comingSoon:true},
+  {id:8, name:'Home2 Suites Plano',                      brand:'Home2 Suites',      brandFamily:'Hilton',  state:'TX',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Gateway',         active:true},
+  {id:9, name:'TownePlace Suites Mesquite',              brand:'TownePlace Suites', brandFamily:'Marriott',state:'TX',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Gateway',         active:true},
+  {id:10,name:'Mainstay Suites Lexington',               brand:'Mainstay Suites',   brandFamily:'Choice',  state:'KY',rdo:'Mark',    rsm:'Teresa Bitner',owner:'Gulfstream',      active:true},
+  {id:11,name:'Quality Inn Lexington',                   brand:'Quality Inn',       brandFamily:'Choice',  state:'KY',rdo:'Mark',    rsm:'Teresa Bitner',owner:'Gulfstream',      active:true},
+  {id:12,name:'Home2 Suites Lexington Hamburg',          brand:'Home2 Suites',      brandFamily:'Hilton',  state:'KY',rdo:'Mark',    rsm:'Teresa Bitner',owner:'Gulfstream',      active:true},
+  {id:13,name:'Home2 Suites Owensboro',                  brand:'Home2 Suites',      brandFamily:'Hilton',  state:'KY',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Gulfstream',      active:true},
+  {id:14,name:'TownePlace Suites Owensboro',             brand:'TownePlace Suites', brandFamily:'Marriott',state:'KY',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Gulfstream',      active:true},
+  {id:15,name:'Hilton Garden Inn Atlanta Airport North', brand:'Hilton Garden Inn', brandFamily:'Hilton',  state:'GA',rdo:'Mark',    rsm:'Teresa Bitner',owner:'Alpental Capital',active:true},
+  {id:16,name:'Home2 Suites Evansville',                 brand:'Home2 Suites',      brandFamily:'Hilton',  state:'IN',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Gulfstream',      active:true},
+  {id:17,name:'Tru by Hilton Northlake',                 brand:'Tru',               brandFamily:'Hilton',  state:'TX',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Lakhany Group',   active:true},
+  {id:18,name:'Holiday Inn Lexington',                   brand:'Holiday Inn',       brandFamily:'IHG',     state:'KY',rdo:'Mark',    rsm:'Teresa Bitner',owner:'Gulfstream',      active:true},
+  {id:19,name:'Home2 Suites Prosper',                    brand:'Home2 Suites',      brandFamily:'Hilton',  state:'TX',rdo:'Mark',    rsm:'Nate Taylor',  owner:'Gateway',         active:false,comingSoon:true}
+];
+
+const DEMO_KPI = [
+  {id:1,revpar:112.4,revparBud:108.0,occ:82,adr:137.1,gop:40.2,gopAmt:1480000,gopBudAmt:1400000,revenue:3680000,revBud:3500000,labor:28.5,laborBud:29.5,guestScore:88},
+  {id:2,revpar:91.2,revparBud:89.0,occ:78,adr:116.9,gop:36.4,gopAmt:920000,gopBudAmt:880000,revenue:2530000,revBud:2420000,labor:29.1,laborBud:30.0,guestScore:85},
+  {id:3,revpar:68.4,revparBud:67.0,occ:76,adr:90.0,gop:34.2,gopAmt:310000,gopBudAmt:295000,revenue:906000,revBud:887000,labor:28.8,laborBud:29.5,guestScore:87},
+  {id:4,revpar:88.7,revparBud:87.0,occ:80,adr:110.9,gop:38.1,gopAmt:720000,gopBudAmt:695000,revenue:1890000,revBud:1824000,labor:27.4,laborBud:28.5,guestScore:89},
+  {id:5,revpar:98.3,revparBud:100.0,occ:72,adr:136.5,gop:33.8,gopAmt:1240000,gopBudAmt:1310000,revenue:3670000,revBud:3840000,labor:30.4,laborBud:29.5,guestScore:83},
+  {id:6,revpar:82.1,revparBud:80.0,occ:77,adr:106.6,gop:36.7,gopAmt:640000,gopBudAmt:605000,revenue:1744000,revBud:1650000,labor:28.2,laborBud:29.0,guestScore:86},
+  {id:8,revpar:71.2,revparBud:78.0,occ:68,adr:104.7,gop:28.4,gopAmt:510000,gopBudAmt:620000,revenue:1796000,revBud:2020000,labor:33.1,laborBud:30.0,guestScore:79},
+  {id:9,revpar:79.8,revparBud:81.0,occ:75,adr:106.4,gop:32.1,gopAmt:580000,gopBudAmt:605000,revenue:1807000,revBud:1887000,labor:30.8,laborBud:30.0,guestScore:82},
+  {id:10,revpar:61.4,revparBud:63.0,occ:70,adr:87.7,gop:29.8,gopAmt:310000,gopBudAmt:335000,revenue:1040000,revBud:1102000,labor:31.2,laborBud:30.5,guestScore:78},
+  {id:11,revpar:55.2,revparBud:58.0,occ:66,adr:83.6,gop:26.4,gopAmt:220000,gopBudAmt:255000,revenue:833000,revBud:897000,labor:32.5,laborBud:31.0,guestScore:75},
+  {id:12,revpar:86.9,revparBud:85.0,occ:79,adr:110.0,gop:37.2,gopAmt:680000,gopBudAmt:650000,revenue:1827000,revBud:1743000,labor:27.9,laborBud:29.0,guestScore:87},
+  {id:13,revpar:84.1,revparBud:82.0,occ:78,adr:107.8,gop:36.8,gopAmt:650000,gopBudAmt:618000,revenue:1767000,revBud:1681000,labor:28.3,laborBud:29.0,guestScore:88},
+  {id:14,revpar:80.2,revparBud:80.0,occ:76,adr:105.5,gop:35.1,gopAmt:580000,gopBudAmt:577000,revenue:1652000,revBud:1645000,labor:29.0,laborBud:29.5,guestScore:85},
+  {id:15,revpar:104.8,revparBud:102.0,occ:74,adr:141.6,gop:38.9,gopAmt:1380000,gopBudAmt:1315000,revenue:3548000,revBud:3381000,labor:29.7,laborBud:30.0,guestScore:84},
+  {id:16,revpar:92.1,revparBud:90.0,occ:81,adr:113.7,gop:37.4,gopAmt:730000,gopBudAmt:697000,revenue:1952000,revBud:1862000,labor:27.8,laborBud:28.5,guestScore:88},
+  {id:17,revpar:66.8,revparBud:69.0,occ:72,adr:92.8,gop:31.2,gopAmt:390000,gopBudAmt:430000,revenue:1250000,revBud:1380000,labor:30.9,laborBud:30.0,guestScore:82},
+  {id:18,revpar:78.4,revparBud:80.0,occ:73,adr:107.4,gop:31.8,gopAmt:520000,gopBudAmt:560000,revenue:1635000,revBud:1760000,labor:31.5,laborBud:30.5,guestScore:80}
+];
+
+const DEMO_STR = {
+  1:{occIdx:108,adrIdx:112,revparIdx:115,compOcc:76,compAdr:122,compRevpar:93},
+  2:{occIdx:98,adrIdx:102,revparIdx:100,compOcc:80,compAdr:115,compRevpar:92},
+  5:{occIdx:88,adrIdx:96,revparIdx:86,compOcc:82,compAdr:142,compRevpar:114},
+  8:{occIdx:82,adrIdx:88,revparIdx:80,compOcc:83,compAdr:119,compRevpar:89},
+  11:{occIdx:78,adrIdx:85,revparIdx:76,compOcc:85,compAdr:98,compRevpar:73},
+  15:{occIdx:105,adrIdx:108,revparIdx:110,compOcc:70,compAdr:131,compRevpar:95}
+};
+
+// ═══ STATE ════════════════════════════════════════════════════════
+let S = {
+  mode:'exec',messages:[],thinking:false,
+  properties:[],alerts:[],pipeline:[],compliance:{},
+  period:'2026-04',psConnected:false,tagMap:{},openModalId:null,
+  sortLB:'score',filterLB:'all',modalTab:'kpis',
+  genHistory:[]
+};
+
+// ═══ INIT ═════════════════════════════════════════════════════════
+async function init() {
+  // Check auth
+  try {
+    const r = await fetch(API+'/api/auth');
+    const d = await r.json();
+    if (d.required && !HUB_TOKEN) { showPinScreen(); return; }
+  } catch {}
+  launchApp();
+}
+
+function showPinScreen() {
+  document.getElementById('pin-screen').style.display='flex';
+  setTimeout(()=>document.getElementById('pin-input').focus(),100);
+}
+async function submitPin() {
+  const pin = document.getElementById('pin-input').value;
+  try {
+    const r = await fetch(API+'/api/auth',{headers:{'x-hub-pin':pin}});
+    const d = await r.json();
+    if (d.token) { HUB_TOKEN=d.token; sessionStorage.setItem('hub_token',d.token); document.getElementById('pin-screen').style.display='none'; launchApp(); }
+    else { document.getElementById('pin-err').textContent='Invalid PIN'; setTimeout(()=>document.getElementById('pin-err').textContent='',2000); }
+  } catch { document.getElementById('pin-err').textContent='Server not reachable'; }
+}
+
+async function launchApp() {
+  document.getElementById('app').style.display='flex';
+  updateClock(); setInterval(updateClock,60000);
+  document.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();navTo('ai');setTimeout(()=>document.getElementById('chat-in').focus(),50);} });
+  await loadActivePeriod();       // Phase 1 Fix #2: load persisted period first
+  await buildPeriodSelectors();   // Phase 1 Fix #2: dynamic dropdowns
+  await loadProperties(); await loadAlerts();
+  await loadPipeline(); await loadCompliance();
+  buildAll(); loadAdminConfig();
+  buildGenCards();
+  showEmptyStateIfNeeded();       // Phase 1 Fix #4: first-launch guidance
+}
+
+// Phase 1 Fix #2 — load active period from server config before rendering
+async function loadActivePeriod(){
+  try{
+    const r=await apiFetch('/api/config');
+    const d=await r.json();
+    if(d.activePeriod) S.period=d.activePeriod;
+  } catch {}
+  // Fallback: localStorage
+  const lp=localStorage.getItem('sh_period');
+  if(lp&&!S.period) S.period=lp;
+}
+
+// Phase 1 Fix #2 — build rolling 12-month period options + any server-stored periods
+async function buildPeriodSelectors(){
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Generate rolling 12 months back from now
+  const now=new Date();
+  const periods=[];
+  for(let i=0;i<12;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label=`${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+    periods.push({val,label});
+  }
+  // Also pull any stored periods from server and merge
+  try{
+    const r=await apiFetch('/api/periods');
+    const d=await r.json();
+    (d.periods||[]).forEach(p=>{
+      if(!periods.find(x=>x.val===p)){
+        const[y,m]=p.split('-');
+        periods.push({val:p,label:`${monthNames[parseInt(m)-1]} ${y}`});
+      }
+    });
+    periods.sort((a,b)=>b.val.localeCompare(a.val));
+  } catch {}
+
+  const opts=periods.map(p=>`<option value="${p.val}"${p.val===S.period?' selected':''}>${p.label}</option>`).join('');
+  ['period-sel','cmp-p1','cmp-p2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=opts;
+  });
+  // Also update admin period select
+  const adminSel=document.getElementById('admin-period');
+  if(adminSel) adminSel.innerHTML=opts;
+  // Re-select current
+  const ps=document.getElementById('period-sel');
+  if(ps) ps.value=S.period;
+  // Set compare defaults: p1=current, p2=one month prior
+  const p1sel=document.getElementById('cmp-p1');
+  const p2sel=document.getElementById('cmp-p2');
+  if(p1sel) p1sel.value=S.period;
+  if(p2sel&&periods.length>1) p2sel.value=periods[1].val;
+}
+
+// Phase 1 Fix #4 — first-launch empty state guidance
+function showEmptyStateIfNeeded(){
+  const hasData=S.properties.some(p=>p.active&&p.manual&&p.source!=='demo'&&p.manual.revpar);
+  const banner=document.getElementById('empty-state-banner');
+  if(banner) banner.style.display=hasData?'none':'flex';
+}
+function updateClock(){
+  const d=new Date();
+  document.getElementById('live-time').textContent=
+    d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+
+    d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sb-overlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
+
+// ═══ DATA ═════════════════════════════════════════════════════════
+async function loadProperties() {
+  S.loading=true; // Fix #9
+  try {
+    const r = await apiFetch(`/api/properties?period=${S.period}`);
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    S.properties = d.properties;
+    updatePSBadge('live');
+  } catch {
+    S.properties = PROP_LIST.map(p=>{
+      const k=DEMO_KPI.find(k=>k.id===p.id)||{};
+      const str=DEMO_STR[p.id]||null;
+      return{...p,manual:k,str,lastUpdated:new Date(Date.now()-Math.random()*7*864e5).toISOString(),source:'demo',score:calcScore(k),flow:calcFlow(k),note:''};
+    });
+    updatePSBadge('demo');
+  } finally {
+    S.loading=false; // Fix #9
+  }
+}
+async function loadAlerts(){
+  try{const r=await apiFetch('/api/alerts');if(!r.ok)throw new Error();S.alerts=(await r.json()).alerts;}
+  catch{S.alerts=[
+    {id:1,level:'red',  title:'Home2 Suites Plano — NOI Miss (-9% vs. Budget)',        body:'GOP shortfall MTD. RevPAR $6.80 below budget. GM forecast at budget — not credible vs. MTD pace. Intervention needed.',  created:new Date().toISOString()},
+    {id:2,level:'amber',title:"Mark's Territory — 3 Properties Below RevPAR Budget",   body:'Quality Inn, Mainstay Lexington, Tru Northlake below budget three consecutive periods. Rate strategy review needed.',       created:new Date().toISOString()},
+    {id:3,level:'amber',title:'IHG QA — Holiday Inn Lexington Due in 45 Days',         body:'Self-audit overdue. Teresa Bitner to complete pre-audit checklist before QA window.',                                        created:new Date().toISOString()}
+  ];}
+  document.getElementById('alert-badge').textContent=S.alerts.filter(a=>a.level!=='green').length;
+}
+async function loadPipeline(){
+  try{const r=await apiFetch('/api/pipeline');if(!r.ok)throw new Error();S.pipeline=(await r.json()).pipeline;}
+  catch{S.pipeline=[
+    {id:1,name:'Home2 Suites Fort Wayne',brand:'Home2 Suites',state:'IN',owner:'Lakhany Group',rdo:'Jennifer',phase:'pre-opening',brandStatus:'licensed',opening:'2026-09-15',rooms:120,notes:'On track. Pre-opening GM hired. Revenue management setup pending.',createdAt:new Date().toISOString()},
+    {id:2,name:'Home2 Suites Prosper',brand:'Home2 Suites',state:'TX',owner:'Gateway',rdo:'Mark',phase:'construction',brandStatus:'approved',opening:'2027-03-01',rooms:108,notes:'Construction 60% complete. Brand inspection scheduled Q4.',createdAt:new Date().toISOString()}
+  ];}
+  const count=S.pipeline.length;
+  document.getElementById('pipe-badge').textContent=count;
+  document.getElementById('sb-pipeline').textContent=count;
+}
+async function loadCompliance(){
+  try{const r=await apiFetch('/api/compliance');if(!r.ok)throw new Error();S.compliance=(await r.json()).compliance;}
+  catch{S.compliance={
+    1:{score:91,brand:'Hilton',lastInspection:'2025-11-12',nextWindow:'2026-11-01',openPIPs:0,status:'compliant',notes:''},
+    8:{score:76,brand:'Hilton',lastInspection:'2025-09-05',nextWindow:'2026-09-01',openPIPs:2,status:'watch',notes:'Two open PIPs: pool furniture replacement, lobby refresh. Due Q3.'},
+    11:{score:68,brand:'Choice',lastInspection:'2025-10-20',nextWindow:'2026-10-01',openPIPs:3,status:'at-risk',notes:'Three open PIPs. Brand letter received. Mark escalating with GM.'},
+    18:{score:82,brand:'IHG',lastInspection:'2025-12-01',nextWindow:'2026-10-15',openPIPs:1,status:'watch',notes:'Self-audit overdue. QA window in 45 days.'}
+  };}
+}
+
+function calcScore(m){
+  if(!m||!m.revpar)return null;
+  let s=0;
+  if(m.revpar&&m.revparBud){const p=(m.revpar/m.revparBud)*100;s+=p>=105?60:p>=100?50:p>=95?35:p>=90?20:5;}
+  if(m.gop)s+=m.gop>=45?50:m.gop>=38?42:m.gop>=32?32:m.gop>=25?18:5;
+  if(m.occ)s+=m.occ>=82?40:m.occ>=75?32:m.occ>=68?22:m.occ>=60?12:3;
+  if(m.guestScore)s+=m.guestScore>=90?30:m.guestScore>=82?22:m.guestScore>=75?14:5;
+  if(m.labor&&m.laborBud)s+=m.labor<=m.laborBud?20:m.labor<=m.laborBud*1.03?14:m.labor<=m.laborBud*1.07?8:2;
+  return Math.min(200,s);
+}
+function calcFlow(m){
+  if(!m||m.gopAmt==null||m.gopBudAmt==null||m.revenue==null||m.revBud==null)return null;
+  const d=m.revBud-m.revenue;return Math.abs(d)<1?null:((m.gopAmt-m.gopBudAmt)/d)*100;
+}
+
+// ═══ RENDER HELPERS ═══════════════════════════════════════════════
+function sBadge(s){
+  if(s==null)return'<span class="sb wa">N/A</span>';
+  if(s>=150)return`<span class="sb exc">${s}</span>`;if(s>=120)return`<span class="sb on">${s}</span>`;
+  if(s>=90)return`<span class="sb wa">${s}</span>`;if(s>=60)return`<span class="sb at">${s}</span>`;
+  return`<span class="sb ne">${s}</span>`;
+}
+function fBadge(f){
+  if(f==null)return'<span class="flow-badge neutral">—</span>';
+  const cls=f>50?'pos':f<0?'neg':'neutral';
+  return`<span class="flow-badge ${cls}" title="Flow-through">${f>=0?'+':''}${f.toFixed(0)}%</span>`;
+}
+function idxBadge(v,label=''){
+  if(v==null)return'—';
+  const cls=v>=105?'hi':v>=95?'mid':'lo';
+  return`<span class="idx-badge ${cls}">${v.toFixed(0)}${label}</span>`;
+}
+function tl(p){const m=p.manual||{};const pct=m.revpar&&m.revparBud?(m.revpar/m.revparBud)*100:null;return`<span class="tl ${!pct?'a':pct>=100?'g':pct>=95?'a':'r'}"></span>`;}
+function bar(pct,clr){return`<div class="bar-wrap"><div class="bar" style="width:${Math.min(100,Math.max(0,pct))}%;background:${clr}"></div></div>`;}
+function dH(a,b){if(a==null||b==null)return'<span class="flat">—</span>';const p=((a-b)/b)*100;return`<span class="${p>=0?'up':'dn'}">${p>=0?'+':''}${p.toFixed(1)}%</span>`;}
+function staleTag(ts){if(!ts)return'<span class="stale">no data</span>';const d=(Date.now()-new Date(ts))/864e5;if(d<=1)return'<span class="fresh">today</span>';if(d<=3)return`<span class="fresh">${Math.floor(d)}d</span>`;if(d<=7)return`<span class="stale">${Math.floor(d)}d</span>`;return`<span class="stale" style="color:var(--red)">${Math.floor(d)}d</span>`;}
+function spark(vals){if(!vals||!vals.length)return'';const max=Math.max(...vals,1);return`<span class="spark">${vals.map(v=>`<span class="spark-bar" style="height:${Math.round((v/max)*16)}px"></span>`).join('')}</span>`;}
+function fmtM(v){return v!=null?'$'+(v/1e6).toFixed(2)+'M':'—';}
+function fmtK(v){return v!=null?'$'+(v>=1000?Math.round(v/1000)+'K':v):'—';}
+
+// ═══ BUILD ALL ════════════════════════════════════════════════════
+function buildAll(){
+  buildDashboard();buildLeaderboard();buildRDO();buildOwnership();
+  buildForecast();buildAlertsList();buildTools();buildDataEntry();
+  buildTagMap();buildComplianceList();buildPipelineList();
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────
+function buildDashboard(){
+  const active=S.properties.filter(p=>p.active&&p.manual);
+  const avg=fn=>active.length?active.reduce((a,b)=>a+fn(b),0)/active.length:null;
+  const sum=fn=>active.reduce((a,b)=>a+fn(b),0);
+  const avgRP=avg(p=>p.manual.revpar||0),avgRB=avg(p=>p.manual.revparBud||0);
+  const avgOcc=avg(p=>p.manual.occ||0),avgGOP=avg(p=>p.manual.gop||0);
+  const tGOP=sum(p=>p.manual.gopAmt||0),tGOPB=sum(p=>p.manual.gopBudAmt||0);
+  const atRisk=S.properties.filter(p=>p.active&&p.score!==null&&p.score<90).length;
+  const avgSc=active.filter(p=>p.score).length?active.filter(p=>p.score).reduce((a,b)=>a+(b.score||0),0)/active.filter(p=>p.score).length:null;
+  const gopVar=tGOPB?((tGOP-tGOPB)/tGOPB)*100:null;
+  document.getElementById('kpi-row').innerHTML=[
+    {label:'Avg RevPAR',val:avgRP?`$${avgRP.toFixed(0)}`:'—',sub:dH(avgRP,avgRB)+' <span class="vs">vs budget</span>'},
+    {label:'Avg Occupancy',val:avgOcc?`${avgOcc.toFixed(1)}%`:'—',sub:'<span class="vs">Portfolio MTD</span>'},
+    {label:'Avg GOP%',val:avgGOP?`${avgGOP.toFixed(1)}%`:'—',sub:'<span class="vs">Margin</span>'},
+    {label:'Portfolio NOI',val:tGOP?fmtM(tGOP):'—',sub:gopVar!=null?dH(tGOP,tGOPB)+' <span class="vs">vs budget</span>':'<span class="vs">Enter data</span>'},
+    {label:'Avg Score',val:avgSc?avgSc.toFixed(0):'—',sub:'<span class="vs">0–200 scale</span>'},
+    {label:'At-Risk Props',val:atRisk,sub:`<span class="${atRisk>0?'dn':'up'}">${atRisk>0?'Score <90':'All clear'}</span>`}
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-val">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+  document.getElementById('rdo-snap').innerHTML=['Tim','Jennifer','Mark'].map(rdo=>{
+    const props=S.properties.filter(p=>p.rdo===rdo&&p.active&&p.manual);
+    const a=fn=>props.length?props.reduce((x,b)=>x+fn(b),0)/props.length:null;
+    const risk=props.filter(p=>p.score!==null&&p.score<90).length;
+    const tGOP=props.reduce((x,p)=>x+(p.manual.gopAmt||0),0);
+    return`<div class="card3" onclick="navTo('rdo')">
+      <div class="card3-name">${rdo}</div><div class="card3-sub">Regional Director of Operations</div>
+      <div class="cstat"><span>Active Properties</span><span>${S.properties.filter(p=>p.rdo===rdo&&p.active).length}</span></div>
+      <div class="cstat"><span>Avg RevPAR</span><span>${a(p=>p.manual.revpar||0)?'$'+a(p=>p.manual.revpar||0).toFixed(0):'—'}</span></div>
+      <div class="cstat"><span>Territory NOI</span><span>${tGOP?fmtM(tGOP):'—'}</span></div>
+      <div class="cstat"><span>At-Risk</span><span style="color:${risk>0?'var(--amber)':'var(--green)'}">${risk}</span></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('dash-alerts').innerHTML=S.alerts.slice(0,3).map(a=>alertHTML(a)).join('')||'<div style="color:var(--gray);font-size:11.5px">No active alerts.</div>';
+}
+
+// ─── LEADERBOARD ─────────────────────────────────────────────────
+function buildLeaderboard(fv,sv){
+  if(fv!==undefined)S.filterLB=fv;if(sv!==undefined)S.sortLB=sv;
+  const fEl=document.getElementById('lb-filter');if(fEl)fEl.value=S.filterLB;
+  const sEl=document.getElementById('lb-sort');if(sEl)sEl.value=S.sortLB;
+  let props=S.properties.filter(p=>p.active);
+  const f=S.filterLB;
+  if(f!=='all'){
+    if(['Tim','Jennifer','Mark'].includes(f))props=props.filter(p=>p.rdo===f);
+    else if(['Hilton','Marriott','IHG','Choice'].includes(f))props=props.filter(p=>p.brandFamily===f);
+    else props=props.filter(p=>p.owner===f);
+  }
+  props.sort((a,b)=>{
+    const g=p=>{const m=p.manual||{},st=p.str||{};
+      if(S.sortLB==='score')return p.score||0;if(S.sortLB==='revpar')return m.revpar||0;
+      if(S.sortLB==='gop')return m.gop||0;if(S.sortLB==='occ')return m.occ||0;
+      if(S.sortLB==='flow')return p.flow??-999;if(S.sortLB==='revparIdx')return st.revparIdx||0;
+      return p.score||0;};return g(b)-g(a);
+  });
+  document.getElementById('lb-body').innerHTML=props.map((p,i)=>{
+    const m=p.manual||{},st=p.str||{};
+    const bd=m.revpar&&m.revparBud?((m.revpar/m.revparBud)*100-100):null;
+    const pw=m.revpar&&m.revparBud?Math.min(100,(m.revpar/m.revparBud)*100):50;
+    const bc=!bd?'#8899aa':bd>=0?'#16a34a':bd>=-5?'#d97706':'#dc3545';
+    return`<tr>
+      <td style="color:var(--gray);font-size:9.5px">${i+1}</td>
+      <td class="name" onclick="openModal(${p.id})">${p.name}</td>
+      <td style="font-size:9.5px;color:var(--gray)">${p.owner}</td>
+      <td>${p.rdo}</td><td>${p.state}</td>
+      <td class="r">${sBadge(p.score)}</td>
+      <td class="r">${m.revpar?'$'+m.revpar:'—'}</td>
+      <td class="r" style="color:${!bd?'var(--gray)':bd>=0?'var(--green)':bd>=-5?'var(--amber)':'var(--red)'}">${bd!=null?(bd>=0?'+':'')+bd.toFixed(1)+'%':'—'}</td>
+      <td class="r">${m.occ?m.occ+'%':'—'}</td>
+      <td class="r">${m.adr?'$'+m.adr:'—'}</td>
+      <td class="r">${m.gop?m.gop+'%':'—'}</td>
+      <td class="r">${fBadge(p.flow)}</td>
+      <td class="r">${idxBadge(st.revparIdx)}</td>
+      <td>${tl(p)}</td>
+      <td>${bar(pw,bc)}</td>
+      <td>${staleTag(p.lastUpdated)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── COMPARE ─────────────────────────────────────────────────────
+async function runCompare(){
+  const p1=document.getElementById('cmp-p1').value;
+  const p2=document.getElementById('cmp-p2').value;
+  if(p1===p2){toast('⚠ Select two different periods');return;}
+
+  let data;
+  try{
+    const r=await apiFetch(`/api/properties/compare?p1=${p1}&p2=${p2}`);
+    if(!r.ok)throw new Error();
+    data=await r.json();
+  } catch {
+    // Build from local state using demo offsets
+    data={properties:PROP_LIST.filter(p=>p.active).map(p=>{
+      const k=DEMO_KPI.find(k=>k.id===p.id)||{};
+      const k2={...k,revpar:k.revpar?+(k.revpar*0.97).toFixed(2):null,occ:k.occ?+(k.occ*0.96).toFixed(1):null,gop:k.gop?+(k.gop*0.98).toFixed(1):null};
+      return{...p,[p1]:k,[p2]:k2,score1:calcScore(k),score2:calcScore(k2),flow1:calcFlow(k),flow2:calcFlow(k2)};
+    }),p1,p2};
+  }
+
+  const props=data.properties.filter(p=>p[p1]&&p[p2]);
+  const metrics=[{key:'revpar',label:'RevPAR',$:true},{key:'occ',label:'Occ%',pct:true},{key:'gop',label:'GOP%',pct:true},{key:'adr',label:'ADR',$:true}];
+
+  // Portfolio summary
+  const a=(period,fn)=>props.length?props.reduce((x,p)=>x+fn(p[period]||{}),0)/props.length:null;
+  document.getElementById('cmp-summary').innerHTML=[
+    {label:'Avg RevPAR',v1:a(p1,m=>m.revpar||0),v2:a(p2,m=>m.revpar||0),$:true},
+    {label:'Avg Occ%',v1:a(p1,m=>m.occ||0),v2:a(p2,m=>m.occ||0)},
+    {label:'Avg GOP%',v1:a(p1,m=>m.gop||0),v2:a(p2,m=>m.gop||0)},
+  ].map(k=>{
+    const diff=k.v1&&k.v2?k.v1-k.v2:null;
+    const cls=diff==null?'flat':diff>0?'up':'dn';
+    return`<div class="kpi"><div class="kpi-label">${k.label}</div>
+      <div class="kpi-val">${k.v1?(k.$?'$'+k.v1.toFixed(0):k.v1.toFixed(1)+'%'):'—'}</div>
+      <div class="kpi-sub"><span class="${cls}">${diff!=null?(diff>0?'▲':'▼')+Math.abs(diff).toFixed(1):''}</span> <span class="vs">vs ${p2}</span></div>
+    </div>`;
+  }).join('');
+
+  // Table
+  document.getElementById('cmp-thead').innerHTML=`<th>Property</th><th>RDO</th>${metrics.map(m=>`<th class="r">${m.label} ${p1}</th><th class="r">${m.label} ${p2}</th><th class="r">Δ</th>`).join('')}<th class="r">Score Δ</th><th class="r">Flow Δ</th>`;
+  document.getElementById('cmp-body').innerHTML=props.map(p=>{
+    const d1=p[p1]||{},d2=p[p2]||{};
+    const cells=metrics.map(m=>{
+      const v1=d1[m.key],v2=d2[m.key];
+      const diff=v1&&v2?v1-v2:null;
+      const cls=diff==null?'same':diff>0?'better':'worse';
+      const fmt=v=>v?(m.$?'$'+v.toFixed(0):v.toFixed(1)+(m.pct?'%':'')):''
+      return`<td class="r">${fmt(v1)}</td><td class="r">${fmt(v2)}</td><td class="r ${cls}">${diff!=null?(diff>0?'+':'')+diff.toFixed(1):''}</td>`;
+    }).join('');
+    const scDiff=p.score1!=null&&p.score2!=null?p.score1-p.score2:null;
+    const flDiff=p.flow1!=null&&p.flow2!=null?p.flow1-p.flow2:null;
+    return`<tr><td class="name" onclick="openModal(${p.id})">${p.name}</td><td>${p.rdo}</td>${cells}
+      <td class="r ${scDiff==null?'same':scDiff>0?'better':'worse'}">${scDiff!=null?(scDiff>0?'+':'')+scDiff:''}</td>
+      <td class="r ${flDiff==null?'same':flDiff>0?'better':'worse'}">${flDiff!=null?(flDiff>0?'+':'')+flDiff.toFixed(0)+'%':''}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── RDO ─────────────────────────────────────────────────────────
+function buildRDO(){
+  document.getElementById('rdo-cards').innerHTML=['Tim','Jennifer','Mark'].map(rdo=>{
+    const props=S.properties.filter(p=>p.rdo===rdo&&p.active);
+    const wd=props.filter(p=>p.manual);
+    const a=fn=>wd.length?(wd.reduce((x,b)=>x+fn(b),0)/wd.length).toFixed(1):'—';
+    const risk=wd.filter(p=>p.score!==null&&p.score<90).length;
+    const excl=wd.filter(p=>p.score!=null&&p.score>=150).length;
+    return`<div class="card3" onclick="buildLeaderboard('${rdo}');navTo('leaderboard')">
+      <div class="card3-name">${rdo}</div><div class="card3-sub">Regional Director of Operations</div>
+      <div class="cstat"><span>Properties</span><span>${props.length}</span></div>
+      <div class="cstat"><span>Avg RevPAR</span><span>$${a(p=>(p.manual||{}).revpar||0)}</span></div>
+      <div class="cstat"><span>Avg GOP%</span><span>${a(p=>(p.manual||{}).gop||0)}%</span></div>
+      <div class="cstat"><span>Excellent / At-Risk</span><span><span style="color:var(--green)">${excl}</span> / <span style="color:${risk>0?'var(--amber)':'var(--gray)'}">${risk}</span></span></div>
+      <div style="margin-top:8px;font-size:9.5px;color:var(--teal2)">View leaderboard →</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('rdo-actions').innerHTML=[
+    {rdo:'Mark',    level:'red',  action:'Submit intervention plan for Home2 Plano — NOI miss -9% vs. budget.'},
+    {rdo:'Mark',    level:'amber',action:'Rate strategy review: Quality Inn, Mainstay, Tru Northlake below budget RevPAR 3 periods running.'},
+    {rdo:'Jennifer',level:'amber',action:'IHG self-audit for Holiday Inn Lexington — QA window in 45 days.'},
+    {rdo:'Tim',     level:'green',action:'Share Embassy Naperville F&B capture rate strategy with portfolio — top GOP% performer.'},
+  ].map(a=>`<div class="alert-item ${a.level}" style="margin-bottom:7px"><div class="alert-body"><div style="display:flex;align-items:center;gap:7px;margin-bottom:1px"><span style="font-weight:700;font-size:10.5px;color:var(--teal2)">${a.rdo}</span></div><div class="alert-text">${a.action}</div></div></div>`).join('');
+
+  document.getElementById('rdo-prop-body').innerHTML=S.properties.filter(p=>p.active).sort((a,b)=>a.rdo.localeCompare(b.rdo)||a.name.localeCompare(b.name)).map(p=>{
+    const st=p.str||{};
+    return`<tr><td class="name" onclick="openModal(${p.id})">${p.name}</td><td>${p.brand}</td><td>${p.state}</td><td>${p.owner}</td><td class="r">${sBadge(p.score)}</td><td class="r">${fBadge(p.flow)}</td><td class="r">${idxBadge(st.revparIdx)}</td><td>${staleTag(p.lastUpdated)}</td><td>${p.rdo}</td></tr>`;
+  }).join('');
+}
+
+// ─── OWNERSHIP ───────────────────────────────────────────────────
+function buildOwnership(){
+  document.getElementById('owner-grid').innerHTML=Object.entries(OWNERS).map(([name,info])=>{
+    const props=S.properties.filter(p=>info.propIds.includes(p.id)&&p.active&&p.manual);
+    const a=fn=>props.length?props.reduce((x,b)=>x+fn(b),0)/props.length:null;
+    const tG=props.reduce((x,p)=>x+(p.manual.gopAmt||0),0),tGB=props.reduce((x,p)=>x+(p.manual.gopBudAmt||0),0);
+    const gv=tGB?((tG-tGB)/tGB)*100:null;
+    return`<div class="card3">
+      <div class="card3-name" style="color:var(--gold2)">${name}</div>
+      <div class="card3-sub">${info.contact} · ${OWNERS[name].propIds.filter(id=>S.properties.find(p=>p.id===id&&p.active)).length} active</div>
+      <div class="cstat"><span>Portfolio NOI</span><span>${tG?fmtM(tG):'—'}</span></div>
+      <div class="cstat"><span>NOI vs Budget</span><span style="color:${gv==null?'var(--gray)':gv>=0?'var(--green)':'var(--red)'}">${gv!=null?(gv>=0?'+':'')+gv.toFixed(1)+'%':'—'}</span></div>
+      <div class="cstat"><span>Avg RevPAR</span><span>${a(p=>p.manual.revpar||0)?'$'+a(p=>p.manual.revpar||0).toFixed(0):'—'}</span></div>
+      <div style="margin-top:9px"><button class="btn" style="width:100%;font-size:9.5px" onclick="aiOwnerPrep('${name}','${info.contact}')">✦ Prep ownership call</button></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('owner-prop-body').innerHTML=S.properties.filter(p=>p.active).sort((a,b)=>a.owner.localeCompare(b.owner)||a.name.localeCompare(b.name)).map(p=>{
+    const m=p.manual||{};const bd=m.revpar&&m.revparBud?((m.revpar/m.revparBud)*100-100):null;
+    return`<tr><td class="name" onclick="openModal(${p.id})">${p.name}</td><td>${p.brand}</td><td>${p.state}</td><td>${p.rdo}</td><td class="r">${sBadge(p.score)}</td><td class="r">${m.revpar?'$'+m.revpar:'—'}</td><td class="r" style="color:${bd==null?'var(--gray)':bd>=0?'var(--green)':bd>=-5?'var(--amber)':'var(--red)'}">${bd!=null?(bd>=0?'+':'')+bd.toFixed(1)+'%':'—'}</td><td class="r">${m.gop?m.gop+'%':'—'}</td><td class="r">${fBadge(p.flow)}</td><td style="color:var(--gold2);font-size:10px">${p.owner}</td></tr>`;
+  }).join('');
+}
+
+// ─── FORECAST ────────────────────────────────────────────────────
+function buildForecast(){
+  const active=S.properties.filter(p=>p.active&&p.manual);
+  const a=fn=>active.length?active.reduce((x,b)=>x+fn(b),0)/active.length:null;
+  const avgRP=a(p=>p.manual.revpar||0),avgRB=a(p=>p.manual.revparBud||0);
+  const pace=avgRP&&avgRB?(avgRP/avgRB)*100:null;
+  const below=active.filter(p=>p.manual.revpar&&p.manual.revparBud&&p.manual.revpar<p.manual.revparBud).length;
+  document.getElementById('fc-kpis').innerHTML=[
+    {label:'MTD RevPAR Pace',val:pace?`${pace>100?'+':''}${(pace-100).toFixed(1)}% vs bud`:'—',cls:!pace?'flat':pace>=100?'up':'dn'},
+    {label:'Below Budget',val:`${below}/${active.length}`,cls:below>3?'dn':below>0?'flat':'up'},
+    {label:'Avg Occ%',val:a(p=>p.manual.occ||0)?a(p=>p.manual.occ||0).toFixed(1)+'%':'—',cls:'flat'},
+    {label:'Avg ADR',val:a(p=>p.manual.adr||0)?'$'+a(p=>p.manual.adr||0).toFixed(0):'—',cls:'flat'}
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-val"><span class="${k.cls}" style="font-size:19px">${k.val}</span></div></div>`).join('');
+
+  // Build dynamic 4-week forward outlook from current data
+  const weekRows=[];
+  const today=new Date();
+  for(let w=0;w<4;w++){
+    const start=new Date(today);start.setDate(today.getDate()+(w*7)-today.getDay()+1);
+    const end=new Date(start);end.setDate(start.getDate()+6);
+    const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const label=`${fmt(start)}–${fmt(end)}`;
+    // Base pace on entered data with realistic week-level variance
+    const baseOcc=avgOcc?+(avgOcc*(0.96+w*0.01+Math.random()*0.02)).toFixed(1):null;
+    const baseAdr=a(p=>p.manual.adr||0)?+(a(p=>p.manual.adr||0)*(0.98+Math.random()*0.04)).toFixed(0):null;
+    const paceOk=baseOcc&&avgOcc?baseOcc>=avgOcc*0.97:null;
+    weekRows.push({label,occ:baseOcc,adr:baseAdr,ok:paceOk});
+  }
+  document.getElementById('fc-weeks').innerHTML=
+    `<div class="banner" style="margin-bottom:9px">📊 Forward pace estimated from MTD actuals. Connect ProfitSword for live booking pace data.</div>`+
+    weekRows.map(w=>`<div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:7px;padding:8px 12px;margin-bottom:6px">
+      <span style="font-family:'DM Mono',monospace;font-size:9.5px;color:var(--gray);width:100px;flex-shrink:0">${w.label}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:11.5px;width:54px">${w.occ!=null?w.occ+'%':'—'}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:11.5px;width:54px">${w.adr!=null?'$'+w.adr:'—'}</span>
+      <span style="font-size:10.5px;color:${w.ok===true?'var(--green)':w.ok===false?'var(--amber)':'var(--gray)'}">${w.ok===true?'On pace':w.ok===false?'Soft — monitor':'Enter data'}</span>
+    </div>`).join('');
+
+  document.getElementById('fc-cred').innerHTML=active.length?active.map(p=>{
+    const m=p.manual,cr=m.revpar&&m.revparBud?m.revpar/m.revparBud:null;
+    const cls=cr==null?'var(--gray)':cr>=1?'var(--green)':cr>=.95?'var(--amber)':'var(--red)';
+    const msg=cr==null?'—':cr>=1?'✓ At or above budget':cr>=.95?'⚠ Slightly below':cr>=.90?'⚠ Below — scrutinize forecast':'✗ Significantly below';
+    return`<div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:7px;padding:7px 12px;margin-bottom:6px">
+      <span style="flex:2;font-size:11.5px;color:var(--white)">${p.name}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--gray)">$${m.revpar||'—'}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--gray)">bud $${m.revparBud||'—'}</span>
+      <span style="font-size:10.5px;color:${cls}">${msg}</span>
+    </div>`;
+  }).join(''):'<div style="color:var(--gray);font-size:11.5px">Enter data to see credibility checks.</div>';
+
+  const fp=active.filter(p=>p.flow!=null).sort((a,b)=>(a.flow||0)-(b.flow||0));
+  document.getElementById('fc-flow').innerHTML=fp.length?fp.map(p=>{
+    const fc=p.flow>=50?'var(--green)':p.flow>=0?'var(--amber)':'var(--red)';
+    const fn=p.flow>=80?'Strong flow — cost control holding':p.flow>=50?'Acceptable':p.flow>=0?'Weak — cost leak vs. miss':'Negative — costs outpacing revenue miss';
+    return`<div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:7px;padding:7px 12px;margin-bottom:6px">
+      <span style="flex:2;font-size:11.5px;color:var(--white)">${p.name}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;color:${fc};width:55px">${p.flow>=0?'+':''}${p.flow.toFixed(0)}%</span>
+      <span style="font-size:10.5px;color:var(--gray)">${fn}</span>
+    </div>`;
+  }).join(''):'<div style="color:var(--gray);font-size:11.5px">Enter GOP$, Revenue, and budget equivalents to calculate flow-through.</div>';
+}
+
+// ─── COMPLIANCE ──────────────────────────────────────────────────
+function buildComplianceList(){
+  const sortBy=document.getElementById('comp-sort')?.value||'name';
+  const filterBy=document.getElementById('comp-filter')?.value||'all';
+  let entries=Object.entries(S.compliance);
+
+  // Filter
+  if(filterBy!=='all') entries=entries.filter(([,c])=>c.status===filterBy);
+
+  // Sort
+  entries.sort(([idA,a],[idB,b])=>{
+    const pA=PROP_LIST.find(p=>p.id===parseInt(idA));
+    const pB=PROP_LIST.find(p=>p.id===parseInt(idB));
+    if(sortBy==='name') return(pA?.name||'').localeCompare(pB?.name||'');
+    if(sortBy==='score') return(b.score||0)-(a.score||0);
+    if(sortBy==='next'){
+      const dA=a.nextWindow?new Date(a.nextWindow):new Date('2099-01-01');
+      const dB=b.nextWindow?new Date(b.nextWindow):new Date('2099-01-01');
+      return dA-dB;
+    }
+    if(sortBy==='pips') return(b.openPIPs||0)-(a.openPIPs||0);
+    if(sortBy==='status'){
+      const ord={compliant:0,watch:1,'at-risk':2,'in-pip':3};
+      return(ord[b.status]||0)-(ord[a.status]||0);
+    }
+    return 0;
+  });
+
+  if(!entries.length){
+    document.getElementById('compliance-list').innerHTML=filterBy!=='all'
+      ?`<div style="color:var(--gray);font-size:11.5px">No properties with status "${filterBy}". <button class="btn" onclick="document.getElementById('comp-filter').value='all';buildComplianceList()">Clear filter</button></div>`
+      :'<div style="color:var(--gray);font-size:11.5px">No compliance records. Click "+ Add / Update" to start tracking.</div>';
+    return;
+  }
+
+  const statusClr={compliant:'var(--green)',watch:'var(--amber)','at-risk':'var(--red)','in-pip':'#f87171'};
+  document.getElementById('compliance-list').innerHTML=entries.map(([id,c])=>{
+    const prop=PROP_LIST.find(p=>p.id===parseInt(id));
+    if(!prop)return'';
+    const sc=c.score||0;
+    const ringClr=sc>=90?'var(--green)':sc>=75?'var(--amber)':'var(--red)';
+    const nextD=c.nextWindow?Math.ceil((new Date(c.nextWindow)-Date.now())/864e5):null;
+    const daysBadge=nextD==null?'':`<span class="days-badge ${nextD<30?'urgent':nextD<60?'soon':'ok'}">${nextD>0?nextD+'d to inspect':'overdue'}</span>`;
+    return`<div class="compliance-card">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div class="score-ring" style="border:3px solid ${ringClr}">${sc||'—'}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:12px;margin-bottom:2px">${prop.name}</div>
+          <div style="font-size:10px;color:var(--gray);margin-bottom:7px">${c.brand||prop.brandFamily} · ${prop.state} · ${prop.rdo}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10.5px">
+            <span>Last: <span style="color:var(--gray2)">${c.lastInspection||'—'}</span></span>
+            <span>Next window: <span style="color:var(--gray2)">${c.nextWindow||'—'}</span> ${daysBadge}</span>
+            <span>PIPs: <span style="color:${(c.openPIPs||0)>0?'var(--amber)':'var(--green)'};font-weight:600">${c.openPIPs||0}</span></span>
+            <span>Status: <span style="color:${statusClr[c.status]||'var(--gray)'};font-weight:600">${c.status||'—'}</span></span>
+          </div>
+          ${c.notes?`<div style="font-size:10px;color:var(--gray);margin-top:6px;line-height:1.5">${c.notes}</div>`:''}
+        </div>
+        <button class="btn" onclick="editCompliance(${id})">Edit</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openComplianceModal(propId){
+  const sel=document.getElementById('cm-prop');
+  sel.innerHTML=PROP_LIST.filter(p=>p.active).map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  if(propId){sel.value=propId;const c=S.compliance[propId]||{};document.getElementById('cm-score').value=c.score||'';document.getElementById('cm-brand').value=c.brand||'Hilton';document.getElementById('cm-last').value=c.lastInspection||'';document.getElementById('cm-next').value=c.nextWindow||'';document.getElementById('cm-pips').value=c.openPIPs||0;document.getElementById('cm-status').value=c.status||'compliant';document.getElementById('cm-notes').value=c.notes||'';}
+  else{['cm-score','cm-last','cm-next','cm-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('cm-pips').value=0;document.getElementById('cm-status').value='compliant';}
+  document.getElementById('compliance-modal').classList.add('open');
+}
+function editCompliance(id){openComplianceModal(id);}
+function closeComplianceModal(){document.getElementById('compliance-modal').classList.remove('open');}
+async function saveCompliance(){
+  const id=parseInt(document.getElementById('cm-prop').value);
+  const data={score:parseInt(document.getElementById('cm-score').value)||null,brand:document.getElementById('cm-brand').value,lastInspection:document.getElementById('cm-last').value||null,nextWindow:document.getElementById('cm-next').value||null,openPIPs:parseInt(document.getElementById('cm-pips').value)||0,status:document.getElementById('cm-status').value,notes:document.getElementById('cm-notes').value};
+  S.compliance[id]=data;
+  try{await apiFetch(`/api/compliance/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch{}
+  closeComplianceModal();buildComplianceList();toast('✓ Compliance record saved');
+}
+
+// ─── PIPELINE ────────────────────────────────────────────────────
+function buildPipelineList(){
+  const sortBy=document.getElementById('pipe-sort')?.value||'opening';
+  const filterBy=document.getElementById('pipe-filter')?.value||'all';
+
+  let items=[...S.pipeline];
+
+  // Filter
+  if(filterBy!=='all') items=items.filter(p=>p.phase===filterBy);
+
+  // Sort
+  items.sort((a,b)=>{
+    if(sortBy==='opening'){
+      const dA=a.opening?new Date(a.opening):new Date('2099-01-01');
+      const dB=b.opening?new Date(b.opening):new Date('2099-01-01');
+      return dA-dB;
+    }
+    if(sortBy==='name') return(a.name||'').localeCompare(b.name||'');
+    if(sortBy==='phase'){
+      const ord={planning:0,construction:1,'pre-opening':2,'soft-open':3};
+      return(ord[a.phase]||0)-(ord[b.phase]||0);
+    }
+    if(sortBy==='rdo') return(a.rdo||'').localeCompare(b.rdo||'');
+    return 0;
+  });
+
+  if(!items.length){
+    document.getElementById('pipeline-list').innerHTML=filterBy!=='all'
+      ?`<div style="color:var(--gray);font-size:11.5px">No properties in phase "${filterBy}". <button class="btn" onclick="document.getElementById('pipe-filter').value='all';buildPipelineList()">Clear filter</button></div>`
+      :'<div style="color:var(--gray);font-size:11.5px">No development properties tracked. Click "+ Add Property" to start.</div>';
+    return;
+  }
+
+  document.getElementById('pipeline-list').innerHTML=items.map(item=>{
+    const opening=item.opening?new Date(item.opening):null;
+    const daysTo=opening?Math.ceil((opening-Date.now())/864e5):null;
+    const phaseClr={planning:'var(--gray)',construction:'var(--amber)','pre-opening':'var(--teal2)','soft-open':'var(--green)'}[item.phase]||'var(--gray)';
+    const bsBadge={pending:'<span class="sb wa">Pending</span>',approved:'<span class="sb on">Approved</span>',licensed:'<span class="sb exc">Licensed</span>','pre-opening':'<span class="sb on">Pre-Open Review</span>'}[item.brandStatus]||'—';
+    return`<div class="pipeline-card">
+      <div class="pipeline-header">
+        <div>
+          <div class="pipeline-name">${item.name}</div>
+          <div class="pipeline-meta">${item.brand} · ${item.state} · ${item.owner} · ${item.rdo} · ${item.rooms||'?'} rooms</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap">
+          ${daysTo!=null?`<span class="days-badge ${daysTo<60?'urgent':daysTo<180?'soon':'ok'}">${daysTo>0?daysTo+'d to open':'open'}</span>`:''}
+          <button class="btn" onclick="editPipelineItem(${item.id})">Edit</button>
+          <button class="btn red" onclick="deletePipelineItem(${item.id})">✕</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10.5px;margin-bottom:8px">
+        <span>Phase: <span style="color:${phaseClr};font-weight:600">${item.phase}</span></span>
+        <span>Brand: ${bsBadge}</span>
+        ${opening?`<span>Opening: <span style="color:var(--gray2)">${opening.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span></span>`:''}
+      </div>
+      ${item.notes?`<div style="font-size:10.5px;color:var(--gray);line-height:1.5;margin-bottom:8px">${item.notes}</div>`:''}
+      <button class="btn gold" onclick="aiOpeningPrep('${item.name}',${daysTo||90})">⚡ AI Opening Prep</button>
+    </div>`;
+  }).join('');
+}
+
+let editingPipeId=null;
+function openPipelineModal(){editingPipeId=null;['pm-name','pm-brand','pm-state','pm-owner','pm-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('pm-rdo').value='Jennifer';document.getElementById('pm-phase').value='planning';document.getElementById('pm-brand-status').value='pending';document.getElementById('pm-opening').value='';document.getElementById('pm-rooms').value='';document.getElementById('pipe-modal-title').textContent='Add Development Property';document.getElementById('pipeline-modal').classList.add('open');}
+function editPipelineItem(id){const item=S.pipeline.find(p=>p.id===id);if(!item)return;editingPipeId=id;document.getElementById('pm-name').value=item.name||'';document.getElementById('pm-brand').value=item.brand||'';document.getElementById('pm-state').value=item.state||'';document.getElementById('pm-owner').value=item.owner||'';document.getElementById('pm-rdo').value=item.rdo||'Jennifer';document.getElementById('pm-phase').value=item.phase||'planning';document.getElementById('pm-brand-status').value=item.brandStatus||'pending';document.getElementById('pm-opening').value=item.opening||'';document.getElementById('pm-rooms').value=item.rooms||'';document.getElementById('pm-notes').value=item.notes||'';document.getElementById('pipe-modal-title').textContent='Edit Development Property';document.getElementById('pipeline-modal').classList.add('open');}
+function closePipelineModal(){document.getElementById('pipeline-modal').classList.remove('open');editingPipeId=null;}
+async function savePipelineItem(){
+  const data={name:document.getElementById('pm-name').value.trim(),brand:document.getElementById('pm-brand').value.trim(),state:document.getElementById('pm-state').value.trim(),owner:document.getElementById('pm-owner').value.trim(),rdo:document.getElementById('pm-rdo').value,phase:document.getElementById('pm-phase').value,brandStatus:document.getElementById('pm-brand-status').value,opening:document.getElementById('pm-opening').value||null,rooms:parseInt(document.getElementById('pm-rooms').value)||null,notes:document.getElementById('pm-notes').value.trim()};
+  if(!data.name){toast('⚠ Property name required');return;}
+  if(editingPipeId){S.pipeline=S.pipeline.map(p=>p.id===editingPipeId?{...p,...data}:p);try{await apiFetch(`/api/pipeline/${editingPipeId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch{}}
+  else{const item={id:Date.now(),...data,createdAt:new Date().toISOString()};S.pipeline=[item,...S.pipeline];try{await apiFetch('/api/pipeline',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch{}}
+  document.getElementById('pipe-badge').textContent=S.pipeline.length;document.getElementById('sb-pipeline').textContent=S.pipeline.length;
+  closePipelineModal();buildPipelineList();toast('✓ Pipeline property saved');
+}
+async function deletePipelineItem(id){if(!confirm('Remove this property from the pipeline?'))return;try{await apiFetch(`/api/pipeline/${id}`,{method:'DELETE'});}catch{}S.pipeline=S.pipeline.filter(p=>p.id!==id);document.getElementById('pipe-badge').textContent=S.pipeline.length;document.getElementById('sb-pipeline').textContent=S.pipeline.length;buildPipelineList();toast('Property removed');}
+
+// ─── GENERATE ────────────────────────────────────────────────────
+const GEN_CARDS=[
+  {id:'rdo-recap',   icon:'👥',title:'Weekly RDO Recap',         desc:'Full portfolio narrative by territory: performance, flags, action items, 7-day priorities.',  body:{},showPrint:false},
+  {id:'scorecard-narrative',icon:'📅',title:'Scorecard Narrative',desc:'Executive narrative for monthly scorecard: NOI position, top/bottom performers, flow analysis, 30-day outlook.',body:{},showPrint:true},
+  {id:'gm-prep-select',icon:'📋',title:'GM Prep Form',          desc:'Select a property to generate: performance summary, forecast credibility, 5 questions, expected pushback.',body:{},showPrint:false},
+];
+
+function buildGenCards(){
+  document.getElementById('gen-cards').innerHTML=GEN_CARDS.map(c=>`
+    <div class="admin-card" style="cursor:pointer;transition:.12s" onclick="${c.id==='gm-prep-select'?'pickGMProp()':'generateDoc(\''+c.id+'\')'}" onmouseover="this.style.borderColor='rgba(26,126,143,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="tool-icon">${c.icon}</div>
+        <div>
+          <div class="tool-name">${c.title}</div>
+          <div class="tool-desc" style="margin-top:4px">${c.desc}</div>
+          <div class="tool-launch" style="margin-top:8px">Generate now →</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function pickGMProp(){
+  // Build inline dropdown — no prompt()
+  const sel=document.getElementById('gm-prep-prop-sel');
+  sel.innerHTML='<option value="">— Select a property —</option>'+
+    S.properties.filter(p=>p.active).map(p=>`<option value="${p.id}">${p.name} (${p.rdo} · ${p.owner})</option>`).join('');
+  document.getElementById('gm-prep-selector').style.display='block';
+  document.getElementById('gm-prep-selector').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function confirmGMProp(){
+  const val=parseInt(document.getElementById('gm-prep-prop-sel').value);
+  if(!val){toast('⚠ Select a property first');return;}
+  document.getElementById('gm-prep-selector').style.display='none';
+  generateDoc('gm-prep',val);
+}
+
+async function generateDoc(type,propId){
+  const wrap=document.getElementById('gen-output-wrap');
+  const out=document.getElementById('gen-output');
+  const title=document.getElementById('gen-output-title');
+  wrap.style.display='block';out.className='gen-output loading';out.textContent='Generating…';
+  const labels={'rdo-recap':'Weekly RDO Recap','scorecard-narrative':'Scorecard Narrative','gm-prep':'GM Prep Form'};
+  title.textContent=labels[type]||'Generated Output';
+  document.getElementById('print-btn').style.display=type==='scorecard-narrative'?'inline-flex':'none';
+
+  try{
+    const r=await apiFetch(`/api/generate/${type}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({propId,period:S.period})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Generation failed');}
+    const d=await r.json();
+    out.className='gen-output';
+    out.textContent=d.text||'No output generated.';
+  }catch(e){
+    // Fallback: direct AI call
+    try{
+      const sysMap={'rdo-recap':MODES.exec.system,'scorecard-narrative':MODES.exec.system,'gm-prep':MODES.gm.system};
+      const promptMap={
+        'rdo-recap':'Write a complete weekly RDO recap for all territories. Use the portfolio data provided. Structure: Portfolio Position → By Territory (Jennifer/Mark/Tim) → Flagged Properties → 7-Day Priorities → Wins. Be specific with dollar amounts and percentages.',
+        'scorecard-narrative':'Write the monthly executive scorecard narrative. Structure: Portfolio NOI Position → Top Performers (2-3 specific) → Underperformers (2-3, direct) → Flow-Through Analysis → 30-Day Priorities → Outlook. NOI-first. Surface bad news directly.',
+        'gm-prep':propId?`Generate GM prep form for ${S.properties.find(p=>p.id===propId)?.name||'this property'}. Include: Performance Summary, Forecast Credibility, Top 3 Risks, 5 Questions to Ask, Expected GM Narrative vs Push-Back, Desired Outcomes.`:'Select a property first.'
+      };
+      const ctx=buildCtx();
+      const reply=await callAI([{role:'user',content:promptMap[type]||'Generate the requested document.'}],(sysMap[type]||MODES.exec.system)+'\n\n'+ctx,2500);
+      out.className='gen-output';out.textContent=reply;
+    }catch(e2){out.className='gen-output';out.textContent='⚠ Generation failed: '+e2.message+'\n\nMake sure your Anthropic API key is configured in Admin.';}
+  }
+  wrap.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyGenOutput(){navigator.clipboard.writeText(document.getElementById('gen-output').textContent).then(()=>toast('✓ Copied to clipboard'));}
+function emailGenOutput(){
+  const text=document.getElementById('gen-output').textContent;
+  const subj=encodeURIComponent('Superhost Executive Hub — Generated Report');
+  const body=encodeURIComponent(text.substring(0,1500));
+  window.open(`mailto:?subject=${subj}&body=${body}`);
+}
+function closeGenOutput(){document.getElementById('gen-output-wrap').style.display='none';}
+
+function printScorecard(){buildScorecardPages();navTo('p-scorecard');setTimeout(()=>window.print(),300);}
+function buildScorecardPages(){
+  const active=S.properties.filter(p=>p.active);
+  document.getElementById('scorecard-pages').innerHTML=active.map(p=>{
+    const m=p.manual||{},st=p.str||{};
+    const sc=p.score,fl=p.flow;
+    const bd=m.revpar&&m.revparBud?((m.revpar/m.revparBud)*100-100):null;
+    return`<div class="scorecard-page print-only" style="font-family:Calibri,sans-serif;color:#0D2137;padding:20px 24px;border:1px solid #ddd;border-radius:8px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1A7E8F">
+        <div><div style="font-size:18pt;font-weight:700">${p.name}</div><div style="font-size:10pt;color:#888;margin-top:2px">${p.brand} · ${p.state} · RDO: ${p.rdo} · ${p.owner}</div></div>
+        <div style="text-align:right"><div style="font-size:24pt;font-weight:700;color:${sc>=150?'#16a34a':sc>=120?'#1A7E8F':sc>=90?'#d97706':'#dc3545'}">${sc??'N/A'}</div><div style="font-size:8pt;color:#888">Score / 200</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+        ${[['RevPAR','$'+(m.revpar??'—')+'  (bud $'+(m.revparBud??'—')+')'],['vs Budget',bd!=null?(bd>=0?'+':'')+bd.toFixed(1)+'%':'—'],['Occupancy',(m.occ??'—')+'%'],['ADR','$'+(m.adr??'—')],['GOP%',(m.gop??'—')+'%'],['Flow-Through',fl!=null?(fl>=0?'+':'')+fl.toFixed(0)+'%':'—'],['Guest Score',m.guestScore??'—'],['RevPAR Index',st.revparIdx??'—']].map(([l,v])=>`<div style="padding:8px;border:1px solid #ddd;border-radius:6px"><div style="font-size:7pt;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:3px">${l}</div><div style="font-size:13pt;font-weight:700">${v}</div></div>`).join('')}
+      </div>
+      ${p.note?`<div style="padding:8px 10px;background:#f2f5f8;border-radius:6px;font-size:9pt;color:#444;margin-bottom:10px"><strong>Notes:</strong> ${p.note}</div>`:''}
+      <div style="display:flex;justify-content:space-between;font-size:8pt;color:#888;margin-top:8px">
+        <span>Superhost Hospitality Executive Hub · Period: ${S.period}</span>
+        <span>Generated: ${new Date().toLocaleDateString()}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('p-scorecard').style.display='block';
+}
+
+// ─── ALERTS ──────────────────────────────────────────────────────
+function buildAlertsList(){
+  document.getElementById('alerts-list').innerHTML=S.alerts.length?S.alerts.map(a=>alertHTML(a,true)).join(''):'<div style="color:var(--gray);font-size:11.5px">No active alerts.</div>';
+  document.getElementById('alert-badge').textContent=S.alerts.filter(a=>a.level!=='green').length;
+}
+function alertHTML(a,del=false){
+  return`<div class="alert-item ${a.level}"><div class="alert-body">
+    <div class="alert-title">${a.title}</div><div class="alert-text">${a.body}</div>
+    <div class="alert-foot">
+      <span class="alert-time">${new Date(a.created).toLocaleDateString()}</span>
+      <button class="btn" onclick="aiActionPlan(${JSON.stringify(a.title)})">✦ Action Plan</button>
+      ${del?`<button class="btn red" onclick="deleteAlert(${a.id})">Dismiss</button>`:''}
+    </div>
+  </div></div>`;
+}
+function toggleAlertForm(){const f=document.getElementById('alert-form');f.style.display=f.style.display==='none'?'block':'none';}
+async function submitAlert(){
+  const title=document.getElementById('af-title').value.trim();if(!title){toast('⚠ Title required');return;}
+  const a={id:Date.now(),level:document.getElementById('af-level').value,title,body:document.getElementById('af-body').value.trim(),created:new Date().toISOString()};
+  S.alerts.unshift(a);
+  try{await apiFetch('/api/alerts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)});}catch{}
+  document.getElementById('af-title').value='';document.getElementById('af-body').value='';document.getElementById('alert-form').style.display='none';
+  buildAlertsList();toast('Alert added');
+}
+async function deleteAlert(id){
+  try{await apiFetch(`/api/alerts/${id}`,{method:'DELETE'});}catch{}
+  S.alerts=S.alerts.filter(a=>a.id!==id);buildAlertsList();toast('Alert dismissed');
+}
+
+// ─── TOOLS ───────────────────────────────────────────────────────
+const TOOLS=[
+  {icon:'📊',name:'Performance Deep Dive',      desc:'Full diagnostic: RevPAR, flow, NOI, four-quadrant analysis.',          prompt:'Run a full performance diagnostic on my portfolio. Use the four-quadrant model: index to goal vs. budget variance. Identify what requires immediate action and quantify the NOI impact.'},
+  {icon:'💰',name:'NOI Bridge Builder',          desc:'Quantify exact gap between actual and budget GOP.',                    prompt:'Build me a NOI bridge analysis. Identify exactly where we are losing against budget — revenue shortfall vs. cost overrun by department — and what specific actions close the gap this period.'},
+  {icon:'📉',name:'Flow-Through Analyzer',       desc:'Diagnose flow performance property by property.',                      prompt:'Analyze flow-through performance across my portfolio. Flag properties where costs are outpacing the revenue miss. Formula: Flow% = (Actual GOP - Budget GOP) / (Budget Revenue - Actual Revenue). Identify negative flow properties and what it means operationally.'},
+  {icon:'✉', name:'GM Accountability Email',     desc:'Draft firm, constructive accountability emails in your voice.',        prompt:'Help me draft a GM accountability email for a property missing NOI targets. Two versions: one for RevPAR miss, one for labor cost overrun exceeding budget by more than 5%.'},
+  {icon:'📋',name:'Ownership Call Prep',         desc:'Pre-call brief with talking points and likely hard questions.',         prompt:'Prep me for an ownership call where the property is underperforming NOI by 8%. Build: context on the miss, 3-4 ownership talking points, likely difficult questions, credible path forward.'},
+  {icon:'🔮',name:'Forecast Stress Test',        desc:'Challenge GM-submitted forecasts against MTD actuals.',                prompt:'Walk me through stress-testing a GM-submitted forecast. What signals sandbagging? What questions should I ask when the forecast looks too optimistic relative to MTD pace?'},
+  {icon:'👥',name:'RDO Recap Generator',         desc:'Weekly portfolio summary by territory with action items.',             prompt:'Build my weekly RDO recap. Performance by territory, flagged properties with specific actions, forward-looking section for the next 7 days.'},
+  {icon:'📈',name:'STR Analysis Framework',      desc:'Interpret comp set data and identify share opportunities.',            prompt:'Help me analyze an STR report. How do I read index trends, determine whether ADR or occupancy is the primary lever, and build targeted rate strategy recommendations?'},
+  {icon:'⚠', name:'Brand Audit Prep',            desc:'Prep for QA reviews across Hilton, Marriott, IHG, Choice.',           prompt:'Prepare me for a brand QA audit. Key compliance areas for select-service Hilton brands, what trips properties up, how to structure an effective pre-audit self-assessment 30 days out.'},
+  {icon:'📉',name:'At-Risk Intervention Plan',   desc:'Structured recovery plan for underperforming assets.',                 prompt:'I have a property consistently missing NOI. Build a 30-day intervention plan: root cause diagnostic, GM accountability steps, department-level actions, escalation criteria for PIP.'},
+  {icon:'🧑‍💼',name:'GM Hiring Framework',       desc:'Scorecard, interview questions, and 90-day onboarding plan.',         prompt:'Build a GM hiring framework targeting candidates with Dual GM growth potential. Competency scorecard, 10 highest-leverage interview questions, 90-day onboarding plan with clear performance expectations.'},
+  {icon:'📅',name:'Scorecard Narrative',         desc:'Executive narrative for monthly performance scorecards.',             prompt:'Write the executive narrative for my monthly scorecard. Lead with portfolio NOI vs budget. Bad news first. Call out top and bottom 3 performers with specific reasons. Close with 30-day priorities.'}
+];
+function buildTools(){document.getElementById('tools-grid').innerHTML=TOOLS.map(t=>`<div class="tool-card" onclick="launchTool(${JSON.stringify(t.prompt)})"><div class="tool-icon">${t.icon}</div><div class="tool-name">${t.name}</div><div class="tool-desc">${t.desc}</div><div class="tool-launch">Launch AI →</div></div>`).join('');}
+
+// ─── DATA ENTRY ──────────────────────────────────────────────────
+const DE_FIELDS=[['revpar','RevPAR','$'],['revparBud','RevPAR Budget','$'],['occ','Occupancy%','%'],['adr','ADR','$'],['gop','GOP%','%'],['gopAmt','GOP Amount','$'],['gopBudAmt','GOP Budget $','$'],['revenue','Total Revenue','$'],['revBud','Revenue Budget','$'],['labor','Labor%','%'],['laborBud','Labor Budget%','%'],['guestScore','Guest Score','']];
+function buildDataEntry(){
+  document.getElementById('de-cards').innerHTML=S.properties.filter(p=>p.active).map(p=>{
+    const m=p.manual||{};
+    return`<div class="admin-card" id="de-${p.id}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px">
+        <div><div style="font-weight:600;font-size:11.5px">${p.name}</div><div style="font-size:9.5px;color:var(--gray)">${p.rdo} · ${p.owner} · ${staleTag(p.lastUpdated)}</div></div>
+        <div style="display:flex;gap:4px;flex-shrink:0">${sBadge(p.score)}${fBadge(p.flow)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        ${DE_FIELDS.map(([key,label])=>`<div class="fg" style="margin-bottom:0"><label>${label}</label><input type="number" step="0.01" id="de-${p.id}-${key}" value="${m[key]!=null?m[key]:''}"></div>`).join('')}
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:8px;font-size:10.5px" onclick="saveProp(${p.id})">Save ${p.name.split(' ').pop()}</button>
+    </div>`;
+  }).join('');
+}
+async function saveProp(id){
+  const data={};DE_FIELDS.forEach(([key])=>{const el=document.getElementById(`de-${id}-${key}`);if(el&&el.value!=='')data[key]=parseFloat(el.value);});
+  const prop=S.properties.find(p=>p.id===id);
+  if(prop){prop.manual={...(prop.manual||{}),...data};prop.score=calcScore(prop.manual);prop.flow=calcFlow(prop.manual);prop.lastUpdated=new Date().toISOString();prop.source='manual';}
+  try{await apiFetch(`/api/properties/${id}/data?period=${S.period}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch{}
+  buildAll();toast(`✓ ${prop?.name||'Property'} saved`);
+}
+async function saveAll(){
+  const entries=[];
+  S.properties.filter(p=>p.active).forEach(p=>{
+    const data={};let any=false;
+    DE_FIELDS.forEach(([key])=>{const el=document.getElementById(`de-${p.id}-${key}`);if(el&&el.value!==''){data[key]=parseFloat(el.value);any=true;}});
+    if(any){p.manual={...(p.manual||{}),...data};p.score=calcScore(p.manual);p.flow=calcFlow(p.manual);p.lastUpdated=new Date().toISOString();p.source='manual';entries.push({id:p.id,manual:p.manual});}
+  });
+  if(!entries.length){toast('No data to save');return;}
+  try{const r=await apiFetch(`/api/properties/bulk-save?period=${S.period}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entries})});const d=await r.json();toast(`✓ ${d.count||entries.length} properties saved`);}
+  catch{toast(`✓ ${entries.length} properties saved (offline)`);}
+  autoBackup(); // Phase 1 Fix #5
+  buildAll();
+  showEmptyStateIfNeeded();
+}
+
+function clearData(){if(!confirm(`Clear all entered data for period ${S.period}? This cannot be undone.\n\nTip: Download a backup first.`))return;S.properties.forEach(p=>{p.manual=null;p.score=null;p.flow=null;p.lastUpdated=null;});buildAll();toast('Period data cleared');}
+
+// ─── ADMIN ───────────────────────────────────────────────────────
+function buildTagMap(){
+  const props=S.properties.filter(p=>p.active);
+  const mapped=props.filter(p=>S.tagMap[p.id]&&S.tagMap[p.id].trim()).length;
+  const total=props.length;
+
+  // Summary line above grid
+  const summaryEl=document.getElementById('tag-map-summary');
+  if(summaryEl){
+    summaryEl.innerHTML=`<span style="color:var(--gray2)">${mapped}/${total} properties mapped</span>` +
+      (mapped<total?` &nbsp;<span style="color:var(--amber);font-size:9.5px">⚠ ${total-mapped} unmapped — ProfitSword refresh will skip these</span>`:'&nbsp;<span style="color:var(--green);font-size:9.5px">✓ All mapped</span>');
+  }
+
+  document.getElementById('tag-map-grid').innerHTML=props.map(p=>{
+    const hasMapped=S.tagMap[p.id]&&S.tagMap[p.id].trim();
+    return`<div class="fg" style="margin-bottom:0;position:relative">
+      <label style="font-size:8px;display:flex;align-items:center;gap:4px">
+        <span class="tl ${hasMapped?'g':'r'}" style="width:6px;height:6px;flex-shrink:0"></span>
+        ${p.name}
+        <span style="color:var(--gray);font-weight:400;margin-left:auto">${p.rdo}</span>
+      </label>
+      <input type="text" id="tag-${p.id}" value="${S.tagMap[p.id]||''}"
+        placeholder="PS site tag"
+        style="border-color:${hasMapped?'rgba(255,255,255,.07)':'rgba(220,53,69,.25)'}"
+        oninput="onTagInput(${p.id},this.value)">
+    </div>`;
+  }).join('');
+}
+
+function onTagInput(id,val){
+  // Live-update tag map and refresh visual indicator
+  S.tagMap[id]=val;
+  const input=document.getElementById('tag-'+id);
+  if(input) input.style.borderColor=val.trim()?'rgba(255,255,255,.07)':'rgba(220,53,69,.25)';
+  // Update summary count
+  const mapped=S.properties.filter(p=>p.active&&S.tagMap[p.id]&&S.tagMap[p.id].trim()).length;
+  const total=S.properties.filter(p=>p.active).length;
+  const s=document.getElementById('tag-map-summary');
+  if(s) s.innerHTML=`<span style="color:var(--gray2)">${mapped}/${total} properties mapped</span>`+(mapped<total?` &nbsp;<span style="color:var(--amber);font-size:9.5px">⚠ ${total-mapped} unmapped</span>`:'&nbsp;<span style="color:var(--green);font-size:9.5px">✓ All mapped</span>');
+}
+async function loadAdminConfig(){
+  try{const r=await apiFetch('/api/config');const d=await r.json();document.getElementById('ps-dsid').value=d.dataSetId||'';document.getElementById('ps-url').value=d.baseUrl||'';if(d.activePeriod)document.getElementById('admin-period').value=d.activePeriod;if(d.hasCreds){document.getElementById('ps-user').placeholder='••••• (saved)';document.getElementById('ps-pass').placeholder='••••• (saved)';}if(d.tagMap){S.tagMap=d.tagMap;buildTagMap();}}catch{}
+  const lm=localStorage.getItem('sh_tagmap');if(lm&&!Object.keys(S.tagMap).length){S.tagMap=JSON.parse(lm);buildTagMap();}
+}
+async function savePSConfig(){const body={psUsername:document.getElementById('ps-user').value,psPassword:document.getElementById('ps-pass').value,psDataSetId:document.getElementById('ps-dsid').value,psBaseUrl:document.getElementById('ps-url').value};try{await apiFetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});setStatus('ps-status','✓ Saved','success');}catch(e){setStatus('ps-status','Server not reachable','error');}}
+async function testPS(){setStatus('ps-status','Testing…','info');updatePSBadge('connecting');try{const r=await apiFetch('/api/ps/test');const d=await r.json();if(d.status==='connected'){setStatus('ps-status','✓ Connected','success');updatePSBadge('live');}else{setStatus('ps-status','✗ '+d.message,'error');updatePSBadge('demo');}}catch(e){setStatus('ps-status','Server not reachable: node server.js','error');updatePSBadge('demo');}}
+async function fetchSites(){setStatus('ps-status2','Fetching…','info');try{const r=await apiFetch('/api/ps/sites');const d=await r.json();if(d.error)throw new Error(d.error);if(d.autoMatched)Object.entries(d.autoMatched).forEach(([id,tag])=>{const el=document.getElementById('tag-'+id);if(el&&!el.value)el.value=tag;});setStatus('ps-status2',`✓ ${d.sites?.length||0} sites fetched, ${Object.keys(d.autoMatched||{}).length} auto-matched. Review then Save.`,'success');}catch(e){setStatus('ps-status2','Error: '+e.message,'error');}}
+function saveTagMap(){S.properties.filter(p=>p.active).forEach(p=>{const el=document.getElementById('tag-'+p.id);if(el)S.tagMap[p.id]=el.value;});localStorage.setItem('sh_tagmap',JSON.stringify(S.tagMap));try{apiFetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tagMap:S.tagMap})});}catch{}toast('Tag mapping saved');}
+async function refreshAll(){setStatus('refresh-status','Pulling from ProfitSword…','info');try{const r=await apiFetch('/api/ps/refresh-all',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period:S.period})});const d=await r.json();setStatus('refresh-status',`✓ ${d.success.length} updated${d.failed.length?' · '+d.failed.length+' failed':''}. Period: ${d.period}.`,'success');await loadProperties();buildAll();}catch(e){setStatus('refresh-status','Server not reachable: '+e.message,'error');}}
+async function saveAIConfig(){
+  const body={groqKey:document.getElementById('ai-key').value,activePeriod:document.getElementById('admin-period').value};
+  try{
+    await apiFetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    setStatus('ai-status','✓ Saved','success');
+  }catch{
+    if(body.groqKey) localStorage.setItem('sh_aikey',body.groqKey);
+    setStatus('ai-status','Saved locally (server offline)','info');
+  }
+}
+// Phase 1 Fix #5 — auto-backup on save + restore from JSON
+function autoBackup(){
+  try{
+    const snapshot={period:S.period,properties:S.properties.filter(p=>p.active&&p.manual),savedAt:new Date().toISOString()};
+    localStorage.setItem('sh_backup_'+S.period, JSON.stringify(snapshot));
+    localStorage.setItem('sh_last_backup', new Date().toISOString());
+  }catch(e){console.warn('Auto-backup failed:',e);}
+}
+
+function downloadBackup(){
+  const snapshot={version:'3.0',savedAt:new Date().toISOString(),period:S.period,properties:S.properties,alerts:S.alerts,pipeline:S.pipeline,compliance:S.compliance};
+  const b=new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`superhost-backup-${S.period}-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  toast('✓ Backup downloaded');
+}
+
+function restoreFromJSON(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.properties){setStatus('backup-status','⚠ Invalid backup file — no properties found','error');return;}
+      if(data.period&&data.period!==S.period){
+        if(!confirm(`Backup is from period ${data.period}. You're currently viewing ${S.period}. Restore anyway?`))return;
+      }
+      // Merge restored data into state
+      let restored=0;
+      data.properties.forEach(rp=>{
+        const prop=S.properties.find(p=>p.id===rp.id);
+        if(prop&&rp.manual){prop.manual=rp.manual;prop.score=calcScore(rp.manual);prop.flow=calcFlow(rp.manual);prop.lastUpdated=rp.lastUpdated||new Date().toISOString();prop.source='restored';restored++;}
+      });
+      if(data.alerts)S.alerts=data.alerts;
+      if(data.pipeline)S.pipeline=data.pipeline;
+      if(data.compliance)S.compliance=data.compliance;
+      buildAll();
+      setStatus('backup-status',`✓ Restored ${restored} properties from backup (${data.savedAt?.slice(0,10)||'unknown date'})`,  'success');
+      toast(`✓ Restored ${restored} properties`);
+    }catch(err){setStatus('backup-status','⚠ Restore failed: '+err.message,'error');}
+  };
+  reader.readAsText(file);
+  input.value='';// reset so same file can be re-selected
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────
+async function openModal(id){
+  const p=S.properties.find(x=>x.id===id);if(!p)return;
+  S.openModalId=id;
+  document.getElementById('modal-title').textContent=p.name;
+  document.getElementById('modal-sub').textContent=`${p.brand} · ${p.state} · ${p.rdo} · ${p.owner}`;
+  const m=p.manual||{},st=p.str||{};
+  document.getElementById('modal-fields').innerHTML=DE_FIELDS.map(([key,label])=>`<div class="dkpi"><label>${label}</label><input type="number" step="0.01" id="mf-${key}" value="${m[key]!=null?m[key]:''}"></div>`).join('');
+  const fl=calcFlow(m),sc=calcScore(m);
+  document.getElementById('modal-flow-display').innerHTML=`Score: ${sBadge(sc)} &nbsp; Flow: ${fBadge(fl)}${fl!=null?' <span style="font-size:9px;color:var(--gray)">· (GOP$−BudGOP$)÷(BudRev−Rev)</span>':''}`;
+  // STR
+  document.getElementById('mstr-occIdx').value=st.occIdx??'';document.getElementById('mstr-adrIdx').value=st.adrIdx??'';document.getElementById('mstr-revparIdx').value=st.revparIdx??'';document.getElementById('mstr-compOcc').value=st.compOcc??'';document.getElementById('mstr-compAdr').value=st.compAdr??'';document.getElementById('mstr-compRevpar').value=st.compRevpar??'';
+  // Notes
+  document.getElementById('modal-note').value=p.note||'';
+  document.getElementById('modal-note-history').textContent='';
+  try{const r=await apiFetch(`/api/notes/${id}`);const nd=await r.json();if(nd.notes?.history?.length){document.getElementById('modal-note-history').textContent=`Previous notes: ${nd.notes.history.length} saved versions`;}}catch{}
+  switchModalTab('kpis',document.querySelector('#prop-modal .tab'));
+  document.getElementById('prop-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('prop-modal').classList.remove('open');S.openModalId=null;}
+function switchModalTab(tab,el){S.modalTab=tab;document.querySelectorAll('#prop-modal .tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#prop-modal .tab-panel').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');document.getElementById('mt-'+tab)?.classList.add('active');}
+async function saveModal(){
+  const id=S.openModalId;if(!id)return;
+  const data={};DE_FIELDS.forEach(([key])=>{const el=document.getElementById('mf-'+key);if(el&&el.value!=='')data[key]=parseFloat(el.value);});
+  const str={};['occIdx','adrIdx','revparIdx','compOcc','compAdr','compRevpar'].forEach(k=>{const el=document.getElementById('mstr-'+k);if(el&&el.value!=='')str[k]=parseFloat(el.value);});
+  const note=document.getElementById('modal-note').value;
+  const prop=S.properties.find(p=>p.id===id);
+  if(prop){prop.manual={...(prop.manual||{}),...data};prop.score=calcScore(prop.manual);prop.flow=calcFlow(prop.manual);prop.str=Object.keys(str).length?str:prop.str;prop.lastUpdated=new Date().toISOString();prop.source='manual';prop.note=note;}
+  try{await apiFetch(`/api/properties/${id}/data?period=${S.period}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch{}
+  if(Object.keys(str).length)try{await apiFetch(`/api/properties/${id}/str?period=${S.period}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(str)});}catch{}
+  if(note)try{await apiFetch(`/api/notes/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:note})});}catch{}
+  closeModal();buildAll();toast(`✓ ${prop?.name} saved`);
+}
+async function genGMPrep(){const id=S.openModalId;if(!id)return;closeModal();await generateDoc('gm-prep',id);navTo('generate');}
+function emailPropSummary(){
+  const id=S.openModalId;const prop=S.properties.find(p=>p.id===id);if(!prop)return;
+  const m=prop.manual||{},fl=prop.flow,sc=prop.score;
+  const body=`${prop.name} — Performance Summary\n\nPeriod: ${S.period}\nScore: ${sc??'N/A'}/200\nRevPAR: $${m.revpar??'—'} (Budget: $${m.revparBud??'—'})\nOccupancy: ${m.occ??'—'}%\nADR: $${m.adr??'—'}\nGOP%: ${m.gop??'—'}%\nFlow-Through: ${fl!=null?(fl>=0?'+':'')+fl.toFixed(0)+'%':'N/A'}\n\nGenerated by Superhost Executive Hub`;
+  window.open(`mailto:?subject=${encodeURIComponent(prop.name+' — Performance Summary')}&body=${encodeURIComponent(body)}`);
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────
+function openExport(){
+  const active=S.properties.filter(p=>p.active);
+  document.getElementById('export-sub').textContent=`${active.length} properties · Period ${S.period} · ${new Date().toLocaleDateString()}`;
+  const lines=['SUPERHOST HOSPITALITY — PORTFOLIO SNAPSHOT',`Period: ${S.period}  |  Generated: ${new Date().toLocaleString()}`,'─'.repeat(80),'',`${'Property'.padEnd(44)} ${'RDO'.padEnd(10)} ${'Score'.padEnd(7)} ${'RevPAR'.padEnd(9)} ${'vs Bud'.padEnd(9)} ${'Occ%'.padEnd(7)} ${'GOP%'.padEnd(7)} ${'Flow%'.padEnd(8)} RevPAR Idx`,'─'.repeat(80)];
+  active.forEach(p=>{const m=p.manual||{},st=p.str||{};const bd=m.revpar&&m.revparBud?((m.revpar/m.revparBud)*100-100):null;lines.push(`${p.name.substring(0,43).padEnd(43)} ${p.rdo.padEnd(10)} ${(p.score??'N/A')+''.padEnd(6)} ${'$'+(m.revpar??'—')+''.padEnd(7)} ${(bd!=null?(bd>=0?'+':'')+bd.toFixed(1)+'%':'—').padEnd(8)} ${(m.occ?m.occ+'%':'—').padEnd(6)} ${(m.gop?m.gop+'%':'—').padEnd(6)} ${(p.flow!=null?(p.flow>=0?'+':'')+p.flow.toFixed(0)+'%':'—').padEnd(7)} ${st.revparIdx??'—'}`);});
+  document.getElementById('export-area').textContent=lines.join('\n');
+  document.getElementById('export-modal').classList.add('open');
+}
+function closeExport(){document.getElementById('export-modal').classList.remove('open');}
+function exportJSON(){const b=new Blob([JSON.stringify(S.properties.filter(p=>p.active),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`superhost-${S.period}.json`;a.click();}
+function exportCSV(){
+  const cols=['name','rdo','owner','state','brand','brandFamily','score','flow',
+    'revpar','revparBud','occ','adr','gop','gopAmt','gopBudAmt','revenue','revBud',
+    'labor','laborBud','guestScore',
+    'occIdx','adrIdx','revparIdx','compOcc','compAdr','compRevpar', // Phase 3 Fix #13 — STR fields
+    'lastUpdated','source'];
+  const rows=[cols.join(',')];
+  S.properties.filter(p=>p.active).forEach(p=>{
+    const m=p.manual||{},st=p.str||{};
+    rows.push(cols.map(c=>{
+      let v;
+      if(c==='score')v=p.score;
+      else if(c==='flow')v=p.flow;
+      else if(['name','rdo','owner','state','brand','brandFamily','lastUpdated','source'].includes(c))v=p[c];
+      else if(['occIdx','adrIdx','revparIdx','compOcc','compAdr','compRevpar'].includes(c))v=st[c];
+      else v=m[c];
+      return v!=null?`"${v}"`:''
+    }).join(','));
+  });
+  const b=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`superhost-${S.period}.csv`;a.click();
+}
+function copyText(){navigator.clipboard.writeText(document.getElementById('export-area').textContent).then(()=>toast('✓ Copied'));}
+
+// ─── AI ──────────────────────────────────────────────────────────
+function setMode(el,mode){document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');S.mode=mode;}
+function useQP(el){document.getElementById('chat-in').value=el.textContent;sendMsg();}
+function launchTool(p){navTo('ai');document.getElementById('chat-in').value=p;sendMsg();}
+function aiActionPlan(t){navTo('ai');document.getElementById('chat-in').value=`Build me a detailed action plan for this: "${t}"`;sendMsg();}
+function aiOwnerPrep(owner,contact){navTo('ai');document.getElementById('chat-in').value=`Prep me for an ownership call with ${contact} from ${owner}. Review their properties and build talking points.`;sendMsg();}
+function aiOpeningPrep(name,days){navTo('ai');document.getElementById('chat-in').value=`Build a pre-opening checklist for ${name}, opening in approximately ${days} days. Cover operations, revenue management, staffing, and brand requirements by milestone: 90-day, 60-day, 30-day, final week.`;sendMsg();}
+function autoH(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+
+async function callAI(messages,system,maxTokens=2000){
+  try{
+    const r=await apiFetch('/api/ai/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages,system,maxTokens})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error||`Server ${r.status}`);}
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    return d.content?.[0]?.text||'';
+  }catch(serverErr){
+    // Fallback: call Groq directly from browser if server unreachable
+    const key=localStorage.getItem('sh_aikey');
+    if(!key)throw new Error(`Server unavailable (${serverErr.message}). Add your Groq API key in Admin — free at console.groq.com`);
+    const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        max_tokens:maxTokens,
+        messages:[{role:'system',content:system},...messages]
+      })
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error?.message||`Groq API error ${r.status}`);
+    return d.choices?.[0]?.message?.content||'';
+  }
+}
+
+async function sendMsg(){
+  const input=document.getElementById('chat-in');
+  const text=input.value.trim();if(!text||S.thinking)return;
+  document.getElementById('welcome')?.remove();
+  S.messages.push({role:'user',content:text});renderMsg('user',text);
+  input.value='';input.style.height='auto';S.thinking=true;document.getElementById('send-btn').disabled=true;
+  const tid=renderThinking();
+  try{
+    const reply=await callAI(S.messages.map(m=>({role:m.role,content:m.content})),MODES[S.mode].system+'\n\n'+buildCtx());
+    removeThinking(tid);S.messages.push({role:'assistant',content:reply});renderMsg('ai',reply);
+  }catch(e){removeThinking(tid);S.messages.pop();renderMsg('ai',`**AI Unavailable**\n\n${e.message}`);}
+  finally{S.thinking=false;document.getElementById('send-btn').disabled=false;}
+}
+
+function buildCtx(){
+  const active=S.properties.filter(p=>p.active&&p.manual);
+  if(!active.length)return'PORTFOLIO STATUS: No data entered. Guide user to Data Entry.';
+  return`\nPORTFOLIO DATA — Period ${S.period}:\n`+active.map(p=>{
+    const m=p.manual,st=p.str||{};
+    const bd=m.revpar&&m.revparBud?((m.revpar/m.revparBud)*100-100):null;
+    return`  - ${p.name} (${p.rdo}/${p.owner}): Score ${p.score??'N/A'}, RevPAR $${m.revpar??'?'} (${bd!=null?(bd>=0?'+':'')+bd.toFixed(1)+'% vs bud':'bud $'+(m.revparBud??'?')}), Occ ${m.occ??'?'}%, GOP ${m.gop??'?'}%${p.flow!=null?', Flow '+(p.flow>=0?'+':'')+p.flow.toFixed(0)+'%':''}${st.revparIdx?', RevPAR Idx '+st.revparIdx:''}${p.note?', Note: '+p.note.substring(0,60):''}`;
+  }).join('\n');
+}
+
+let tkN=0;
+function renderMsg(role,text){
+  const c=document.getElementById('chat-msgs');
+  const el=document.createElement('div');el.className=`msg ${role}`;
+  el.innerHTML=`<div class="avatar ${role}">${role==='ai'?'✦':'C'}</div><div style="flex:1;min-width:0;max-width:calc(100% - 36px)"><div class="bubble">${role==='ai'?fmtAI(text):esc(text)}</div><div class="meta">${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}${role==='ai'?' · '+(MODES[S.mode]?.label||'Executive'):''}</div></div>`;
+  c.appendChild(el);c.scrollTop=c.scrollHeight;
+}
+function fmtAI(t){
+  const e=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return e.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^#{1,3} (.+)/gm,'<span class="sh">$1</span>').replace(/^[-•*] (.+)/gm,'<li>$1</li>').replace(/(<li>.*<\/li>(\n<li>.*<\/li>)*)/g,'<ul>$1</ul>').replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>');
+}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderThinking(){const c=document.getElementById('chat-msgs');const id='tk'+(++tkN);const el=document.createElement('div');el.id=id;el.className='thinking';el.innerHTML=`<div class="avatar ai">✦</div><div class="dots"><span></span><span></span><span></span></div>`;c.appendChild(el);c.scrollTop=c.scrollHeight;return id;}
+function removeThinking(id){document.getElementById(id)?.remove();}
+
+// ─── NAV ─────────────────────────────────────────────────────────
+function navTo(id){
+  document.querySelectorAll('.panel').forEach(p=>{p.classList.remove('active');p.style.display='none';});
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const panel=document.getElementById('p-'+id);
+  if(panel){
+    panel.style.display=id==='ai'?'flex':'block';
+    panel.classList.add('active');
+    // Phase 2 Fix #9 — brief loading shimmer on panel switch if data is mid-load
+    if(S.loading){
+      const prev=panel.style.opacity;panel.style.opacity='0.6';
+      setTimeout(()=>panel.style.opacity=prev||'1',300);
+    }
+  }
+  document.querySelector(`.nav-item[data-nav="${id}"]`)?.classList.add('active');
+  closeSidebar();
+}
+
+async function onPeriodChange(v){
+  S.period=v;
+  localStorage.setItem('sh_period',v); // Phase 2 Fix #6 — persist across refresh
+  // Sync all period selectors
+  ['period-sel','cmp-p1','admin-period'].forEach(id=>{
+    const el=document.getElementById(id);if(el&&el.value!==v)el.value=v;
+  });
+  await refreshData();
+}
+async function refreshData(){
+  const btn=document.getElementById('refresh-btn');btn.textContent='…';btn.disabled=true;
+  // Phase 2 Fix #7 — capture sort/filter before reload
+  const savedSort=S.sortLB, savedFilter=S.filterLB;
+  try{
+    await loadProperties();await loadAlerts();
+    S.sortLB=savedSort; S.filterLB=savedFilter; // restore after load
+    buildAll();
+    showEmptyStateIfNeeded();
+    toast('✓ Refreshed');
+  }
+  catch{toast('⚠ Using cached data');}
+  finally{btn.textContent='⟳';btn.disabled=false;}
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────
+function updatePSBadge(s){const el=document.getElementById('ps-badge');const tx=document.getElementById('ps-txt');el.className='ps-badge '+s;tx.textContent=s==='live'?'Live':s==='connecting'?'…':'Demo';}
+function setStatus(id,msg,type){const el=document.getElementById(id);if(el)el.innerHTML=`<div class="status-msg ${type}">${msg}</div>`;}
+let toastT;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);}
+
+// ─── BOOT ────────────────────────────────────────────────────────
+document.querySelectorAll('.panel').forEach(p=>{p.style.display='none';});
+document.getElementById('p-ai').style.display='flex';
+document.getElementById('p-ai').classList.add('active');
+init();
+</script>
+</body>
+</html>

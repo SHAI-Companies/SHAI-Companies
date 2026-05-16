@@ -1,0 +1,535 @@
+/* ============================================================================
+   SHAI Theme — Superhost Hospitality AI Design System
+   Single source of truth for tokens, typography, layout primitives, components.
+   Version 1.0 — see /docs/SHAI_DESIGN_SYSTEM.md for usage.
+   ============================================================================ */
+
+/* ─── 1. TOKENS ─────────────────────────────────────────────────────────── */
+/* Brand-locked tokens (the same in every theme) */
+:root {
+  --shai-navy:  #0B1F3A;
+  --shai-pink:  #FF2DB2;
+  --shai-blue:  #1A6BFF;
+  --shai-slate: #6B7A90;
+  --shai-light: #F2F4F7;
+
+  /* Brand-locked accents — never theme-dependent */
+  --accent:      var(--shai-pink);
+  --accent-2:    var(--shai-blue);
+  --accent-soft: rgba(255,45,178,0.08);
+  --accent-2-soft: rgba(26,107,255,0.08);
+
+  /* ─── BRAND GRADIENTS ────────────────────────────────────────────────
+     The pink↔blue gradient IS the brand signature. Use these tokens
+     anywhere you'd otherwise reach for a flat brand color: primary
+     buttons, active rules, accent strokes, eyebrow underlines, loading
+     bars, hero CTAs. Single source of truth — adjust here once, every
+     surface follows. */
+  --brand-gradient:        linear-gradient(90deg, #FF2DB2 0%, #1A6BFF 100%);
+  --brand-gradient-135:    linear-gradient(135deg, #FF2DB2 0%, #1A6BFF 100%);
+  --brand-gradient-soft:   linear-gradient(90deg, rgba(255,45,178,0.18) 0%, rgba(26,107,255,0.18) 100%);
+  --brand-gradient-faint:  linear-gradient(90deg, rgba(255,45,178,0.06) 0%, rgba(26,107,255,0.06) 100%);
+  /* For background-clip:text — gradient on headline copy */
+  --brand-gradient-reverse:linear-gradient(90deg, #1A6BFF 0%, #FF2DB2 100%);
+
+  /* ─── BRAND GLOWS ────────────────────────────────────────────────────
+     Box-shadow stacks for hover/focus/active. Pair with the gradient
+     tokens for buttons + cards that need to lift off the surface. */
+  --brand-glow-pink:   0 0 24px rgba(255,45,178,0.28);
+  --brand-glow-blue:   0 0 24px rgba(26,107,255,0.28);
+  --brand-glow-mix:    0 0 24px rgba(255,45,178,0.18), 0 0 36px rgba(26,107,255,0.14);
+  --brand-glow-strong: 0 0 32px rgba(255,45,178,0.40), 0 0 48px rgba(26,107,255,0.30);
+  --brand-ring:        0 0 0 3px rgba(255,45,178,0.18), 0 0 0 6px rgba(26,107,255,0.10);
+
+  /* Hairline rules — gradient borders rendered as backgrounds */
+  --brand-rule:        linear-gradient(90deg, transparent 0%, var(--shai-pink) 30%, var(--shai-blue) 70%, transparent 100%);
+  --brand-rule-strong: linear-gradient(90deg, var(--shai-pink) 0%, var(--shai-blue) 100%);
+
+  /* Status (semantic) — same in both themes */
+  --status-up:    #16A34A;
+  --status-down:  #DC2626;
+  --status-warn:  #D97706;
+  --status-up-soft:   rgba(22,163,74,0.10);
+  --status-down-soft: rgba(220,38,38,0.10);
+  --status-warn-soft: rgba(217,119,6,0.10);
+}
+
+/* ─── BRAND UTILITY CLASSES ────────────────────────────────────────────
+   Drop-in classes for places that need brand presence without writing
+   custom CSS. Use sparingly — these are accent moments, not background
+   wallpaper. */
+.shai-brand-gradient        { background: var(--brand-gradient); color: #FFFFFF; }
+.shai-brand-gradient-text   {
+  background: var(--brand-gradient); background-clip: text; -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.shai-brand-rule {
+  height: 2px; width: 100%; border: 0;
+  background: var(--brand-rule);
+  border-radius: 1px;
+}
+.shai-brand-rule-strong {
+  height: 3px; width: 100%; border: 0;
+  background: var(--brand-rule-strong);
+  border-radius: 2px;
+  box-shadow: var(--brand-glow-mix);
+}
+.shai-brand-glow            { box-shadow: var(--brand-glow-mix); }
+.shai-brand-glow-strong     { box-shadow: var(--brand-glow-strong); }
+.shai-brand-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px; letter-spacing: 0.28em; text-transform: uppercase;
+  font-weight: 600;
+  background: var(--brand-gradient); background-clip: text; -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+@keyframes shaiBrandShimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.shai-brand-shimmer {
+  background: linear-gradient(90deg, var(--shai-pink) 0%, var(--shai-blue) 50%, var(--shai-pink) 100%);
+  background-size: 200% 100%;
+  animation: shaiBrandShimmer 6s ease-in-out infinite;
+}
+
+/* ─ LIGHT THEME (default) ─ */
+:root,
+:root[data-theme="light"] {
+  --bg:          #FFFFFF;
+  --bg-soft:     var(--shai-light);
+  --bg-muted:    #E8EBF0;
+  --surface:     #FFFFFF;
+  --surface-alt: #F8F9FB;
+
+  --text:        var(--shai-navy);
+  --text-muted:  var(--shai-slate);
+  --text-faint:  #9AA4B5;
+  --text-on-navy:#FFFFFF;
+  --text-on-navy-muted: rgba(255,255,255,0.72);
+
+  --border:        rgba(11,31,58,0.08);
+  --border-strong: rgba(11,31,58,0.14);
+  --border-on-navy: rgba(255,255,255,0.10);
+
+  --shadow-xs: 0 1px 2px rgba(11,31,58,0.04);
+  --shadow-sm: 0 1px 3px rgba(11,31,58,0.06), 0 1px 2px rgba(11,31,58,0.04);
+  --shadow-md: 0 4px 12px rgba(11,31,58,0.08), 0 2px 4px rgba(11,31,58,0.04);
+  --shadow-lg: 0 10px 24px rgba(11,31,58,0.10), 0 4px 8px rgba(11,31,58,0.06);
+}
+
+/* ─ DARK THEME ─ Built from the locked 5-color palette only.
+   NAVY is the surface. PINK + BLUE are accents. SLATE is muted text.
+   LIGHT is bright text. We layer via subtle white-alpha overlays so we
+   never introduce a 6th brand color. */
+:root[data-theme="dark"] {
+  --bg:          #0B1F3A;                       /* NAVY — page background */
+  --bg-soft:     #102648;                       /* navy + faint lift (used inside, not a new brand color) */
+  --bg-muted:    #16305A;                       /* hover state on navy */
+  --surface:     #102648;                       /* card surface — same as bg-soft */
+  --surface-alt: #16305A;
+
+  --text:        #F2F4F7;                       /* LIGHT — primary text on navy */
+  --text-muted:  #6B7A90;                       /* SLATE — muted text */
+  --text-faint:  rgba(242,244,247,0.42);        /* faint variant of LIGHT */
+  --text-on-navy:#F2F4F7;                       /* LIGHT */
+  --text-on-navy-muted: rgba(242,244,247,0.68); /* LIGHT @ 68% */
+
+  --border:        rgba(242,244,247,0.06);      /* hairlines via LIGHT alpha */
+  --border-strong: rgba(242,244,247,0.12);
+  --border-on-navy: rgba(242,244,247,0.10);
+
+  /* Shadows — pure black for depth, with brand-pink/brand-blue 1px glow on lifted cards */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.50), 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35),
+               0 0 0 1px rgba(255,45,178,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.60), 0 6px 12px rgba(0,0,0,0.45),
+               0 0 0 1px rgba(26,107,255,0.06);
+
+  /* Brand gradient — pink → blue */
+  --shai-gradient: linear-gradient(90deg, var(--shai-pink) 0%, var(--shai-blue) 100%);
+}
+
+/* Hold any remaining tokens shared across themes */
+:root {
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'DM Mono', ui-monospace, monospace;
+
+  --fs-xs:  11px;
+  --fs-sm:  12px;
+  --fs-base:13px;
+  --fs-md:  14px;
+  --fs-lg:  16px;
+  --fs-xl:  18px;
+  --fs-2xl: 22px;
+  --fs-3xl: 28px;
+  --fs-4xl: 36px;
+  --fs-5xl: 48px;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+  --fw-bold:    700;
+  --fw-extrabold:800;
+
+  /* Spacing scale (4px base) */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows — subtle, SaaS-style */
+  --shadow-xs: 0 1px 2px rgba(11,31,58,0.04);
+  --shadow-sm: 0 1px 3px rgba(11,31,58,0.06), 0 1px 2px rgba(11,31,58,0.04);
+  --shadow-md: 0 4px 12px rgba(11,31,58,0.08), 0 2px 4px rgba(11,31,58,0.04);
+  --shadow-lg: 0 10px 24px rgba(11,31,58,0.10), 0 4px 8px rgba(11,31,58,0.06);
+
+  /* Header */
+  --header-h:    68px;
+  --container-max: 1280px;
+
+  /* Motion — subtle only */
+  --t-fast: 120ms ease;
+  --t-base: 180ms ease;
+}
+
+/* ─── 2. RESET & BASE ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg-soft);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: var(--accent-2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img, svg { display: block; max-width: 100%; }
+
+/* ─── 3. TYPOGRAPHY ────────────────────────────────────────────────────── */
+.shai-h1, .shai-h2, .shai-h3, .shai-h4 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.2;
+}
+.shai-h1 { font-size: var(--fs-4xl); }
+.shai-h2 { font-size: var(--fs-3xl); }
+.shai-h3 { font-size: var(--fs-2xl); font-weight: var(--fw-bold); }
+.shai-h4 { font-size: var(--fs-xl);  font-weight: var(--fw-semibold); }
+
+.shai-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--shai-pink);
+  font-weight: var(--fw-semibold);
+}
+.shai-tagline { font-size: var(--fs-md); color: var(--text-muted); }
+.shai-mono    { font-family: var(--font-mono); font-size: var(--fs-xs); }
+
+/* ─── 4. LAYOUT PRIMITIVES ─────────────────────────────────────────────── */
+.shai-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+.shai-stack > * + *  { margin-top: var(--space-4); }
+.shai-stack-lg > * + *{ margin-top: var(--space-8); }
+.shai-row {
+  display: flex; align-items: center; gap: var(--space-3);
+}
+.shai-row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.shai-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.shai-grid-4 { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, 1fr); }
+.shai-grid-3 { display: grid; gap: var(--space-4); grid-template-columns: repeat(3, 1fr); }
+.shai-grid-2 { display: grid; gap: var(--space-4); grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 880px) {
+  .shai-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .shai-grid-3 { grid-template-columns: 1fr; }
+  .shai-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ─── 5. SHAI HEADER (top navigation bar) ──────────────────────────────── */
+.shai-header {
+  background: var(--shai-navy);
+  color: var(--text-on-navy);
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-on-navy);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.shai-header-inner {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+.shai-brand { display: flex; align-items: center; gap: var(--space-3); }
+.shai-brand-logo { height: 44px; width: auto; display: block; border-radius: 4px; object-fit: contain; }
+.shai-brand-sub  {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-on-navy-muted);
+  border-left: 1px solid var(--border-on-navy);
+  padding-left: var(--space-3);
+  margin-left: var(--space-1);
+}
+.shai-nav { display: flex; align-items: center; gap: var(--space-1); margin-left: auto; }
+.shai-nav-item {
+  display: inline-flex; align-items: center;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  color: var(--text-on-navy-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.shai-nav-item:hover { color: var(--text-on-navy); text-decoration: none; }
+.shai-nav-item.active {
+  color: var(--text-on-navy);
+  border-bottom-color: var(--shai-pink);
+  border-radius: 0;
+  padding-bottom: calc(var(--space-2) - 2px);
+}
+.shai-header-actions { display: flex; align-items: center; gap: var(--space-2); margin-left: var(--space-4); }
+
+/* ─── 6. CARDS / SURFACES ─────────────────────────────────────────────── */
+.shai-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t-base), border-color var(--t-base);
+}
+.shai-card:hover { box-shadow: var(--shadow-md); }
+.shai-card-flat  { box-shadow: none; }
+.shai-card-tight { padding: var(--space-4); }
+.shai-card-loose { padding: var(--space-6); }
+
+.shai-section {
+  display: flex; flex-direction: column;
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+}
+.shai-section-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* ─── 7. KPI TILE ─────────────────────────────────────────────────────── */
+.shai-kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 100px;
+}
+.shai-kpi-label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.01em;
+}
+.shai-kpi-value {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.shai-kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+.shai-kpi-delta.up   { color: var(--status-up); }
+.shai-kpi-delta.down { color: var(--status-down); }
+.shai-kpi-delta.warn { color: var(--status-warn); }
+.shai-kpi-delta::before { content: ''; }
+.shai-kpi-delta.up::before   { content: '↑ '; font-weight: var(--fw-bold); }
+.shai-kpi-delta.down::before { content: '↓ '; font-weight: var(--fw-bold); }
+
+/* ─── 8. BUTTONS ──────────────────────────────────────────────────────── */
+.shai-btn {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.shai-btn-primary {
+  background: var(--shai-blue);
+  color: #fff;
+}
+.shai-btn-primary:hover { background: var(--shai-blue); filter: brightness(0.92); text-decoration: none; }
+.shai-btn-accent {
+  background: var(--shai-pink);
+  color: #fff;
+}
+.shai-btn-accent:hover { background: var(--shai-pink); filter: brightness(0.92); text-decoration: none; }
+.shai-btn-outline {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.shai-btn-outline:hover { border-color: var(--shai-blue); color: var(--shai-blue); text-decoration: none; }
+.shai-btn-ghost {
+  background: transparent; color: var(--text-muted);
+}
+.shai-btn-ghost:hover { color: var(--text); background: var(--bg-soft); }
+
+.shai-btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--fs-xs); }
+.shai-btn-lg { padding: var(--space-3) var(--space-5); font-size: var(--fs-md); }
+
+/* ─── 9. BADGES / PILLS ───────────────────────────────────────────────── */
+.shai-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  background: var(--bg-muted);
+  color: var(--text-muted);
+}
+.shai-badge.pink { background: var(--accent-soft);   color: var(--shai-pink); }
+.shai-badge.blue { background: var(--accent-2-soft); color: var(--shai-blue); }
+.shai-badge.up   { background: var(--status-up-soft);   color: var(--status-up); }
+.shai-badge.down { background: var(--status-down-soft); color: var(--status-down); }
+.shai-badge.warn { background: var(--status-warn-soft); color: var(--status-warn); }
+
+/* ─── 10. UTILITIES ───────────────────────────────────────────────────── */
+.shai-muted   { color: var(--text-muted); }
+.shai-faint   { color: var(--text-faint); }
+.shai-pink    { color: var(--shai-pink); }
+.shai-blue    { color: var(--shai-blue); }
+.shai-mono-num{ font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.shai-divider {
+  height: 1px; width: 100%;
+  background: linear-gradient(90deg, transparent, var(--shai-pink) 30%, var(--shai-blue) 70%, transparent);
+  border: 0; margin-block: var(--space-4);
+}
+.shai-divider-hairline { height: 1px; background: var(--border); margin-block: var(--space-4); }
+
+/* ─── 11. REPORT COVER LAYOUT (owner reports) ─────────────────────────── */
+.shai-report-cover {
+  background: var(--shai-navy);
+  color: var(--text-on-navy);
+  min-height: 100vh;
+  padding: var(--space-12) var(--space-10);
+  display: flex; flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.shai-report-cover .brand-mark {
+  height: 36px;
+}
+.shai-report-cover .report-title {
+  font-size: var(--fs-5xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.02em;
+  margin-top: var(--space-12);
+}
+.shai-report-cover .report-period {
+  margin-top: var(--space-3);
+  color: var(--shai-pink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.shai-report-cover .report-tagline {
+  margin-top: var(--space-6);
+  color: var(--text-on-navy-muted);
+  font-size: var(--fs-lg);
+}
+
+/* ─── 12. PRESENTATION TITLE SLIDE ────────────────────────────────────── */
+.shai-title-slide {
+  background: var(--shai-navy);
+  color: var(--text-on-navy);
+  width: 100%; min-height: 56.25vw; max-height: 100vh;
+  padding: var(--space-12) var(--space-10);
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.shai-title-slide .title-text {
+  font-size: var(--fs-5xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-top: var(--space-12);
+}
+.shai-title-slide .title-subtitle {
+  margin-top: var(--space-6);
+  color: var(--shai-pink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+}
+.shai-title-slide .title-footer {
+  margin-top: auto;
+  color: var(--text-on-navy-muted);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+}

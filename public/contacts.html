@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hotel Contacts — SHAI Executive Hub</title>
+<link rel="icon" href="/brand/shai-icon-monogram.ico" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --shai-navy:#0B1F3A; --shai-navy-2:#0d2547; --shai-pink:#FF2DB2;
+    --shai-blue:#1A6BFF; --shai-blue-2:#3a82ff; --shai-slate:#6B7A90;
+    --shai-light:#F2F4F7; --status-up:#16A34A; --status-warn:#D97706; --status-down:#DC2626;
+    --border:rgba(80,140,240,.18); --border-strong:rgba(80,140,240,.32);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--shai-navy);
+    color:#E8ECFF;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';position:fixed;inset:-20%;z-index:0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(26,107,255,.08), transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(255,45,178,.05), transparent 50%);
+    filter:blur(20px);pointer-events:none;
+  }
+
+  .topbar{
+    position:sticky;top:0;z-index:10;
+    background:rgba(11,31,58,.85);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    padding:14px 28px;
+    display:flex;align-items:center;gap:18px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+  .brand img{height:24px;width:auto;display:block}
+  .brand .tag{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:2.5px;
+    text-transform:uppercase;color:#8aa1c2;
+  }
+  .nav{display:flex;gap:6px;margin-left:18px}
+  .nav a{
+    padding:6px 14px;border-radius:8px;text-decoration:none;
+    font-size:12px;font-weight:500;color:#b8c5d9;
+    transition:all .18s ease;
+  }
+  .nav a:hover{background:rgba(80,140,240,.08);color:#fff}
+  .nav a.active{background:rgba(255,45,178,.14);color:#fff}
+
+  .meta{
+    margin-left:auto;display:flex;align-items:center;gap:14px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--shai-slate);
+  }
+  .meta .dot{width:6px;height:6px;border-radius:50%;background:var(--status-up);box-shadow:0 0 8px var(--status-up)}
+
+  .container{
+    position:relative;z-index:1;
+    max-width:1320px;margin:0 auto;padding:32px 28px 64px;
+  }
+
+  .h1{
+    font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px;
+  }
+  .h1 .accent{color:var(--shai-pink)}
+  .lede{
+    font-size:13px;color:#b8c5d9;line-height:1.5;max-width:780px;margin-bottom:8px;
+  }
+  .lede a{color:var(--shai-blue-2);text-decoration:none}
+  .lede a:hover{text-decoration:underline}
+  .source-meta{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;
+    color:var(--shai-slate);margin-bottom:28px;
+  }
+
+  .section-title{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;
+    text-transform:uppercase;color:var(--shai-pink);font-weight:600;
+    margin:36px 0 14px;
+    display:flex;align-items:baseline;gap:14px;
+  }
+  .section-title .count{color:var(--shai-slate);font-weight:400;font-size:10px;letter-spacing:1.5px}
+
+  /* Search */
+  .search{
+    width:100%;max-width:420px;
+    background:rgba(15,44,84,.7);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 14px;
+    color:#fff;font-family:'Inter',sans-serif;font-size:13px;
+    margin-bottom:18px;
+    transition:border-color .15s;
+  }
+  .search:focus{outline:none;border-color:var(--shai-blue-2);background:rgba(15,44,84,.85)}
+  .search::placeholder{color:#5e7398}
+
+  /* Property cards grid */
+  .props-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+  }
+  @media (max-width:900px){.props-grid{grid-template-columns:1fr}}
+  .prop-card{
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid var(--border);border-radius:14px;
+    padding:18px 20px;
+    box-shadow:0 4px 20px rgba(0,0,0,.18);
+    transition:border-color .15s, transform .15s;
+  }
+  .prop-card:hover{border-color:var(--border-strong)}
+  .prop-card.inactive{opacity:.6;border-style:dashed}
+
+  .prop-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .prop-name{font-size:15px;font-weight:600;color:#fff;line-height:1.25}
+  .prop-meta{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;
+    color:var(--shai-slate);text-transform:uppercase;
+  }
+  .badge{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;
+    text-transform:uppercase;font-weight:600;
+    padding:3px 8px;border-radius:999px;
+    background:rgba(80,140,240,.14);color:#a8c0e8;
+    margin-left:auto;
+  }
+  .badge.coming{background:rgba(255,45,178,.14);color:#ff8ed5}
+  .badge.empty{background:rgba(220,38,38,.14);color:#ef9b9b}
+
+  .role-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;
+  }
+  @media (max-width:560px){.role-grid{grid-template-columns:1fr}}
+  .role{
+    padding:10px 12px;border-radius:8px;
+    background:rgba(11,31,58,.45);border-left:3px solid var(--shai-blue);
+  }
+  .role.owner{border-left-color:var(--shai-pink)}
+  .role.support{border-left-color:var(--status-warn)}
+  .role-label{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;
+    text-transform:uppercase;color:#8aa1c2;font-weight:600;margin-bottom:4px;
+  }
+  .role-name{font-size:13px;font-weight:500;color:#fff;line-height:1.3}
+  .role-name.muted{color:#5e7398;font-style:italic;font-weight:400}
+  .role-detail{
+    margin-top:3px;font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;color:#9eb2cf;letter-spacing:.2px;line-height:1.4;
+    word-break:break-word;
+  }
+  .role-detail a{color:#9eb2cf;text-decoration:none}
+  .role-detail a:hover{color:#fff}
+
+  .ops-row{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;
+    border-top:1px dashed rgba(80,140,240,.16);
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:#9eb2cf;letter-spacing:.5px;
+  }
+  .ops-row .chip{
+    padding:3px 8px;border-radius:6px;
+    background:rgba(80,140,240,.07);border:1px solid rgba(80,140,240,.14);
+  }
+  .ops-row .chip strong{color:#cfdcef;font-weight:500;margin-right:4px}
+
+  /* Corporate roster — table-style */
+  .corp-table{
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  }
+  .corp-row{
+    display:grid;grid-template-columns:2fr 2fr 1fr 1.5fr 1.2fr;
+    border-top:1px solid rgba(80,140,240,.08);
+    align-items:center;
+  }
+  .corp-row.head{background:rgba(11,31,58,.55);border-top:none}
+  .corp-row.head > div{
+    padding:10px 14px;font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;
+    color:#8aa1c2;font-weight:500;
+  }
+  .corp-row > div{padding:11px 14px;font-size:12.5px;color:#dbe6f5}
+  .corp-row .name{font-weight:600;color:#fff}
+  .corp-row .dept{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    color:#a8c0e8;letter-spacing:1px;text-transform:uppercase;
+  }
+  .corp-row a{color:#9eb2cf;text-decoration:none;word-break:break-word}
+  .corp-row a:hover{color:#fff}
+  @media (max-width:740px){
+    .corp-row{grid-template-columns:1fr;gap:0}
+    .corp-row.head{display:none}
+    .corp-row > div{padding:8px 14px}
+  }
+
+  .empty-state{
+    padding:32px 18px;text-align:center;color:var(--shai-slate);font-size:13px;
+    font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;
+  }
+  .loading{
+    padding:48px 0;text-align:center;color:var(--shai-slate);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  }
+  .err{
+    padding:18px 20px;border-radius:10px;margin-bottom:18px;
+    background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.3);
+    font-size:13px;color:#fca5a5;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="/dashboard.html">
+    <img src="/brand/shai-banner.png" alt="SHAI" onerror="this.src='/brand/shai-mark-transparent.png';this.style.height='28px'" />
+    <span class="tag">Executive Hub</span>
+  </a>
+  <nav class="nav">
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/team.html">Executive Team</a>
+    <a href="/contacts.html" class="active">Contacts</a>
+  </nav>
+  <div class="meta">
+    <span><span class="dot"></span> System Online</span>
+    <span id="metaImported">--</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <h1 class="h1">Hotel <span class="accent">Contacts</span></h1>
+  <p class="lede">
+    Per-property leadership, corporate support assignments, ownership, and
+    operational handles. Sourced from the live Drive sheet via
+    <code style="font-family:'JetBrains Mono',monospace;background:rgba(80,140,240,.08);padding:1px 6px;border-radius:4px">tools-import-contacts.py</code>;
+    re-run the importer when the sheet changes meaningfully.
+  </p>
+  <div class="source-meta" id="sourceMeta">Loading source meta…</div>
+
+  <input type="text" class="search" id="search" placeholder="Search property, person, role, or department…" />
+
+  <div class="section-title" id="propsTitle">
+    Property Contacts <span class="count" id="propsCount"></span>
+  </div>
+  <div id="propsLoading" class="loading">Loading property contacts…</div>
+  <div id="propsErr" class="err" style="display:none"></div>
+  <div class="props-grid" id="propsGrid"></div>
+
+  <div class="section-title">
+    Corporate Roster <span class="count" id="corpCount"></span>
+  </div>
+  <div id="corpLoading" class="loading">Loading corporate roster…</div>
+  <div id="corpErr" class="err" style="display:none"></div>
+  <div class="corp-table" id="corpTable"></div>
+
+</div>
+
+<script>
+  // ─── Data fetch + render ──────────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const mailLink = (e) => e ? `<a href="mailto:${esc(e)}">${esc(e)}</a>` : '';
+  const telLink  = (p) => p ? `<a href="tel:${esc(String(p).replace(/[^0-9+]/g,''))}">${esc(p)}</a>` : '';
+
+  let _props = [];
+  let _corp  = [];
+
+  async function loadAll(){
+    try {
+      const [pRes, cRes] = await Promise.all([
+        fetch('/api/contacts/all-properties').then(r => r.json()),
+        fetch('/api/contacts/corporate').then(r => r.json())
+      ]);
+      _props = pRes.properties || [];
+      _corp  = cRes.contacts || [];
+
+      const meta = pRes.meta || {};
+      if (meta.importedAt) {
+        $('sourceMeta').textContent =
+          `SOURCE: ${meta.sourceFile || 'unknown'}  ·  IMPORTED: ${meta.importedAt}` +
+          (meta.stats ? `  ·  ${meta.stats.propertiesMapped} mapped, ${meta.stats.propertiesUnmapped} unmapped` : '');
+        $('metaImported').textContent = 'Imported ' + meta.importedAt.split('T')[0];
+      } else {
+        $('sourceMeta').textContent = 'No import metadata — run tools-import-contacts.py to populate.';
+      }
+
+      $('propsLoading').style.display = 'none';
+      $('corpLoading').style.display  = 'none';
+      $('propsCount').textContent = `(${_props.length})`;
+      $('corpCount').textContent  = `(${_corp.length})`;
+      renderProps(_props);
+      renderCorp(_corp);
+    } catch (e) {
+      $('propsLoading').style.display = 'none';
+      $('corpLoading').style.display  = 'none';
+      $('propsErr').style.display = 'block';
+      $('propsErr').textContent   = 'Failed to load property contacts: ' + e.message;
+    }
+  }
+
+  function renderProps(list){
+    const container = $('propsGrid');
+    if (!list.length) { container.innerHTML = '<div class="empty-state">No properties match this search.</div>'; return; }
+    container.innerHTML = list.map(p => {
+      const c = p.contact;
+      const isComing = !p.active;
+      const hasContact = !!c;
+      const stateBadge = isComing
+        ? '<span class="badge coming">Coming Soon</span>'
+        : (!hasContact ? '<span class="badge empty">No contact data</span>' : '');
+
+      if (!hasContact) {
+        return `<div class="prop-card ${isComing?'inactive':''}">
+          <div class="prop-head">
+            <div>
+              <div class="prop-name">${esc(p.name)}</div>
+              <div class="prop-meta">${esc(p.brand)} · ${esc(p.state)} · #${p.propertyId}</div>
+            </div>
+            ${stateBadge}
+          </div>
+          <div class="empty-state" style="padding:14px 0;font-size:11px">No imported contacts for this property yet.</div>
+        </div>`;
+      }
+
+      const gm  = c.gm  || {};
+      const agm = c.agm || {};
+      const dos = c.dos || {};
+      const own = c.owner || {};
+      const sup = c.support || {};
+      const supR = p.supportResolved || {};
+
+      const role = (label, name, email, cell, cls = '') => {
+        if (!name && !email && !cell) return '';
+        const detail = [];
+        if (email) detail.push(mailLink(email));
+        if (cell)  detail.push(telLink(cell));
+        return `<div class="role ${cls}">
+          <div class="role-label">${esc(label)}</div>
+          <div class="role-name ${name?'':'muted'}">${esc(name || '(open)')}</div>
+          ${detail.length ? `<div class="role-detail">${detail.join(' &nbsp;·&nbsp; ')}</div>` : ''}
+        </div>`;
+      };
+
+      const supportRole = (label, key) => {
+        const name = (sup[key] || '').trim();
+        const resolved = (supR[key] || {}).contact;
+        if (!name) return '';
+        const detail = [];
+        if (resolved) {
+          if (resolved.email) detail.push(mailLink(resolved.email));
+          if (resolved.cell)  detail.push(telLink(resolved.cell));
+        }
+        return `<div class="role support">
+          <div class="role-label">${esc(label)}</div>
+          <div class="role-name">${esc(name)}</div>
+          ${detail.length ? `<div class="role-detail">${detail.join(' &nbsp;·&nbsp; ')}</div>` : ''}
+        </div>`;
+      };
+
+      // Operational handles
+      const ops = [];
+      if (c.address && c.city) ops.push(`<span class="chip"><strong>Loc</strong>${esc(c.address)}, ${esc(c.city)} ${esc(c.state||'')} ${esc(c.zip||'')}</span>`);
+      if (c.phone)             ops.push(`<span class="chip"><strong>Tel</strong>${esc(c.phone)}</span>`);
+      if (c.rooms)             ops.push(`<span class="chip"><strong>Rms</strong>${esc(c.rooms)}</span>`);
+      if (c.website)           ops.push(`<span class="chip"><strong>Web</strong><a href="${esc(c.website)}" target="_blank" rel="noopener" style="color:inherit">${esc((c.website||'').replace(/^https?:\/\//,'').slice(0,32))}</a></span>`);
+      if (c.hotelEmailAP)      ops.push(`<span class="chip"><strong>AP</strong>${mailLink(c.hotelEmailAP)}</span>`);
+      if (c.m3CompanyCode || c.m3PropertyCode) ops.push(`<span class="chip"><strong>M3</strong>${esc(c.m3CompanyCode||'?')}/${esc(c.m3PropertyCode||'?')}</span>`);
+      if (c.strCode)           ops.push(`<span class="chip"><strong>STR</strong>${esc(c.strCode)}</span>`);
+      if (c.code)              ops.push(`<span class="chip"><strong>Code</strong>${esc(c.code)}</span>`);
+
+      return `<div class="prop-card">
+        <div class="prop-head">
+          <div>
+            <div class="prop-name">${esc(p.name)}</div>
+            <div class="prop-meta">${esc(p.brand)} · ${esc(p.state)} · #${p.propertyId}</div>
+          </div>
+          ${stateBadge}
+        </div>
+        <div class="role-grid">
+          ${role('General Manager', gm.name, gm.email, gm.cell)}
+          ${role('AGM / FOM', agm.name, agm.email, null)}
+          ${role('Director of Sales', dos.name, dos.email, null)}
+          ${role('Owner Contact', own.contact, null, null, 'owner')}
+        </div>
+        <div class="role-grid">
+          ${supportRole('RDO', 'regional')}
+          ${supportRole('Sales RSM', 'salesRegional')}
+          ${supportRole('Revenue', 'revenue')}
+          ${supportRole('Controller', 'controller')}
+        </div>
+        ${own.group ? `<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,45,178,.05);border-left:3px solid var(--shai-pink);font-size:11.5px;color:#dbe6f5">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#ff8ed5;font-weight:600">Ownership</span><br>
+          <strong>${esc(own.group)}</strong>${own.legalEntity?` · ${esc(own.legalEntity)}`:''}${own.ein?` · EIN ${esc(own.ein)}`:''}
+        </div>` : ''}
+        ${ops.length ? `<div class="ops-row">${ops.join('')}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function renderCorp(list){
+    const container = $('corpTable');
+    if (!list.length) { container.innerHTML = '<div class="empty-state">No corporate contacts loaded.</div>'; return; }
+    const head = `<div class="corp-row head">
+      <div>Name</div><div>Title</div><div>Department</div><div>Email</div><div>Cell</div>
+    </div>`;
+    const rows = list.map(r => `<div class="corp-row">
+      <div class="name">${esc(r.name)}</div>
+      <div>${esc(r.title || '')}</div>
+      <div class="dept">${esc(r.department || '')}</div>
+      <div>${mailLink(r.email)}</div>
+      <div>${telLink(r.cell)}</div>
+    </div>`).join('');
+    container.innerHTML = head + rows;
+  }
+
+  // ─── Search filter ────────────────────────────────────────────────────
+  $('search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) {
+      renderProps(_props); renderCorp(_corp);
+      $('propsCount').textContent = `(${_props.length})`;
+      $('corpCount').textContent  = `(${_corp.length})`;
+      return;
+    }
+    const matchProp = (p) => {
+      const c = p.contact || {};
+      const blob = [
+        p.name, p.brand, p.state,
+        c.gm?.name, c.gm?.email, c.agm?.name, c.dos?.name,
+        c.owner?.contact, c.owner?.group, c.owner?.legalEntity,
+        c.support?.controller, c.support?.regional, c.support?.salesRegional, c.support?.revenue,
+        c.address, c.city, c.code, c.m3CompanyCode, c.m3PropertyCode
+      ].join(' ').toLowerCase();
+      return blob.includes(q);
+    };
+    const matchCorp = (r) => {
+      return [r.name, r.title, r.department, r.email, r.cell].join(' ').toLowerCase().includes(q);
+    };
+    const fp = _props.filter(matchProp);
+    const fc = _corp.filter(matchCorp);
+    renderProps(fp); renderCorp(fc);
+    $('propsCount').textContent = `(${fp.length}/${_props.length})`;
+    $('corpCount').textContent  = `(${fc.length}/${_corp.length})`;
+  });
+
+  loadAll();
+</script>
+</body>
+</html>

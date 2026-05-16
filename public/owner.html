@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHAI — Owner Portal</title>
+<link rel="icon" type="image/svg+xml" href="brand/shai-icon-monogram.svg" />
+<script>(function(){try{var t=localStorage.getItem('shai-theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles/shai-theme.css">
+<script defer src="/styles/shai-theme-toggle.js"></script>
+<style>
+/* Owner Portal — page-specific styles only. All tokens come from shai-theme.css */
+.pin-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;gap:var(--space-3);padding:var(--space-6);
+  background:var(--bg-soft);
+}
+.pin-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:var(--space-10) var(--space-8);box-shadow:var(--shadow-md);
+  display:flex;flex-direction:column;align-items:center;gap:var(--space-3);
+  max-width:380px;width:100%;
+}
+.pin-card .brand-mark{height:32px;margin-bottom:var(--space-3)}
+.pin-input{
+  font-family:var(--font-mono);font-size:var(--fs-2xl);
+  padding:var(--space-3) var(--space-4);text-align:center;letter-spacing:0.5em;
+  width:240px;
+  border:1px solid var(--border-strong);border-radius:var(--radius-md);
+  outline:none;color:var(--text);background:var(--surface);
+  transition:border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.pin-input:focus{border-color:var(--shai-blue);box-shadow:0 0 0 3px var(--accent-2-soft)}
+.pin-err{color:var(--status-down);font-size:var(--fs-xs);min-height:18px;font-weight:var(--fw-medium)}
+
+.portal{display:none;background:var(--bg-soft);min-height:100vh}
+.portal-content{padding-block:var(--space-6) var(--space-12)}
+
+.portal-meta{
+  display:flex;align-items:center;gap:var(--space-3);
+  font-size:var(--fs-sm);color:var(--text-muted);
+  margin-bottom:var(--space-5);
+}
+.portal-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--text-faint)}
+
+table.shai-table{
+  width:100%;border-collapse:collapse;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+table.shai-table th{
+  font-size:var(--fs-xs);font-weight:var(--fw-semibold);letter-spacing:0.04em;
+  text-transform:uppercase;color:var(--text-muted);
+  padding:var(--space-3) var(--space-4);text-align:left;
+  border-bottom:1px solid var(--border);background:var(--surface-alt);
+}
+table.shai-table td{
+  font-size:var(--fs-base);padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid var(--border);
+  font-variant-numeric:tabular-nums;
+}
+table.shai-table tr:last-child td{border-bottom:none}
+table.shai-table td:first-child{font-weight:var(--fw-semibold);color:var(--text)}
+table.shai-table .r{text-align:right}
+table.shai-table .pos{color:var(--status-up);font-weight:var(--fw-semibold)}
+table.shai-table .neg{color:var(--status-down);font-weight:var(--fw-semibold)}
+
+.sentiment-card .sc-row{
+  display:flex;justify-content:space-between;
+  font-size:var(--fs-sm);padding:var(--space-2) 0;
+  border-bottom:1px solid var(--border);
+}
+.sentiment-card .sc-row:last-child{border:none}
+.sentiment-card .sc-label{color:var(--text-muted)}
+.sentiment-card .sc-val{font-variant-numeric:tabular-nums;font-weight:var(--fw-semibold)}
+
+.portal-footer{
+  text-align:center;padding:var(--space-8) 0 var(--space-4);
+  font-size:var(--fs-xs);color:var(--text-faint);
+  border-top:1px solid var(--border);margin-top:var(--space-10);
+}
+.portal-footer strong{color:var(--shai-blue)}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN — light SaaS treatment -->
+<div class="pin-screen" id="pin-screen">
+  <div class="pin-card">
+    <img class="brand-mark" src="/brand/shai-logo-light-background.svg" alt="SHAI" />
+    <h2 class="shai-h3" style="text-align:center">Owner Portal</h2>
+    <p class="shai-tagline" style="text-align:center;margin-bottom:var(--space-3)">Enter your owner PIN to view your portfolio.</p>
+    <input class="pin-input" type="password" id="owner-pin" placeholder="••••" maxlength="8"
+           onkeydown="if(event.key==='Enter')ownerLogin()">
+    <div class="pin-err" id="pin-err"></div>
+    <button class="shai-btn shai-btn-primary shai-btn-lg" onclick="ownerLogin()" style="width:100%">View Portfolio →</button>
+  </div>
+</div>
+
+<!-- PORTAL — full SHAI SaaS layout -->
+<div class="portal" id="portal">
+
+  <!-- SHAI Top Navigation -->
+  <header class="shai-header">
+    <div class="shai-header-inner">
+      <a class="shai-brand" href="/">
+        <img class="shai-brand-logo" src="/brand/shai-banner.png" alt="SHAI — Superhost Hospitality AI" />
+        <span class="shai-brand-sub">Owner Portal</span>
+      </a>
+      <nav class="shai-nav">
+        <a class="shai-nav-item active" href="#overview">Overview</a>
+        <a class="shai-nav-item" href="#performance">Performance</a>
+        <a class="shai-nav-item" href="#market">Market Position</a>
+        <a class="shai-nav-item" href="#sentiment">Guest Sentiment</a>
+      </nav>
+      <div class="shai-header-actions">
+        <div class="shai-theme-toggle" title="Toggle light/dark theme"></div>
+        <button class="shai-btn shai-btn-outline shai-btn-sm" onclick="window.print()">Export</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="portal-content">
+    <div class="shai-container shai-stack-lg">
+
+      <!-- Page heading -->
+      <section id="overview" class="shai-stack">
+        <div class="shai-row-between">
+          <div>
+            <h1 class="shai-h2" id="p-owner-name">Portfolio Overview</h1>
+            <div class="portal-meta">
+              <span id="p-period"></span>
+              <span class="dot"></span>
+              <span class="shai-badge pink" id="p-owner"></span>
+              <span class="dot"></span>
+              <span id="p-time" class="shai-mono"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-tile KPI grid (matches dashboard mockup) -->
+        <div class="shai-grid-4" id="owner-kpis-primary"></div>
+
+        <!-- Secondary KPIs -->
+        <div class="shai-grid-3" id="owner-kpis-secondary" style="margin-top:var(--space-3)"></div>
+      </section>
+
+      <!-- Property Performance -->
+      <section id="performance" class="shai-stack">
+        <h2 class="shai-section-title">Property Performance</h2>
+        <table class="shai-table" id="prop-table">
+          <thead><tr id="prop-thead"></tr></thead>
+          <tbody id="prop-tbody"></tbody>
+        </table>
+      </section>
+
+      <!-- STR Market Position -->
+      <section id="market" class="shai-stack">
+        <h2 class="shai-section-title">Market Position (STR)</h2>
+        <table class="shai-table" id="str-table">
+          <thead><tr>
+            <th>Property</th>
+            <th class="r">Occ Index</th>
+            <th class="r">ADR Index</th>
+            <th class="r">RevPAR Index</th>
+            <th class="r">Rank</th>
+          </tr></thead>
+          <tbody id="str-tbody"></tbody>
+        </table>
+      </section>
+
+      <!-- Guest Sentiment -->
+      <section id="sentiment" class="shai-stack">
+        <h2 class="shai-section-title">Guest Sentiment</h2>
+        <div class="shai-grid" id="sentiment-grid"></div>
+      </section>
+
+      <div class="portal-footer">
+        <strong>Superhost Hospitality</strong> · Owner Portal · Confidential · Generated <span id="gen-date"></span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let ownerToken = null;
+let ownerName = '';
+
+async function ownerLogin() {
+  const pin = document.getElementById('owner-pin').value;
+  if (!pin) return;
+  try {
+    const r = await fetch('/api/owner/auth', { headers: { 'x-owner-pin': pin } });
+    const d = await r.json();
+    if (r.ok) {
+      ownerToken = d.token;
+      ownerName = d.owner;
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('portal').style.display = 'block';
+      loadPortal();
+    } else {
+      document.getElementById('pin-err').textContent = d.error || 'Invalid PIN';
+    }
+  } catch (e) {
+    document.getElementById('pin-err').textContent = 'Connection error';
+  }
+}
+
+async function loadPortal() {
+  const r = await fetch('/api/owner/properties', { headers: { 'x-owner-token': ownerToken } });
+  const data = await r.json();
+  document.getElementById('p-owner').textContent = data.owner;
+  document.getElementById('p-period').textContent = formatPeriod(data.period);
+  document.getElementById('p-time').textContent = 'as of ' + new Date().toLocaleDateString();
+  document.getElementById('gen-date').textContent = new Date().toLocaleDateString();
+  document.getElementById('p-owner-name').textContent = data.owner + ' — Portfolio Overview';
+
+  const props = data.properties;
+  buildKPIs(props);
+  buildPropTable(props);
+  buildSTRTable(props);
+  buildSentiment(props);
+}
+
+function formatPeriod(p) {
+  if (!p) return '';
+  const [y, m] = p.split('-');
+  const months = ['', 'January','February','March','April','May','June','July','August','September','October','November','December'];
+  return months[+m] + ' ' + y;
+}
+
+function fmt(v, type) {
+  if (v == null) return '—';
+  if (type === '$') {
+    if (Math.abs(v) >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+    if (Math.abs(v) >= 1e3) return '$' + Math.round(v/1e3) + 'K';
+    return '$' + Math.round(v).toLocaleString();
+  }
+  if (type === '%') return v.toFixed(1) + '%';
+  if (type === 'n') return v.toFixed(1);
+  return v.toLocaleString();
+}
+
+function deltaClass(v) { return v > 0 ? 'up' : v < 0 ? 'down' : ''; }
+function varClass(v)   { return v > 0 ? 'pos' : v < 0 ? 'neg' : ''; }
+
+function buildKPIs(props) {
+  const totRev = props.reduce((s, p) => s + ((p.manual || {}).revenue || 0), 0);
+  const totRevBud = props.reduce((s, p) => s + ((p.manual || {}).revBud || 0), 0);
+  const avgOcc = props.reduce((s, p) => s + ((p.manual || {}).occ || 0), 0) / props.length;
+  const avgAdr = props.reduce((s, p) => s + ((p.manual || {}).adr || 0), 0) / props.length;
+  const avgRevpar = props.reduce((s, p) => s + ((p.manual || {}).revpar || 0), 0) / props.length;
+  const avgScore = props.reduce((s, p) => s + (p.score || 0), 0) / props.length;
+  const flowProps = props.filter(p => p.flow != null);
+  const avgFlow = flowProps.length ? flowProps.reduce((s, p) => s + p.flow, 0) / flowProps.length : null;
+  const revVar = totRevBud ? ((totRev - totRevBud) / totRevBud * 100) : 0;
+
+  // Primary KPIs (the 4-tile dashboard headline)
+  const primary = [
+    { label: 'Total Revenue', value: fmt(totRev, '$'),    delta: revVar, deltaText: (revVar >= 0 ? '+' : '') + revVar.toFixed(1) + '% vs budget' },
+    { label: 'Avg Occupancy', value: fmt(avgOcc, '%'),    sub: props.length + ' properties' },
+    { label: 'Avg ADR',       value: fmt(avgAdr, '$') },
+    { label: 'Avg RevPAR',    value: fmt(avgRevpar, '$') }
+  ];
+
+  document.getElementById('owner-kpis-primary').innerHTML = primary.map(k => `
+    <div class="shai-kpi">
+      <div class="shai-kpi-label">${k.label}</div>
+      <div class="shai-kpi-value">${k.value}</div>
+      ${k.delta != null ? `<div class="shai-kpi-delta ${deltaClass(k.delta)}">${k.deltaText}</div>` :
+                          k.sub ? `<div class="shai-kpi-delta">${k.sub}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Secondary KPIs
+  const secondary = [
+    { label: 'Portfolio Score', value: avgScore ? avgScore.toFixed(0) : '—', sub: 'composite (0–200)' },
+    { label: 'Avg Flow-Through', value: avgFlow != null ? avgFlow.toFixed(1) + '%' : '—', sub: 'GOP $ / Revenue $' },
+    { label: 'Budget vs Actual', value: fmt(totRevBud, '$'), sub: 'planned revenue' }
+  ];
+
+  document.getElementById('owner-kpis-secondary').innerHTML = secondary.map(k => `
+    <div class="shai-kpi">
+      <div class="shai-kpi-label">${k.label}</div>
+      <div class="shai-kpi-value">${k.value}</div>
+      <div class="shai-kpi-delta">${k.sub || ''}</div>
+    </div>
+  `).join('');
+}
+
+function buildPropTable(props) {
+  document.getElementById('prop-thead').innerHTML =
+    '<th>Property</th><th class="r">Revenue</th><th class="r">Budget</th><th class="r">Var %</th>' +
+    '<th class="r">Occ%</th><th class="r">ADR</th><th class="r">RevPAR</th><th class="r">Score</th><th class="r">Flow</th>';
+  document.getElementById('prop-tbody').innerHTML = props.map(p => {
+    const m = p.manual || {};
+    const rev = m.revenue || 0;
+    const bud = m.revBud || 0;
+    const vr = bud ? ((rev - bud) / bud * 100) : 0;
+    return `<tr>
+      <td>${p.name}</td>
+      <td class="r">${fmt(rev, '$')}</td>
+      <td class="r">${fmt(bud, '$')}</td>
+      <td class="r ${varClass(vr)}">${vr > 0 ? '+' : ''}${vr.toFixed(1)}%</td>
+      <td class="r">${fmt(m.occ, '%')}</td>
+      <td class="r">${fmt(m.adr, '$')}</td>
+      <td class="r">${fmt(m.revpar, '$')}</td>
+      <td class="r">${p.score || '—'}</td>
+      <td class="r">${p.flow != null ? p.flow.toFixed(1) + '%' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildSTRTable(props) {
+  document.getElementById('str-tbody').innerHTML = props.map(p => {
+    const s = p.str || {};
+    const rgi = s.revparIndex || 0;
+    return `<tr>
+      <td>${p.name}</td>
+      <td class="r">${s.occIndex ? s.occIndex.toFixed(1) : '—'}</td>
+      <td class="r">${s.adrIndex ? s.adrIndex.toFixed(1) : '—'}</td>
+      <td class="r ${rgi >= 100 ? 'pos' : rgi > 0 ? 'neg' : ''}">${rgi ? rgi.toFixed(1) : '—'}</td>
+      <td class="r">${s.myRank || '—'}${s.compSetSize ? '/' + s.compSetSize : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildSentiment(props) {
+  document.getElementById('sentiment-grid').innerHTML = props.map(p => {
+    const s = p.sentiment || {};
+    return `<div class="shai-card sentiment-card">
+      <div class="shai-h4" style="font-size:var(--fs-md);margin-bottom:var(--space-2)">${p.name}</div>
+      <div class="sc-row"><span class="sc-label">Brand QA</span><span class="sc-val">${s.brandQA != null ? s.brandQA : '—'}</span></div>
+      <div class="sc-row"><span class="sc-label">TripAdvisor</span><span class="sc-val">${s.tripAdvisor != null ? s.tripAdvisor.toFixed(1) : '—'}</span></div>
+      <div class="sc-row"><span class="sc-label">Google</span><span class="sc-val">${s.google != null ? s.google.toFixed(1) : '—'}</span></div>
+      <div class="sc-row"><span class="sc-label">Google Reviews</span><span class="sc-val">${s.googleCount || '—'}</span></div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

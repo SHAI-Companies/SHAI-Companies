@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Persona Intake — SHAI Executive Hub</title>
+<link rel="icon" href="/brand/shai-icon-monogram.ico" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --shai-navy:#0B1F3A; --shai-navy-2:#0d2547; --shai-pink:#FF2DB2;
+    --shai-blue:#1A6BFF; --shai-blue-2:#3a82ff; --shai-slate:#6B7A90;
+    --shai-light:#F2F4F7; --status-up:#16A34A; --status-warn:#D97706; --status-down:#DC2626;
+    --border:rgba(80,140,240,.18); --border-strong:rgba(80,140,240,.32);
+    --field-bg:rgba(15,44,84,.6); --field-bg-focus:rgba(15,44,84,.85);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--shai-navy);color:#E8ECFF;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';position:fixed;inset:-20%;z-index:0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(26,107,255,.08), transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(255,45,178,.05), transparent 50%);
+    filter:blur(20px);pointer-events:none;
+  }
+
+  /* ─── Topbar ─────────────────────────────────────────────────── */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    background:rgba(11,31,58,.92);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    padding:14px 28px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+  .brand img{height:24px;width:auto;display:block}
+  .brand .tag{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:2.5px;
+    text-transform:uppercase;color:#8aa1c2;
+  }
+  .nav{display:flex;gap:6px;margin-left:18px}
+  .nav a{
+    padding:6px 14px;border-radius:8px;text-decoration:none;
+    font-size:12px;font-weight:500;color:#b8c5d9;transition:all .18s ease;
+  }
+  .nav a:hover{background:rgba(80,140,240,.08);color:#fff}
+  .nav a.active{background:rgba(255,45,178,.14);color:#fff}
+  .picker-wrap{display:flex;align-items:center;gap:10px;margin-left:auto}
+  .picker-wrap label{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--shai-slate);
+  }
+  select.picker, button.action-btn{
+    background:rgba(15,44,84,.85);border:1px solid var(--border);
+    border-radius:8px;padding:8px 14px;color:#fff;font-family:'Inter',sans-serif;
+    font-size:13px;cursor:pointer;transition:border-color .15s;
+  }
+  select.picker:hover, button.action-btn:hover{border-color:var(--shai-blue-2)}
+  button.action-btn.primary{background:var(--shai-pink);border-color:var(--shai-pink)}
+  button.action-btn.primary:hover{background:#e8259e;border-color:#e8259e}
+
+  /* ─── Layout ─────────────────────────────────────────────────── */
+  .layout{
+    position:relative;z-index:1;display:grid;
+    grid-template-columns:240px 1fr;gap:32px;
+    max-width:1280px;margin:24px auto;padding:0 28px 64px;
+  }
+  @media (max-width:980px){.layout{grid-template-columns:1fr;gap:18px}}
+
+  /* ─── Header card with photo + completion meter ──────────────── */
+  .head-card{
+    grid-column:1 / -1;
+    display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid var(--border);border-radius:14px;padding:20px 24px;
+  }
+  .head-photo{
+    width:96px;height:96px;border-radius:50%;
+    background:rgba(80,140,240,.1);overflow:hidden;
+    border:2px solid var(--border-strong);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Inter',sans-serif;font-size:28px;font-weight:700;color:var(--shai-slate);
+  }
+  .head-photo img{width:100%;height:100%;object-fit:cover}
+  .head-info h1{
+    font-size:24px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px;
+  }
+  .head-info .title{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;
+    text-transform:uppercase;color:#a8c0e8;
+  }
+  .head-info .sub{
+    margin-top:6px;font-size:12px;color:#b8c5d9;line-height:1.5;
+  }
+  .head-meter{
+    text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+  }
+  .head-meter .pct{
+    font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;
+    color:#fff;letter-spacing:-.01em;line-height:1;
+  }
+  .head-meter .lbl{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--shai-slate);
+  }
+  .head-meter .bar{
+    width:140px;height:5px;border-radius:3px;background:rgba(80,140,240,.18);
+    overflow:hidden;margin-top:4px;
+  }
+  .head-meter .bar > div{
+    height:100%;background:linear-gradient(90deg, var(--shai-blue), var(--shai-pink));
+    transition:width .3s ease;
+  }
+  .head-meter .save-state{
+    margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9.5px;
+    letter-spacing:1.2px;text-transform:uppercase;color:var(--shai-slate);
+    transition:color .2s ease;
+  }
+  .head-meter .save-state.saving{color:var(--shai-warn)}
+  .head-meter .save-state.saved{color:var(--status-up)}
+  .head-meter .save-state.error{color:var(--status-down)}
+
+  /* ─── Section nav (sticky sidebar) ──────────────────────────── */
+  .section-nav{
+    position:sticky;top:72px;align-self:start;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid var(--border);border-radius:12px;padding:16px;
+  }
+  .section-nav h3{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--shai-slate);font-weight:600;margin-bottom:10px;
+  }
+  .section-nav .nav-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 10px;border-radius:8px;cursor:pointer;
+    font-size:12px;color:#b8c5d9;transition:all .15s;
+    margin-bottom:2px;
+  }
+  .section-nav .nav-item:hover{background:rgba(80,140,240,.06);color:#fff}
+  .section-nav .nav-item.active{background:rgba(255,45,178,.12);color:#fff}
+  .section-nav .nav-item .check{
+    font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--status-up);
+  }
+  .section-nav .nav-item .miss{
+    font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--shai-slate);
+  }
+
+  /* ─── Sections ───────────────────────────────────────────────── */
+  .sections{display:flex;flex-direction:column;gap:24px}
+  .section{
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid var(--border);border-radius:14px;padding:24px 26px;
+    scroll-margin-top:80px;
+  }
+  .section h2{
+    font-size:18px;font-weight:700;margin:0 0 6px;color:#fff;letter-spacing:-.01em;
+  }
+  .section .sec-desc{
+    font-size:13px;color:#b8c5d9;line-height:1.55;margin-bottom:18px;
+  }
+  .field-grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media (min-width:720px){.field-grid.two-col{grid-template-columns:1fr 1fr}}
+
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field-label{
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;color:#dbe6f5;line-height:1.4;
+  }
+  .field-label .req{color:var(--shai-pink);margin-left:3px}
+  .field-help{font-size:11px;color:var(--shai-slate);margin-bottom:4px}
+
+  input[type=text], input[type=number], textarea, select{
+    background:var(--field-bg);border:1px solid var(--border);
+    border-radius:8px;padding:10px 12px;color:#fff;font-family:'Inter',sans-serif;
+    font-size:13px;line-height:1.4;outline:none;transition:all .15s;
+    width:100%;
+  }
+  input:focus, textarea:focus, select:focus{
+    background:var(--field-bg-focus);border-color:var(--shai-blue-2);
+    box-shadow:0 0 0 3px rgba(58,130,255,.15);
+  }
+  input::placeholder, textarea::placeholder{color:#5e7398;font-style:italic;font-size:12px}
+  textarea{resize:vertical;min-height:60px;font-family:'Inter',sans-serif}
+
+  /* Radio group */
+  .radio-group{display:flex;flex-direction:column;gap:6px}
+  .radio-group label{
+    display:flex;align-items:center;gap:9px;cursor:pointer;padding:8px 10px;
+    border-radius:7px;background:var(--field-bg);border:1px solid var(--border);
+    font-size:13px;color:#dbe6f5;transition:all .12s;
+  }
+  .radio-group label:hover{border-color:var(--border-strong)}
+  .radio-group input[type=radio]{accent-color:var(--shai-pink)}
+  .radio-group label.checked{
+    border-color:var(--shai-pink);
+    background:linear-gradient(180deg, rgba(255,45,178,.06), rgba(255,45,178,.02));
+  }
+
+  /* Multiselect (chip-style toggles) */
+  .multi-group{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    padding:6px 12px;border-radius:999px;
+    background:var(--field-bg);border:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5px;
+    color:#b8c5d9;cursor:pointer;transition:all .12s;user-select:none;
+  }
+  .chip:hover{border-color:var(--border-strong);color:#fff}
+  .chip.active{
+    background:rgba(255,45,178,.12);border-color:var(--shai-pink);color:#fff;
+  }
+
+  /* Slider */
+  .slider-wrap{display:flex;align-items:center;gap:14px}
+  .slider-wrap input[type=range]{flex:1;accent-color:var(--shai-pink)}
+  .slider-wrap .slider-val{
+    min-width:32px;text-align:center;
+    font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#fff;
+  }
+
+  /* Ranked list */
+  .ranked-list{display:flex;flex-direction:column;gap:6px}
+  .ranked-item{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;
+    background:var(--field-bg);border:1px solid var(--border);border-radius:8px;
+    cursor:grab;font-size:12.5px;color:#dbe6f5;
+  }
+  .ranked-item:active{cursor:grabbing}
+  .ranked-item.dragging{opacity:.5}
+  .ranked-item .rank{
+    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--shai-pink);
+    font-weight:700;min-width:24px;
+  }
+  .ranked-item .grip{color:var(--shai-slate);margin-left:auto;font-size:14px}
+
+  /* ─── Action bar at the bottom ────────────────────────────────── */
+  .action-bar{
+    position:sticky;bottom:0;z-index:20;
+    background:rgba(11,31,58,.92);backdrop-filter:blur(10px);
+    border-top:1px solid var(--border);padding:14px 28px;
+    display:flex;align-items:center;gap:14px;justify-content:flex-end;
+    margin:24px -28px -64px;
+  }
+  .action-bar .left{margin-right:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--shai-slate);letter-spacing:1.2px}
+  .action-bar .left strong{color:#fff;font-weight:600}
+
+  /* ─── Modal (preview prompt) ──────────────────────────────────── */
+  .modal-bg{
+    display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;padding:32px;
+  }
+  .modal-bg.show{display:flex}
+  .modal{
+    background:var(--shai-navy-2);border:1px solid var(--border-strong);
+    border-radius:14px;padding:24px;max-width:800px;width:100%;
+    max-height:80vh;display:flex;flex-direction:column;gap:14px;
+  }
+  .modal h2{font-size:18px;color:#fff;font-weight:700}
+  .modal pre{
+    background:#0a1628;border:1px solid var(--border);border-radius:10px;
+    padding:18px;overflow:auto;flex:1;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#dbe6f5;
+    line-height:1.55;white-space:pre-wrap;
+  }
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+  /* ─── Print stylesheet ────────────────────────────────────────── */
+  @media print {
+    body{background:#fff;color:#000;font-size:11pt}
+    body::before, .topbar, .section-nav, .action-bar, .head-meter .save-state,
+    .modal-bg{display:none !important}
+    .layout{display:block;max-width:100%;margin:0;padding:0}
+    .head-card{
+      page-break-after:avoid;background:none;border:none;border-bottom:2pt solid #000;
+      border-radius:0;padding:0 0 18pt 0;margin-bottom:18pt;color:#000;
+      grid-template-columns:80pt 1fr auto;gap:18pt;
+    }
+    .head-info h1{color:#000;font-size:20pt}
+    .head-info .title{color:#444;font-size:9pt}
+    .head-info .sub{color:#444;font-size:10pt;margin-top:4pt}
+    .head-photo{border:1pt solid #000;width:80pt;height:80pt}
+    .section{
+      page-break-inside:avoid;background:none;border:1pt solid #000;
+      border-radius:0;padding:14pt;margin-bottom:14pt;color:#000;
+    }
+    .section h2{color:#000;font-size:14pt;border-bottom:1pt solid #000;padding-bottom:6pt;margin-bottom:8pt}
+    .sec-desc{color:#444;font-size:10pt;margin-bottom:10pt}
+    .field-label{color:#000;font-weight:600;font-size:10.5pt}
+    .field-help{color:#666;font-size:9pt}
+    input[type=text], input[type=number], textarea, select{
+      background:#fff;color:#000;border:1pt solid #888;border-radius:0;
+      min-height:20pt;font-size:10pt;
+    }
+    textarea{min-height:40pt}
+    .radio-group label{
+      background:#fff;color:#000;border:.5pt solid #888;font-size:10pt;
+    }
+    .radio-group label.checked{background:#eee}
+    .chip{background:#fff;color:#000;border:.5pt solid #888}
+    .chip.active{background:#000;color:#fff}
+    .slider-wrap .slider-val{color:#000}
+    .ranked-item{background:#fff;color:#000;border:.5pt solid #888}
+    .ranked-item .rank{color:#000}
+  }
+  .empty-state{
+    grid-column:1 / -1;text-align:center;padding:48px 24px;color:var(--shai-slate);
+    font-size:14px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="topbar no-print">
+  <a class="brand" href="/dashboard.html">
+    <img src="/brand/shai-banner.png" alt="SHAI" onerror="this.src='/brand/shai-mark-transparent.png';this.style.height='28px'" />
+    <span class="tag">Persona Intake</span>
+  </a>
+  <nav class="nav">
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/team.html">Executive Team</a>
+    <a href="/contacts.html">Contacts</a>
+    <a href="/persona-intake.html" class="active">Intake</a>
+  </nav>
+  <div class="picker-wrap">
+    <label for="leader-picker">Leader</label>
+    <select id="leader-picker" class="picker"></select>
+    <button class="action-btn" onclick="downloadPdf()" title="Download a polished PDF of this intake form to email">📥 Download PDF</button>
+    <button class="action-btn" onclick="window.print()" title="Print this page (browser print)">⎙ Print page</button>
+    <button class="action-btn" onclick="previewPrompt()" title="Preview generated AI persona prompt">Preview Prompt</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Head card -->
+  <div class="head-card" id="head-card">
+    <div class="head-photo" id="head-photo">…</div>
+    <div class="head-info">
+      <h1 id="head-name">Loading…</h1>
+      <div class="title" id="head-title">—</div>
+      <div class="sub" id="head-sub">Sourced from public/brand/team/manifest.json. Pre-fills name + title; you fill the rest.</div>
+    </div>
+    <div class="head-meter">
+      <div class="pct" id="head-pct">0%</div>
+      <div class="lbl">Required complete</div>
+      <div class="bar"><div id="head-bar" style="width:0%"></div></div>
+      <div class="save-state" id="save-state">Auto-save</div>
+    </div>
+  </div>
+
+  <!-- Section nav -->
+  <aside class="section-nav no-print" id="section-nav">
+    <h3>Sections</h3>
+    <div id="nav-list"></div>
+  </aside>
+
+  <!-- Sections -->
+  <main class="sections" id="sections">
+    <div class="empty-state" id="loading">Loading intake schema…</div>
+  </main>
+
+</div>
+
+<div class="action-bar no-print">
+  <div class="left">
+    <strong id="ab-pct">0%</strong> complete · <span id="ab-status">No leader selected</span>
+  </div>
+  <button class="action-btn" onclick="previewPrompt()">Preview AI Prompt</button>
+  <button class="action-btn primary" onclick="forceSave()">Save Now</button>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2>Generated AI Persona Prompt</h2>
+    <p style="font-size:12px;color:#b8c5d9">This is what Claude sees as the system prompt when this persona is asked a question. Built from the intake fields you've filled in.</p>
+    <pre id="modal-prompt">Loading…</pre>
+    <div class="modal-actions">
+      <button class="action-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ────────────────────────────────────────────────────────────────────
+   * Persona intake form driver.
+   * - Fetches schema from /api/personas/intake-schema
+   * - Fetches team list from /api/personas/list (drives the leader picker)
+   * - Fetches one leader's intake from /api/personas/intake/:slug
+   * - Renders sections from schema, one field at a time
+   * - Auto-saves on blur (debounced) via POST /api/personas/intake/:slug
+   * - Preview prompt via /api/personas/:slug/prompt
+   * ──────────────────────────────────────────────────────────────────── */
+
+  const $ = (id) => document.getElementById(id);
+  const escHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  let SCHEMA = null;
+  let LEADERS = [];
+  let CURRENT_SLUG = null;
+  let CURRENT_INTAKE = {};
+  let PHOTO_PATH = null;
+  let saveTimer = null;
+  let dirty = false;
+
+  // ─── API helpers ────────────────────────────────────────────────
+  async function api(path, opts) {
+    const r = await fetch(path, Object.assign({ headers: {'Content-Type':'application/json'} }, opts || {}));
+    if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+    return r.json();
+  }
+
+  // ─── Boot ───────────────────────────────────────────────────────
+  async function boot() {
+    try {
+      [SCHEMA, { personas: LEADERS }] = await Promise.all([
+        api('/api/personas/intake-schema'),
+        api('/api/personas/list')
+      ]);
+    } catch (e) {
+      $('loading').innerHTML = `<div style="color:var(--status-down)">Failed to load: ${e.message}<br>Is the hub running and updated to the latest server.js?</div>`;
+      return;
+    }
+    populatePicker();
+    // Pick from URL ?slug= or default to first leader
+    const params = new URLSearchParams(location.search);
+    const initialSlug = params.get('slug') || (LEADERS[0] && LEADERS[0].slug);
+    if (initialSlug) {
+      $('leader-picker').value = initialSlug;
+      await selectLeader(initialSlug);
+    }
+  }
+
+  function populatePicker() {
+    const sel = $('leader-picker');
+    sel.innerHTML = LEADERS.map(L =>
+      `<option value="${escHtml(L.slug)}">${escHtml(L.name)} — ${escHtml(L.title)} (${L.completionPct}%)</option>`
+    ).join('');
+    sel.onchange = () => selectLeader(sel.value);
+  }
+
+  // ─── Switch to a different leader ──────────────────────────────
+  async function selectLeader(slug) {
+    if (dirty) await forceSave();
+    CURRENT_SLUG = slug;
+    history.replaceState(null, '', `?slug=${encodeURIComponent(slug)}`);
+    $('loading').textContent = 'Loading…';
+    let resp;
+    try { resp = await api(`/api/personas/intake/${encodeURIComponent(slug)}`); }
+    catch (e) { $('loading').innerHTML = `<div style="color:var(--status-down)">Failed: ${e.message}</div>`; return; }
+    CURRENT_INTAKE = resp.intake || {};
+    PHOTO_PATH = resp.photo;
+    renderHead(resp);
+    renderSections(SCHEMA, CURRENT_INTAKE);
+    renderNav(SCHEMA);
+    updateMeters(resp.completionPct);
+    $('ab-status').textContent = `${resp.name} — ${resp.status}`;
+  }
+
+  function renderHead(resp) {
+    $('head-name').textContent = resp.name || '—';
+    $('head-title').textContent = resp.title || '—';
+    if (resp.photo) {
+      $('head-photo').innerHTML = `<img src="${escHtml(resp.photo)}" alt="${escHtml(resp.name)}" onerror="this.parentElement.textContent='${escHtml(initials(resp.name))}'">`;
+    } else {
+      $('head-photo').textContent = initials(resp.name);
+    }
+    if (resp.contact && resp.contact.email) {
+      $('head-sub').innerHTML = `Contact on file: <a href="mailto:${escHtml(resp.contact.email)}" style="color:var(--shai-blue-2);text-decoration:none">${escHtml(resp.contact.email)}</a>${resp.contact.cell?` · ${escHtml(resp.contact.cell)}`:''}${resp.contact.department?` · ${escHtml(resp.contact.department)}`:''}`;
+    } else {
+      $('head-sub').textContent = 'No corporate contact on file. Email/cell can be added via the contacts importer.';
+    }
+  }
+
+  function initials(name) {
+    return String(name||'').replace(/\(.*?\)/g,'').trim().split(/\s+/)
+      .map(p => p[0] || '').join('').slice(0,2).toUpperCase();
+  }
+
+  // ─── Render sections from schema ───────────────────────────────
+  function renderSections(schema, intake) {
+    const root = $('sections');
+    root.innerHTML = '';
+    for (const sec of (schema.sections || [])) {
+      const el = document.createElement('section');
+      el.className = 'section';
+      el.id = `sec-${sec.id}`;
+      const sectionData = intake[sec.id] || {};
+      el.innerHTML = `
+        <h2>${escHtml(sec.title)}</h2>
+        <div class="sec-desc">${escHtml(sec.description || '')}</div>
+        <div class="field-grid ${sec.fields.length > 4 ? 'two-col' : ''}">
+          ${sec.fields.map(f => renderField(sec.id, f, sectionData[f.id])).join('')}
+        </div>
+      `;
+      root.appendChild(el);
+      // Wire input listeners
+      sec.fields.forEach(f => wireField(sec.id, f));
+    }
+  }
+
+  function renderField(sectionId, f, value) {
+    const wrap = (inner) => `
+      <div class="field" data-section="${escHtml(sectionId)}" data-field="${escHtml(f.id)}">
+        <div class="field-label">${escHtml(f.label)}${f.required?'<span class="req">*</span>':''}</div>
+        ${inner}
+      </div>`;
+    const id = `f-${sectionId}-${f.id}`;
+    const v = value ?? '';
+    if (f.type === 'text' || f.type === 'number') {
+      return wrap(`<input type="${f.type==='number'?'number':'text'}" id="${id}" value="${escHtml(v)}" placeholder="${escHtml(f.placeholder||'')}">`);
+    }
+    if (f.type === 'textarea') {
+      return wrap(`<textarea id="${id}" rows="${f.rows||3}" placeholder="${escHtml(f.placeholder||'')}">${escHtml(v)}</textarea>`);
+    }
+    if (f.type === 'select') {
+      const opts = ['<option value="">— pick one —</option>']
+        .concat((f.options||[]).map(o => `<option value="${escHtml(o)}" ${o===v?'selected':''}>${escHtml(o)}</option>`));
+      return wrap(`<select id="${id}">${opts.join('')}</select>`);
+    }
+    if (f.type === 'radio') {
+      const opts = (f.options||[]).map(o =>
+        `<label class="${o===v?'checked':''}"><input type="radio" name="${id}" value="${escHtml(o)}" ${o===v?'checked':''}> <span>${escHtml(o)}</span></label>`
+      ).join('');
+      return wrap(`<div class="radio-group" id="${id}">${opts}</div>`);
+    }
+    if (f.type === 'multiselect') {
+      const arr = Array.isArray(v) ? v : [];
+      const chips = (f.options||[]).map(o =>
+        `<span class="chip ${arr.includes(o)?'active':''}" data-val="${escHtml(o)}">${escHtml(o)}</span>`
+      ).join('');
+      return wrap(`<div class="multi-group" id="${id}">${chips}</div>`);
+    }
+    if (f.type === 'slider') {
+      const cur = (v === '' || v == null) ? (f.default ?? Math.round((f.min+f.max)/2)) : Number(v);
+      return wrap(`<div class="slider-wrap"><input type="range" id="${id}" min="${f.min}" max="${f.max}" value="${cur}"><div class="slider-val" id="${id}-val">${cur}</div></div>`);
+    }
+    if (f.type === 'ranked') {
+      const arr = Array.isArray(v) && v.length ? v : (f.options || []).slice();
+      const items = arr.map((opt, i) =>
+        `<div class="ranked-item" draggable="true" data-val="${escHtml(opt)}"><span class="rank">${i+1}.</span><span>${escHtml(opt)}</span><span class="grip">⋮⋮</span></div>`
+      ).join('');
+      return wrap(`<div class="ranked-list" id="${id}">${items}</div>`);
+    }
+    return wrap(`<div style="color:var(--status-down)">Unknown field type: ${escHtml(f.type)}</div>`);
+  }
+
+  function wireField(sectionId, f) {
+    const id = `f-${sectionId}-${f.id}`;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (f.type === 'text' || f.type === 'number' || f.type === 'textarea' || f.type === 'select') {
+      el.addEventListener('input', () => onChange(sectionId, f.id, el.value));
+      el.addEventListener('blur', () => scheduleSave(true));
+    } else if (f.type === 'radio') {
+      el.querySelectorAll('input[type=radio]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          el.querySelectorAll('label').forEach(L => L.classList.remove('checked'));
+          inp.parentElement.classList.add('checked');
+          onChange(sectionId, f.id, inp.value);
+          scheduleSave(true);
+        });
+      });
+    } else if (f.type === 'multiselect') {
+      el.querySelectorAll('.chip').forEach(c => {
+        c.addEventListener('click', () => {
+          c.classList.toggle('active');
+          const arr = Array.from(el.querySelectorAll('.chip.active')).map(x => x.dataset.val);
+          onChange(sectionId, f.id, arr);
+          scheduleSave(true);
+        });
+      });
+    } else if (f.type === 'slider') {
+      const valEl = document.getElementById(id + '-val');
+      el.addEventListener('input', () => {
+        valEl.textContent = el.value;
+        onChange(sectionId, f.id, Number(el.value));
+      });
+      el.addEventListener('change', () => scheduleSave(true));
+    } else if (f.type === 'ranked') {
+      // Simple drag-and-drop reorder
+      let draggingEl = null;
+      el.querySelectorAll('.ranked-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          draggingEl = item; item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging'); draggingEl = null;
+          renumber(el);
+          const arr = Array.from(el.querySelectorAll('.ranked-item')).map(x => x.dataset.val);
+          onChange(sectionId, f.id, arr);
+          scheduleSave(true);
+        });
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!draggingEl || draggingEl === item) return;
+          const rect = item.getBoundingClientRect();
+          const after = (e.clientY - rect.top) / rect.height > 0.5;
+          if (after) item.parentNode.insertBefore(draggingEl, item.nextSibling);
+          else item.parentNode.insertBefore(draggingEl, item);
+        });
+      });
+    }
+  }
+
+  function renumber(listEl) {
+    Array.from(listEl.querySelectorAll('.ranked-item')).forEach((it, i) => {
+      const r = it.querySelector('.rank'); if (r) r.textContent = (i+1) + '.';
+    });
+  }
+
+  function onChange(sectionId, fieldId, value) {
+    if (!CURRENT_INTAKE[sectionId]) CURRENT_INTAKE[sectionId] = {};
+    CURRENT_INTAKE[sectionId][fieldId] = value;
+    dirty = true;
+    setSaveState('Editing', '');
+  }
+
+  // ─── Section nav (sticky sidebar) ──────────────────────────────
+  function renderNav(schema) {
+    const list = $('nav-list');
+    list.innerHTML = '';
+    for (const sec of (schema.sections || [])) {
+      const item = document.createElement('div');
+      item.className = 'nav-item';
+      item.dataset.secId = sec.id;
+      item.innerHTML = `<span>${escHtml(sec.title)}</span><span class="check" id="nav-check-${sec.id}">—</span>`;
+      item.onclick = () => document.getElementById(`sec-${sec.id}`).scrollIntoView({ behavior:'smooth', block:'start' });
+      list.appendChild(item);
+    }
+    updateNavChecks();
+  }
+
+  function updateNavChecks() {
+    if (!SCHEMA) return;
+    for (const sec of (SCHEMA.sections || [])) {
+      const sectionData = (CURRENT_INTAKE[sec.id]) || {};
+      const fields = sec.fields || [];
+      const filled = fields.filter(f => {
+        const v = sectionData[f.id];
+        return v != null && v !== '' && !(Array.isArray(v) && v.length === 0);
+      }).length;
+      const el = document.getElementById(`nav-check-${sec.id}`);
+      if (el) {
+        el.textContent = `${filled}/${fields.length}`;
+        el.style.color = filled === 0 ? 'var(--shai-slate)' : (filled === fields.length ? 'var(--status-up)' : 'var(--status-warn)');
+      }
+    }
+  }
+
+  function updateMeters(pct) {
+    pct = Math.max(0, Math.min(100, pct || 0));
+    $('head-pct').textContent = pct + '%';
+    $('head-bar').style.width = pct + '%';
+    $('ab-pct').textContent = pct + '%';
+    updateNavChecks();
+  }
+
+  // ─── Auto-save ─────────────────────────────────────────────────
+  function setSaveState(text, cls) {
+    const el = $('save-state');
+    el.textContent = text;
+    el.className = 'save-state ' + (cls || '');
+  }
+
+  function scheduleSave(forceFlush) {
+    if (saveTimer) clearTimeout(saveTimer);
+    if (forceFlush) {
+      saveTimer = setTimeout(forceSave, 800);
+    } else {
+      saveTimer = setTimeout(forceSave, 2000);
+    }
+  }
+
+  async function forceSave() {
+    if (!CURRENT_SLUG) return;
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    setSaveState('Saving…', 'saving');
+    try {
+      const r = await api(`/api/personas/intake/${encodeURIComponent(CURRENT_SLUG)}`, {
+        method: 'POST',
+        body: JSON.stringify({ intake: CURRENT_INTAKE })
+      });
+      dirty = false;
+      setSaveState('Saved ' + new Date().toLocaleTimeString().slice(0,5), 'saved');
+      updateMeters(r.persona.completionPct);
+      // Refresh leader-picker percentages too
+      const idx = LEADERS.findIndex(L => L.slug === CURRENT_SLUG);
+      if (idx >= 0) {
+        LEADERS[idx].completionPct = r.persona.completionPct;
+        const opt = $('leader-picker').querySelector(`option[value="${CSS.escape(CURRENT_SLUG)}"]`);
+        if (opt) opt.textContent = `${LEADERS[idx].name} — ${LEADERS[idx].title} (${LEADERS[idx].completionPct}%)`;
+      }
+    } catch (e) {
+      setSaveState('Save failed', 'error');
+      console.error('save failed', e);
+    }
+  }
+
+  // Save before unload if dirty
+  window.addEventListener('beforeunload', (e) => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ─── Download PDF intake form ──────────────────────────────────
+  // Pre-generated PDFs live in public/downloads/. Filename pattern:
+  //   blank: SHAI-Persona-Intake-Form.pdf
+  //   per-leader: SHAI-Persona-Intake-<Title-Cased-Slug>.pdf
+  // To regenerate (e.g. after schema change), run:
+  //   python tools-generate-intake-pdf.py --all
+  function downloadPdf() {
+    let url, name;
+    if (CURRENT_SLUG) {
+      const friendly = CURRENT_SLUG.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-');
+      url = `/downloads/SHAI-Persona-Intake-${friendly}.pdf`;
+      name = `SHAI-Persona-Intake-${friendly}.pdf`;
+    } else {
+      url = '/downloads/SHAI-Persona-Intake-Form.pdf';
+      name = 'SHAI-Persona-Intake-Form.pdf';
+    }
+    // Force a download rather than opening in-browser
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // ─── Preview prompt ────────────────────────────────────────────
+  async function previewPrompt() {
+    if (!CURRENT_SLUG) { alert('Pick a leader first.'); return; }
+    if (dirty) await forceSave();
+    $('modal-bg').classList.add('show');
+    $('modal-prompt').textContent = 'Loading…';
+    try {
+      const r = await api(`/api/personas/${encodeURIComponent(CURRENT_SLUG)}/prompt`);
+      $('modal-prompt').textContent = r.prompt;
+    } catch (e) {
+      $('modal-prompt').textContent = 'Failed to load prompt: ' + e.message + '\n\n(Likely the persona has not been saved yet, or the server needs a restart to pick up the new endpoints.)';
+    }
+  }
+  function closeModal() { $('modal-bg').classList.remove('show'); }
+
+  boot();
+</script>
+
+</body>
+</html>

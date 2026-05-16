@@ -1,0 +1,157 @@
+{
+  "generatedAt": "2026-05-09T15:42:43",
+  "source": "https://www.superhosthospitality.com/leadership",
+  "count": 15,
+  "leaders": [
+    {
+      "name": "Ashraf (Ash) Lakhany",
+      "title": "CEO / Founder",
+      "slug": "ashraf-ash-lakhany",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1611725616.jpg",
+      "local_path": "/brand/team/ashraf-ash-lakhany.jpg",
+      "bytes": 17008,
+      "status": "fetched"
+    },
+    {
+      "name": "Samir Lakhany",
+      "title": "President Superhost Hospitality",
+      "slug": "samir-lakhany",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1611727823.jpg",
+      "local_path": "/brand/team/samir-lakhany.jpg",
+      "bytes": 15331,
+      "status": "fetched"
+    },
+    {
+      "name": "Tim Foley",
+      "title": "Chief Operating Officer",
+      "slug": "tim-foley",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1640277870.jpg",
+      "local_path": "/brand/team/tim-foley.jpg",
+      "bytes": 17872,
+      "status": "fetched"
+    },
+    {
+      "name": "Kori Eller",
+      "title": "Vice President of Human Resources and Corporate Counsel",
+      "slug": "kori-eller",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1664298608.jpg",
+      "local_path": "/brand/team/kori-eller.jpg",
+      "bytes": 16055,
+      "status": "fetched"
+    },
+    {
+      "name": "Maura Bruen",
+      "title": "Senior Vice President of Hotel Performance",
+      "slug": "maura-bruen",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1746109944.jpg",
+      "local_path": "/brand/team/maura-bruen.jpg",
+      "bytes": 20591,
+      "status": "fetched"
+    },
+    {
+      "name": "Jill Uceny",
+      "title": "Director of Systems and Analytics",
+      "slug": "jill-uceny",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1611728326.jpg",
+      "local_path": "/brand/team/jill-uceny.jpg",
+      "bytes": 16787,
+      "status": "fetched"
+    },
+    {
+      "name": "Jennifer Kruk",
+      "title": "Regional Director of Operations",
+      "slug": "jennifer-kruk",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1611728300.jpg",
+      "local_path": "/brand/team/jennifer-kruk.jpg",
+      "bytes": 18007,
+      "status": "fetched"
+    },
+    {
+      "name": "Mark Gammill",
+      "title": "Regional Director of Operations.",
+      "slug": "mark-gammill",
+      "ext": "png",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1759722866.png",
+      "local_path": "/brand/team/mark-gammill.png",
+      "bytes": 149223,
+      "status": "fetched"
+    },
+    {
+      "name": "Jerry White",
+      "title": "Vice President of Construction & Project Development",
+      "slug": "jerry-white",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1616609588.jpg",
+      "local_path": "/brand/team/jerry-white.jpg",
+      "bytes": 22606,
+      "status": "fetched"
+    },
+    {
+      "name": "Nate Taylor",
+      "title": "Regional VP of Sales",
+      "slug": "nate-taylor",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1648571413.jpg",
+      "local_path": "/brand/team/nate-taylor.jpg",
+      "bytes": 16659,
+      "status": "fetched"
+    },
+    {
+      "name": "Rafiq Sabir",
+      "title": "Vice President of Accounting and Finance",
+      "slug": "rafiq-sabir",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1641327892.jpg",
+      "local_path": "/brand/team/rafiq-sabir.jpg",
+      "bytes": 15787,
+      "status": "fetched"
+    },
+    {
+      "name": "Bruk Hanson",
+      "title": "Corporate Director of Accounting",
+      "slug": "bruk-hanson",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1682603496.jpg",
+      "local_path": "/brand/team/bruk-hanson.jpg",
+      "bytes": 12337,
+      "status": "fetched"
+    },
+    {
+      "name": "Charles Burke",
+      "title": "Corporate Controller",
+      "slug": "charles-burke",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1611728258.jpg",
+      "local_path": "/brand/team/charles-burke.jpg",
+      "bytes": 18535,
+      "status": "fetched"
+    },
+    {
+      "name": "Candy Perez",
+      "title": "Senior Regional Controller",
+      "slug": "candy-perez",
+      "ext": "jpg",
+      "source_image_url": "https://www.superhosthospitality.com/images/bio_1611728386.jpg",
+      "local_path": "/brand/team/candy-perez.jpg",
+      "bytes": 17302,
+      "status": "fetched"
+    },
+    {
+      "name": "Chris Hatfield",
+      "title": "Area General Manager",
+      "slug": "chris-hatfield",
+      "ext": "jpg",
+      "source_image_url": "manual-upload",
+      "local_path": "/brand/team/chris-hatfield.jpg",
+      "bytes": 28722,
+      "status": "fetched"
+    }
+  ]
+}

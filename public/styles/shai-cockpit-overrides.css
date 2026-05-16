@@ -1,0 +1,572 @@
+/* ============================================================================
+   SHAI Cockpit Overrides — Light + Dark
+   Triggered by class="shai-saas" on <body>.
+   Theme is controlled by data-theme attribute on <html> (light|dark).
+
+   Strategy:
+   - Map legacy cockpit variable names (--bg, --fg, --teal, --gold, etc.)
+     to SHAI design tokens (--bg-soft, --surface, --text, --accent, etc.)
+   - The SHAI tokens themselves switch with [data-theme] in shai-theme.css,
+     so the cockpit auto-follows light/dark without theme-specific code here.
+   ============================================================================ */
+
+body.shai-saas {
+  /* Surface remap — pulls from SHAI theme tokens (auto light/dark) */
+  --bg:           var(--bg-soft);
+  --bg2:          var(--surface);
+  --bg3:          var(--surface-alt);
+  --sidebar-bg:   var(--surface);
+  --header-bg:    var(--shai-navy);
+  --white:        var(--surface);
+  --off:          var(--surface-alt);
+
+  /* Brand accents (legacy --teal/--gold remap) */
+  --teal:         var(--shai-blue);
+  --teal2:        var(--shai-blue);     /* hover lift via filter, not a new color */
+  --teal-soft:    var(--accent-2-soft);
+  --gold:         var(--shai-pink);
+  --gold2:        var(--shai-pink);     /* hover lift via filter, not a new color */
+  --gold-soft:    var(--accent-soft);
+
+  /* Text */
+  --fg:           var(--text);
+  --fg2:          var(--text);
+  --fg3:          var(--text-muted);
+  --gray:         var(--text-muted);
+  --gray2:        var(--text-faint);
+
+  /* Status */
+  --red:          var(--status-down);
+  --amber:        var(--status-warn);
+  --green:        var(--status-up);
+
+  /* Borders */
+  --border:       var(--border);
+  --border2:      var(--border-strong);
+
+  /* Shadows */
+  --shadow:       var(--shadow-sm);
+  --shadow-md:    var(--shadow-md);
+  --shadow-lg:    var(--shadow-lg);
+
+  /* Page font */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* ── Header (always navy regardless of theme) ─────────────────────────── */
+body.shai-saas header {
+  background: var(--shai-navy);
+  color: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(11,31,58,0.20);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+/* Brand gradient hairline at the bottom of every header — soft, persistent
+   reminder of the SHAI palette without competing with the cockpit content. */
+body.shai-saas header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: var(--brand-rule);
+  pointer-events: none;
+}
+body.shai-saas header .logo-name { color: #FFFFFF; }
+body.shai-saas header .logo-sub  { color: rgba(255,255,255,0.62); }
+body.shai-saas header .live-time { color: rgba(255,255,255,0.55); }
+body.shai-saas header .ps-badge.demo { color: #FBBF24; border-color: rgba(251,191,36,0.4); }
+body.shai-saas header .ps-badge.live { color: #34D399; border-color: rgba(52,211,153,0.4); }
+body.shai-saas header .period-sel,
+body.shai-saas header .hdr-btn.outline {
+  background: rgba(255,255,255,0.06);
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.16);
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+body.shai-saas header .hdr-btn.outline:hover {
+  border-color: rgba(255,45,178,0.55);
+  background: rgba(255,255,255,0.10);
+  color: #FFFFFF;
+  box-shadow: var(--brand-glow-mix);
+}
+/* Primary "Hub" CTA — gradient pill with glow on hover */
+body.shai-saas header .hdr-btn.gold {
+  background: var(--brand-gradient);
+  color: #FFFFFF;
+  border: none;
+  transition: filter .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+body.shai-saas header .hdr-btn.gold:hover {
+  filter: brightness(1.08);
+  box-shadow: var(--brand-glow-strong);
+  transform: translateY(-1px);
+}
+/* Refresh / standard primary buttons — gradient fill replaces flat blue */
+body.shai-saas header .hdr-btn:not(.outline):not(.gold) {
+  background: var(--brand-gradient);
+  color: #FFFFFF;
+  border: none;
+  transition: filter .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+body.shai-saas header .hdr-btn:not(.outline):not(.gold):hover {
+  filter: brightness(1.08);
+  box-shadow: var(--brand-glow-mix);
+  transform: translateY(-1px);
+}
+
+/* ── Sidebar — brand presence on active state ────────────────────────── */
+/* Active item: gradient left rail + soft pink-blue glow, instead of single
+   teal accent. Smooth transition on hover. */
+body.shai-saas .persona.active,
+body.shai-saas .sb-link.active,
+body.shai-saas .nav-item.active {
+  position: relative;
+  background: linear-gradient(90deg, rgba(255,45,178,0.06) 0%, rgba(26,107,255,0.04) 100%) !important;
+  border-left: 0 !important;
+  padding-left: 12px !important;
+}
+body.shai-saas .persona.active::before,
+body.shai-saas .sb-link.active::before,
+body.shai-saas .nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8%; bottom: 8%;
+  width: 3px;
+  background: var(--brand-gradient-135);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 12px rgba(255,45,178,0.45);
+}
+
+/* ── Cards / panels — brand glow on hover ────────────────────────────── */
+body.shai-saas .kpi-card,
+body.shai-saas .shai-card,
+body.shai-saas .card,
+body.shai-saas .pn-card {
+  transition: border-color .18s ease, box-shadow .22s ease, transform .18s ease;
+}
+body.shai-saas .kpi-card:hover,
+body.shai-saas .shai-card:hover {
+  border-color: rgba(255,45,178,0.30);
+  box-shadow: var(--shadow-md), var(--brand-glow-mix);
+  transform: translateY(-1px);
+}
+
+/* ── Focus rings — pink + blue brand ring on every interactive surface ─ */
+body.shai-saas input:focus,
+body.shai-saas select:focus,
+body.shai-saas textarea:focus,
+body.shai-saas button:focus-visible,
+body.shai-saas a:focus-visible {
+  outline: none;
+  border-color: var(--shai-pink);
+  box-shadow: var(--brand-ring);
+}
+
+/* ── Section eyebrows + headings ──────────────────────────────────────── */
+/* Anything that already uses the SHAI mono-caps eyebrow gets the gradient
+   text treatment for free — applied via the .shai-brand-eyebrow utility. */
+body.shai-saas .sb-label,
+body.shai-saas .ql-cat-title,
+body.shai-saas .pn-eyebrow,
+body.shai-saas .ql-title {
+  background: var(--brand-gradient);
+  background-clip: text; -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  font-weight: 700;
+}
+
+/* ── Loading / progress bars — gradient with shimmer ─────────────────── */
+body.shai-saas .progress-bar,
+body.shai-saas .bar-fill,
+body.shai-saas .scan-progress > div {
+  background: linear-gradient(90deg, var(--shai-pink) 0%, var(--shai-blue) 50%, var(--shai-pink) 100%);
+  background-size: 200% 100%;
+  animation: shaiBrandShimmer 6s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(255,45,178,0.25);
+}
+
+/* ── Selected text — brand color highlight ───────────────────────────── */
+body.shai-saas ::selection {
+  background: rgba(255,45,178,0.30);
+  color: #FFFFFF;
+}
+
+/* ── Buttons (primary in cockpit) ─────────────────────────────────────── */
+body.shai-saas .scan-run,
+body.shai-saas .item-btn:not(.danger),
+body.shai-saas .send,
+body.shai-saas .cmd-send,
+body.shai-saas .ai-send {
+  background: var(--brand-gradient) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  transition: filter .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+body.shai-saas .scan-run:hover,
+body.shai-saas .item-btn:not(.danger):hover,
+body.shai-saas .send:hover,
+body.shai-saas .cmd-send:hover {
+  filter: brightness(1.10);
+  box-shadow: var(--brand-glow-mix);
+  transform: translateY(-1px);
+}
+
+/* ── Pills / badges that should carry brand identity ─────────────────── */
+body.shai-saas .badge.live,
+body.shai-saas .pill.brand,
+body.shai-saas .skill-card .skill-icon {
+  background: var(--brand-gradient);
+  color: #FFFFFF;
+  border: none;
+}
+
+/* ── Theme toggle button ──────────────────────────────────────────────── */
+.shai-theme-toggle {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  padding: 3px;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  user-select: none;
+}
+.shai-theme-toggle button {
+  background: transparent;
+  border: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.shai-theme-toggle button.active {
+  background: rgba(255,255,255,0.18);
+  color: #FFFFFF;
+}
+.shai-theme-toggle button:not(.active) { color: rgba(255,255,255,0.55); }
+.shai-theme-toggle button:not(.active):hover { color: #FFFFFF; }
+
+/* In light pages without dark navy header, give the toggle a light treatment */
+body:not(.shai-saas) .shai-theme-toggle,
+.shai-header .shai-theme-toggle {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.14);
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+body.shai-saas .sidebar { border-right: 1px solid var(--border); background: var(--sidebar-bg); }
+body.shai-saas .nav-item { color: var(--fg2); }
+body.shai-saas .nav-item:hover { background: var(--bg3); color: var(--fg); }
+body.shai-saas .nav-item.active {
+  background: var(--accent-2-soft);
+  border-color: rgba(26,107,255,0.18);
+  color: var(--shai-blue);
+  border-left: 2px solid var(--shai-blue);
+}
+body.shai-saas .sb-label,
+body.shai-saas .sb-cat { color: var(--gray2); }
+body.shai-saas .app-row { color: var(--fg2); }
+body.shai-saas .app-row:hover { background: var(--bg3); color: var(--fg); border-color: var(--border); }
+body.shai-saas .mini-stats { background: var(--accent-2-soft); border: 1px solid rgba(26,107,255,0.14); }
+body.shai-saas .mst { color: var(--shai-blue); }
+
+/* ── Cards / surfaces ─────────────────────────────────────────────────── */
+body.shai-saas .panel { background: transparent; }
+body.shai-saas .kpi-card,
+body.shai-saas .admin-card,
+body.shai-saas .dash-chart-card,
+body.shai-saas .tool-card,
+body.shai-saas .skill-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+body.shai-saas .banner {
+  background: var(--accent-2-soft);
+  border: 1px solid rgba(26,107,255,0.18);
+  color: var(--fg);
+}
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+body.shai-saas input,
+body.shai-saas textarea,
+body.shai-saas select {
+  background: var(--bg2);
+  color: var(--fg);
+  border: 1px solid var(--border2);
+}
+body.shai-saas input:focus,
+body.shai-saas textarea:focus,
+body.shai-saas select:focus {
+  border-color: var(--shai-blue);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-2-soft);
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────── */
+body.shai-saas table { background: var(--bg2); }
+body.shai-saas thead th,
+body.shai-saas table th {
+  background: var(--bg3);
+  color: var(--fg2);
+  border-bottom: 1px solid var(--border2);
+}
+body.shai-saas table td { border-bottom: 1px solid var(--border); }
+
+/* ── PIN screen (legacy) ───────────────────────────────────────────────── */
+body.shai-saas #pin-screen { background: var(--bg); }
+body.shai-saas #pin-input  { background: var(--bg2); color: var(--fg); border-color: var(--border2); }
+
+/* ── Team page (chat / sidebar / cockpit views) ────────────────────────── */
+body.shai-saas .main-hdr { background: var(--bg2); border-bottom: 1px solid var(--border); }
+body.shai-saas .main-hdr-l h1 { color: var(--fg); }
+body.shai-saas .main-hdr-l p  { color: var(--fg3); }
+body.shai-saas .persona { color: var(--fg2); }
+body.shai-saas .persona:hover { background: var(--bg3); }
+body.shai-saas .persona.active {
+  background: var(--accent-2-soft);
+  border-color: rgba(26,107,255,0.18);
+  border-left: 2px solid var(--shai-blue);
+}
+body.shai-saas .persona-name { color: var(--fg); }
+body.shai-saas .persona-role { color: var(--fg3); }
+body.shai-saas .msg.user .msg-body {
+  background: var(--accent-soft);
+  border: 1px solid rgba(255,45,178,0.18);
+  color: var(--fg);
+}
+body.shai-saas .msg.agent .msg-body {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+body.shai-saas .msg-meta.user  { color: var(--shai-pink); }
+body.shai-saas .msg-meta.agent { color: var(--shai-blue); }
+body.shai-saas .composer { background: var(--bg2); border-top: 1px solid var(--border); }
+body.shai-saas .input { background: var(--bg2); color: var(--fg); border-color: var(--border2); }
+body.shai-saas .send  { background: var(--shai-blue); color: #FFFFFF; }
+body.shai-saas .send:hover { background: var(--shai-blue); filter: brightness(0.92); }
+
+/* Cockpit board */
+body.shai-saas .kpi { background: var(--bg2); border: 1px solid var(--border); box-shadow: var(--shadow); }
+body.shai-saas .kpi-num { color: var(--fg); }
+body.shai-saas .kpi-label { color: var(--fg3); }
+body.shai-saas .item { background: var(--bg2); border: 1px solid var(--border); }
+body.shai-saas .item-title { color: var(--fg); }
+body.shai-saas .item-meta  { color: var(--fg3); }
+
+/* Owners & Scan views */
+body.shai-saas .owner-card,
+body.shai-saas .scan-list-item,
+body.shai-saas .scan-detail { background: var(--bg2); border: 1px solid var(--border); }
+body.shai-saas .owner-card-hdr { background: var(--bg3); border-bottom: 1px solid var(--border); }
+body.shai-saas .owner-derived  { background: var(--accent-2-soft); border-bottom: 1px solid var(--border); }
+body.shai-saas .scan-detail-hdr{ background: var(--bg3); border-bottom: 1px solid var(--border); }
+body.shai-saas .synth          { background: var(--accent-soft); border-bottom: 1px solid var(--border); }
+body.shai-saas .scanner-pane   { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+/* View toggle in team header */
+body.shai-saas .view-toggle { background: rgba(255,255,255,0.10); }
+body.shai-saas .view-toggle button { color: rgba(255,255,255,0.72); }
+body.shai-saas .view-toggle button.active { background: var(--shai-blue); color: #FFFFFF; }
+
+/* Scrollbars adapt to theme */
+body.shai-saas { scrollbar-color: rgba(11,31,58,0.18) transparent; }
+:root[data-theme="dark"] body.shai-saas { scrollbar-color: rgba(255,255,255,0.18) transparent; }
+
+/* ============================================================================
+   DARK MODE — TECH-FEEL TREATMENTS
+   Echoes the SHAI banner: deep black-blue with subtle dot grid, pink/blue
+   glow on key surfaces, and pink→blue gradient hairlines on edges.
+   ============================================================================ */
+
+/* Subtle particle/dot grid on the body — like the banner's wave pattern */
+:root[data-theme="dark"] body.shai-saas {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(26,107,255,0.04) 1px, transparent 0),
+    radial-gradient(ellipse 600px 280px at 92% 8%, rgba(255,45,178,0.06), transparent 70%),
+    radial-gradient(ellipse 700px 320px at 6% 92%, rgba(26,107,255,0.05), transparent 70%);
+  background-size: 24px 24px, auto, auto;
+  background-attachment: fixed;
+}
+
+/* Header — NAVY, with a faint banner-style particle scatter on the right */
+:root[data-theme="dark"] body.shai-saas header {
+  background:
+    radial-gradient(ellipse 380px 80px at 95% 50%, rgba(255,45,178,0.12), transparent 70%),
+    radial-gradient(ellipse 340px 80px at 88% 50%, rgba(26,107,255,0.10), transparent 70%),
+    var(--shai-navy);
+  border-bottom: 1px solid rgba(242,244,247,0.04);
+  box-shadow: 0 1px 0 0 rgba(242,244,247,0.03), 0 4px 12px rgba(0,0,0,0.50);
+}
+
+/* Pink→blue gradient hairline below header */
+:root[data-theme="dark"] body.shai-saas header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--shai-pink) 35%, var(--shai-blue) 65%, transparent 100%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+:root[data-theme="dark"] body.shai-saas header { position: relative; }
+
+/* Sidebar — deep with pink/blue glow on the inside edge */
+:root[data-theme="dark"] body.shai-saas .sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  box-shadow: inset -1px 0 0 rgba(255,45,178,0.05), 1px 0 24px rgba(0,0,0,0.40);
+}
+:root[data-theme="dark"] body.shai-saas .nav-item.active {
+  background: linear-gradient(90deg, rgba(255,45,178,0.10), rgba(26,107,255,0.10));
+  border-color: rgba(26,107,255,0.30);
+  border-left: 2px solid;
+  border-image: linear-gradient(180deg, var(--shai-pink), var(--shai-blue)) 1;
+  color: #FFFFFF;
+}
+:root[data-theme="dark"] body.shai-saas .nav-item.active .nav-icon { color: var(--shai-pink); }
+
+/* KPI cards / panels — subtle inner glow + sharper border */
+:root[data-theme="dark"] body.shai-saas .kpi-card,
+:root[data-theme="dark"] body.shai-saas .admin-card,
+:root[data-theme="dark"] body.shai-saas .dash-chart-card,
+:root[data-theme="dark"] body.shai-saas .tool-card,
+:root[data-theme="dark"] body.shai-saas .skill-card,
+:root[data-theme="dark"] body.shai-saas .shai-card,
+:root[data-theme="dark"] body.shai-saas .shai-kpi {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 30%),
+    var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 4px 16px rgba(0,0,0,0.40);
+  transition: box-shadow 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+:root[data-theme="dark"] body.shai-saas .kpi-card:hover,
+:root[data-theme="dark"] body.shai-saas .admin-card:hover,
+:root[data-theme="dark"] body.shai-saas .dash-chart-card:hover,
+:root[data-theme="dark"] body.shai-saas .tool-card:hover,
+:root[data-theme="dark"] body.shai-saas .skill-card:hover,
+:root[data-theme="dark"] body.shai-saas .shai-card:hover,
+:root[data-theme="dark"] body.shai-saas .shai-kpi:hover {
+  border-color: rgba(255,45,178,0.20);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 8px 28px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(26,107,255,0.08);
+}
+
+/* KPI numerics — bright white for tech feel */
+:root[data-theme="dark"] body.shai-saas .shai-kpi-value,
+:root[data-theme="dark"] body.shai-saas .kpi-value,
+:root[data-theme="dark"] body.shai-saas .kpi-num {
+  color: #FFFFFF;
+}
+
+/* Chat bubbles glow softly */
+:root[data-theme="dark"] body.shai-saas .msg.user .msg-body {
+  background: linear-gradient(180deg, rgba(255,45,178,0.10), rgba(255,45,178,0.04));
+  border: 1px solid rgba(255,45,178,0.22);
+}
+:root[data-theme="dark"] body.shai-saas .msg.agent .msg-body {
+  background: linear-gradient(180deg, rgba(26,107,255,0.06), transparent);
+  border: 1px solid rgba(26,107,255,0.14);
+}
+
+/* Buttons — primary action gets pink glow on hover */
+:root[data-theme="dark"] body.shai-saas .send,
+:root[data-theme="dark"] body.shai-saas .btn-primary,
+:root[data-theme="dark"] body.shai-saas .hdr-btn:not(.outline):not(.gold) {
+  background: var(--shai-blue);
+  box-shadow: 0 2px 8px rgba(26,107,255,0.30);
+}
+:root[data-theme="dark"] body.shai-saas .send:hover,
+:root[data-theme="dark"] body.shai-saas .btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(26,107,255,0.45);
+}
+:root[data-theme="dark"] body.shai-saas .hdr-btn.gold {
+  background: var(--shai-pink);
+  box-shadow: 0 2px 8px rgba(255,45,178,0.35);
+}
+:root[data-theme="dark"] body.shai-saas .hdr-btn.gold:hover {
+  box-shadow: 0 4px 16px rgba(255,45,178,0.50);
+}
+
+/* Form inputs — pink/blue focus ring */
+:root[data-theme="dark"] body.shai-saas input:focus,
+:root[data-theme="dark"] body.shai-saas textarea:focus,
+:root[data-theme="dark"] body.shai-saas select:focus {
+  border-color: rgba(26,107,255,0.55);
+  box-shadow: 0 0 0 3px rgba(26,107,255,0.15), 0 0 12px rgba(255,45,178,0.10);
+}
+
+/* Section/heading underlines use the pink→blue gradient */
+:root[data-theme="dark"] body.shai-saas .section-title::after,
+:root[data-theme="dark"] body.shai-saas .sec::after,
+:root[data-theme="dark"] body.shai-saas .ql-cat-title::after,
+:root[data-theme="dark"] body.shai-saas .cmd-section-title::after {
+  background: linear-gradient(90deg, rgba(255,45,178,0.40), rgba(26,107,255,0.20), transparent);
+  opacity: 0.6;
+}
+
+/* Sidebar mini-stats card glows pink/blue */
+:root[data-theme="dark"] body.shai-saas .mini-stats {
+  background: linear-gradient(135deg, rgba(255,45,178,0.06), rgba(26,107,255,0.06));
+  border: 1px solid rgba(255,45,178,0.14);
+}
+:root[data-theme="dark"] body.shai-saas .mst {
+  background: var(--shai-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tables get a slightly lifted feel */
+:root[data-theme="dark"] body.shai-saas table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+:root[data-theme="dark"] body.shai-saas thead th,
+:root[data-theme="dark"] body.shai-saas table th {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+/* View toggle (team page) — gradient on active */
+:root[data-theme="dark"] body.shai-saas .view-toggle button.active {
+  background: linear-gradient(135deg, var(--shai-pink), var(--shai-blue));
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(26,107,255,0.30);
+}
+
+/* Persona picker active item — gradient border */
+:root[data-theme="dark"] body.shai-saas .persona.active {
+  background: linear-gradient(90deg, rgba(255,45,178,0.10), rgba(26,107,255,0.10));
+  border-color: rgba(26,107,255,0.30);
+  border-left-width: 2px;
+}
+
+/* Cockpit summary KPI tiles get gradient top stripe */
+:root[data-theme="dark"] body.shai-saas .kpi {
+  position: relative;
+  overflow: hidden;
+}
+:root[data-theme="dark"] body.shai-saas .kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--shai-gradient);
+  opacity: 0.5;
+}

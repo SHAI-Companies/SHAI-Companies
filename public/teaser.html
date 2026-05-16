@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHAI — Executive Hub teaser</title>
+<link rel="icon" href="/brand/shai-icon-monogram.ico" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --shai-navy:#0B1F3A;
+    --shai-navy-2:#0d2547;
+    --shai-navy-3:#0f2c54;
+    --shai-pink:#FF2DB2;
+    --shai-blue:#1A6BFF;
+    --shai-blue-2:#3a82ff;
+    --shai-slate:#6B7A90;
+    --shai-light:#F2F4F7;
+    --status-up:#16A34A;
+    --status-down:#DC2626;
+    --status-warn:#D97706;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#000;color:#fff;font-family:'Inter',system-ui,sans-serif;overflow:hidden;height:100%}
+  .stage{
+    position:fixed;inset:0;background:var(--shai-navy);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .stage::before{
+    content:'';position:absolute;inset:-20%;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(26,107,255,.12), transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(255,45,178,.08), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(58,130,255,.06), transparent 60%);
+    filter:blur(20px);animation:driftBg 96s linear infinite;pointer-events:none;
+  }
+  @keyframes driftBg{
+    0%{transform:translate(0,0) rotate(0deg)} 50%{transform:translate(2%,-2%) rotate(.5deg)} 100%{transform:translate(0,0) rotate(0deg)}
+  }
+  .scene{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .7s ease-in-out;
+    padding:48px 64px;
+  }
+  .scene.active{opacity:1;pointer-events:auto}
+  .scene-inner{
+    max-width:1320px;width:100%;
+    display:flex;flex-direction:column;align-items:center;gap:24px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:3.5px;text-transform:uppercase;
+    color:var(--shai-pink);font-weight:600;
+  }
+  .head{
+    font-size:36px;font-weight:800;line-height:1.08;letter-spacing:-.02em;
+    color:#fff;text-align:center;margin:0;
+  }
+  .sub{
+    font-size:15px;color:#b8c5d9;font-weight:400;text-align:center;max-width:780px;line-height:1.55;margin:0;
+  }
+  .active .eyebrow{animation:fadeUp .55s 0s both ease-out}
+  .active .head   {animation:fadeUp .55s .12s both ease-out}
+  .active .sub    {animation:fadeUp .55s .22s both ease-out}
+
+  /* ───── Full-bleed scenes (splash bookends) ─────────────────────── */
+  .scene.fullbleed{padding:0}
+  .scene.fullbleed .scene-inner{max-width:none;width:100%;height:100%;gap:0;justify-content:flex-end}
+  .splash-iframe{
+    position:absolute;inset:0;width:100%;height:100%;
+    border:0;display:block;background:var(--shai-navy);
+  }
+  .splash-overlay{
+    position:absolute;left:0;right:0;bottom:64px;
+    display:flex;align-items:center;justify-content:center;
+    pointer-events:none;
+    opacity:0;
+    z-index:10;
+  }
+  .scene.active.fullbleed .splash-overlay{
+    animation:fadeUp .8s 1.6s both ease-out;
+  }
+  .splash-overlay .overlay-text{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:5px;text-transform:uppercase;font-weight:500;
+    color:#FFFFFF;
+    text-shadow:0 0 18px rgba(11,21,48,.85), 0 2px 14px rgba(11,21,48,.6);
+    padding:0 24px;text-align:center;
+  }
+  .splash-overlay .overlay-text .accent{color:#FF3D87}
+  /* When a fullbleed scene is active, hide the teaser chrome so the splash
+     reads cleanly without competing watermarks. */
+  body.splash-scene .corner-brand,
+  body.splash-scene .corner-time,
+  body.splash-scene .corner-scene{
+    opacity:0;transition:opacity .4s ease-out;
+  }
+
+  /* ───── Generic cards / panels ──────────────────────────────────── */
+  .panel{
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);border-radius:14px;padding:20px 22px;
+    backdrop-filter:blur(8px);
+  }
+  .panel-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:2px;text-transform:uppercase;
+    color:#8aa1c2;font-weight:500;margin-bottom:14px;
+  }
+
+  /* ───── Scene 2: KPI cockpit ────────────────────────────────────── */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;width:100%;max-width:1100px}
+  .kpi{
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);
+    border-radius:14px;padding:22px;
+    box-shadow:0 4px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .kpi-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:2px;text-transform:uppercase;
+    color:#8aa1c2;font-weight:500;margin-bottom:10px;
+  }
+  .kpi-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:32px;font-weight:600;color:#fff;letter-spacing:-.01em;line-height:1;
+  }
+  .kpi-delta{margin-top:10px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
+  .kpi-delta.up  {color:var(--status-up)}
+  .kpi-delta.down{color:var(--status-down)}
+  .kpi-delta.warn{color:var(--status-warn)}
+  .property-bar{margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:920px}
+  .property-pill{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:1.2px;text-transform:uppercase;
+    padding:5px 10px;border-radius:999px;
+    background:rgba(80,140,240,.08);border:1px solid rgba(80,140,240,.18);
+    color:#b0c4de;opacity:0;
+  }
+  .active .property-pill{animation:popIn .35s both ease-out}
+  .active .kpi:nth-child(1){animation:fadeUp .55s .1s both ease-out}
+  .active .kpi:nth-child(2){animation:fadeUp .55s .22s both ease-out}
+  .active .kpi:nth-child(3){animation:fadeUp .55s .34s both ease-out}
+  .active .kpi:nth-child(4){animation:fadeUp .55s .46s both ease-out}
+  .active .property-pill:nth-child(1){animation-delay:.6s}
+  .active .property-pill:nth-child(2){animation-delay:.66s}
+  .active .property-pill:nth-child(3){animation-delay:.72s}
+  .active .property-pill:nth-child(4){animation-delay:.78s}
+  .active .property-pill:nth-child(5){animation-delay:.84s}
+  .active .property-pill:nth-child(6){animation-delay:.90s}
+  .active .property-pill:nth-child(7){animation-delay:.96s}
+
+  /* ───── Scene 3: Daily Flash table ──────────────────────────────── */
+  .flash-table{
+    width:100%;max-width:1080px;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);border-radius:14px;overflow:hidden;
+  }
+  .flash-thead{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr 1.1fr 1.1fr 1.1fr 1fr;
+    background:rgba(11,31,58,.55);
+    border-bottom:1px solid rgba(80,140,240,.18);
+  }
+  .flash-thead > div{
+    padding:10px 12px;font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8aa1c2;font-weight:500;
+  }
+  .flash-thead .group{
+    background:rgba(255,45,178,.06);color:var(--shai-pink);grid-column:span 4;text-align:center;border-bottom:1px solid rgba(80,140,240,.1);
+  }
+  .flash-thead .group2{
+    background:rgba(26,107,255,.06);color:var(--shai-blue-2);grid-column:span 4;text-align:center;border-bottom:1px solid rgba(80,140,240,.1);
+  }
+  .flash-row{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr 1.1fr 1.1fr 1.1fr 1fr;
+    border-top:1px solid rgba(80,140,240,.08);
+    opacity:0;
+  }
+  .active .flash-row{animation:fadeUp .35s both ease-out}
+  .active .flash-row:nth-child(3){animation-delay:.30s}
+  .active .flash-row:nth-child(4){animation-delay:.42s}
+  .active .flash-row:nth-child(5){animation-delay:.54s}
+  .active .flash-row:nth-child(6){animation-delay:.66s}
+  .flash-row > div{padding:11px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#dbe6f5}
+  .flash-row .metric{font-family:'Inter',sans-serif;color:#fff;font-weight:500}
+  .flash-row .pos{color:var(--status-up)}
+  .flash-row .neg{color:var(--status-down)}
+  .flash-row .warn{color:var(--status-warn)}
+
+  /* ───── Scene 4: Forecast credibility — drift chips ─────────────── */
+  .drift-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:920px;
+  }
+  .drift-chip{
+    display:flex;flex-direction:column;gap:4px;
+    padding:14px 16px;border-radius:10px;
+    background:linear-gradient(180deg, rgba(15,44,84,.7), rgba(13,37,71,.7));
+    border-left:3px solid;opacity:0;
+  }
+  .drift-chip .lbl{font-family:'JetBrains Mono',monospace;color:#9eb2cf;letter-spacing:1.2px;font-size:9.5px;text-transform:uppercase}
+  .drift-chip .val{font-family:'JetBrains Mono',monospace;font-weight:600;color:#fff;font-size:18px}
+  .drift-chip .day1{font-family:'JetBrains Mono',monospace;color:#7c93b8;font-size:10px;margin-top:2px}
+  .drift-chip.green{border-color:var(--status-up)}
+  .drift-chip.warn {border-color:var(--status-warn)}
+  .drift-chip.red  {border-color:var(--status-down)}
+  .active .drift-chip{animation:popIn .3s both ease-out}
+  .active .drift-chip:nth-child(1){animation-delay:.20s}
+  .active .drift-chip:nth-child(2){animation-delay:.30s}
+  .active .drift-chip:nth-child(3){animation-delay:.40s}
+  .active .drift-chip:nth-child(4){animation-delay:.50s}
+  .active .drift-chip:nth-child(5){animation-delay:.60s}
+  .active .drift-chip:nth-child(6){animation-delay:.70s}
+  .active .drift-chip:nth-child(7){animation-delay:.80s}
+  .active .drift-chip:nth-child(8){animation-delay:.90s}
+
+  /* ───── Scene 5: Daily forecast heatmap ─────────────────────────── */
+  .heatmap-wrap{width:100%;max-width:780px}
+  .heatmap-legend{
+    display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:14px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.2px;color:#8aa1c2;
+  }
+  .heatmap-legend .swatch{
+    display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle;
+  }
+  .heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .heatcell{
+    aspect-ratio:1;border-radius:6px;
+    background:rgba(80,140,240,.08);border:1px solid rgba(80,140,240,.12);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:#7c93b8;padding:6px 4px;
+  }
+  .heatcell .day{font-size:11px;font-weight:600}
+  .heatcell .rp{font-size:9px;color:rgba(255,255,255,.55)}
+  .heatcell.fill1{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.3);color:#cfe5d3}
+  .heatcell.fill2{background:rgba(22,163,74,.28);border-color:rgba(22,163,74,.45);color:#dcefe1}
+  .heatcell.fill3{background:rgba(22,163,74,.42);border-color:rgba(22,163,74,.6);color:#fff}
+  .heatcell.fillwarn{background:rgba(217,119,6,.28);border-color:rgba(217,119,6,.5);color:#fff}
+  .heatcell.future{background:rgba(80,140,240,.05);color:#5e7398;font-style:italic}
+  .heatcell.future .rp{color:#5e7398}
+  .active .heatcell{opacity:0;animation:popIn .25s both ease-out}
+
+  /* ───── Scene 6: STR Comp Set ───────────────────────────────────── */
+  .str-table{
+    width:100%;max-width:1040px;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);border-radius:14px;overflow:hidden;
+  }
+  .str-row{
+    display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.2fr 1.2fr;
+    border-top:1px solid rgba(80,140,240,.08);
+    align-items:center;
+    opacity:0;
+  }
+  .str-row.head{background:rgba(11,31,58,.55);border-top:none}
+  .str-row.head > div{
+    padding:10px 12px;font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8aa1c2;font-weight:500;
+  }
+  .str-row > div{padding:11px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#dbe6f5}
+  .str-row .pname{font-family:'Inter',sans-serif;color:#fff;font-weight:500}
+  .str-row .idx{font-weight:600;font-size:13px}
+  .str-row .idx.up   {color:var(--status-up)}
+  .str-row .idx.warn {color:var(--status-warn)}
+  .str-row .idx.down {color:var(--status-down)}
+  .active .str-row{animation:fadeUp .3s both ease-out}
+  .active .str-row.head{animation-delay:0s}
+  .active .str-row:nth-child(2){animation-delay:.20s}
+  .active .str-row:nth-child(3){animation-delay:.30s}
+  .active .str-row:nth-child(4){animation-delay:.40s}
+  .active .str-row:nth-child(5){animation-delay:.50s}
+  .active .str-row:nth-child(6){animation-delay:.60s}
+  .active .str-row:nth-child(7){animation-delay:.70s}
+  .active .str-row:nth-child(8){animation-delay:.80s}
+
+  /* ───── Scene 7: Weekly STR Commentary ──────────────────────────── */
+  .wstr-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%;max-width:1040px}
+  .wstr-card{
+    padding:18px 20px;border-radius:14px;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);
+    opacity:0;
+  }
+  .wstr-card .top{
+    display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  }
+  .wstr-card .pname{font-size:14px;font-weight:600;color:#fff}
+  .wstr-card .brand{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8aa1c2;letter-spacing:1px}
+  .wstr-card .week{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9eb2cf;letter-spacing:1.2px}
+  .wstr-metrics{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;
+  }
+  .wstr-cell{
+    text-align:center;padding:8px 6px;border-radius:6px;
+    background:rgba(11,31,58,.45);
+  }
+  .wstr-cell .lbl{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#8aa1c2;font-weight:600}
+  .wstr-cell .val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#fff;margin-top:3px}
+  .wstr-comm{
+    padding:10px 12px;border-left:3px solid rgba(255,45,178,.6);background:rgba(255,45,178,.04);
+    font-size:11.5px;line-height:1.5;color:#dbe6f5;border-radius:0 6px 6px 0;
+  }
+  .active .wstr-card:nth-child(1){animation:fadeUp .55s .1s both ease-out}
+  .active .wstr-card:nth-child(2){animation:fadeUp .55s .25s both ease-out}
+
+  /* ───── Scene 8: AI Council ─────────────────────────────────────── */
+  .council{display:flex;flex-direction:column;align-items:center;gap:22px;width:100%;max-width:980px}
+  .council-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+  .persona{
+    display:flex;flex-direction:column;align-items:center;gap:7px;
+    padding:11px 14px;
+    background:linear-gradient(180deg, rgba(15,44,84,.7), rgba(13,37,71,.7));
+    border:1px solid rgba(80,140,240,.18);border-radius:11px;
+    min-width:120px;opacity:.35;transition:all .35s ease-out;
+  }
+  .persona.lit{
+    opacity:1;border-color:rgba(80,140,240,.5);
+    background:linear-gradient(180deg, rgba(26,75,140,.4), rgba(15,52,105,.4));
+    box-shadow:0 0 20px rgba(26,107,255,.18);
+  }
+  .persona-avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(135deg, var(--shai-blue), var(--shai-blue-2));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:13px;letter-spacing:.5px;
+    box-shadow:0 4px 12px rgba(26,107,255,.3);
+  }
+  .persona.lit .persona-avatar{
+    background:linear-gradient(135deg, var(--shai-pink), #d6249b);
+    box-shadow:0 4px 12px rgba(255,45,178,.4);
+  }
+  .persona-name{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:1.4px;
+    text-transform:uppercase;color:#b8c5d9;text-align:center;line-height:1.3;
+  }
+  .synthesis{
+    background:linear-gradient(180deg, rgba(255,45,178,.08), rgba(26,107,255,.08));
+    border:1px solid rgba(255,45,178,.25);border-radius:14px;
+    padding:18px 22px;width:100%;max-width:680px;
+    transform:translateY(20px);opacity:0;
+  }
+  .synthesis.in{animation:fadeUp .5s both ease-out}
+  .synth-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2.5px;
+    text-transform:uppercase;color:var(--shai-pink);font-weight:600;margin-bottom:7px;
+  }
+  .synth-body{font-size:13px;color:#dbe6f5;line-height:1.5}
+  .synth-body strong{color:#fff;font-weight:600}
+
+  /* ───── Scene 9: Skills library ─────────────────────────────────── */
+  .skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:1080px}
+  .skill-card{
+    padding:16px 18px;border-radius:12px;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);
+    opacity:0;
+  }
+  .skill-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .skill-icon{
+    width:28px;height:28px;border-radius:7px;
+    background:rgba(80,140,240,.15);border:1px solid rgba(80,140,240,.3);
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+  }
+  .skill-name{font-size:13px;font-weight:600;color:#fff;line-height:1.2}
+  .skill-desc{font-size:11px;line-height:1.45;color:#b8c5d9}
+  .active .skill-card:nth-child(1){animation:popIn .35s .10s both ease-out}
+  .active .skill-card:nth-child(2){animation:popIn .35s .18s both ease-out}
+  .active .skill-card:nth-child(3){animation:popIn .35s .26s both ease-out}
+  .active .skill-card:nth-child(4){animation:popIn .35s .34s both ease-out}
+  .active .skill-card:nth-child(5){animation:popIn .35s .42s both ease-out}
+  .active .skill-card:nth-child(6){animation:popIn .35s .50s both ease-out}
+
+  /* ───── Scene 10: PSC Scorecard ─────────────────────────────────── */
+  .psc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:100%;max-width:1100px}
+  .psc-tile{
+    padding:18px 20px;border-radius:12px;
+    background:linear-gradient(180deg, rgba(15,44,84,.85), rgba(13,37,71,.85));
+    border:1px solid rgba(80,140,240,.2);
+    text-align:center;opacity:0;
+  }
+  .psc-label{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:1.6px;
+    text-transform:uppercase;color:#8aa1c2;font-weight:500;
+  }
+  .psc-value{
+    font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:600;
+    color:#fff;letter-spacing:-.01em;line-height:1;margin-top:8px;
+  }
+  .psc-tier{
+    margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:9.5px;
+    letter-spacing:1.5px;text-transform:uppercase;font-weight:600;
+  }
+  .psc-tier.tier-a{color:var(--status-up)}
+  .psc-tier.tier-b{color:var(--shai-blue-2)}
+  .psc-tier.tier-c{color:var(--status-warn)}
+  .psc-tier.tier-d{color:var(--status-down)}
+  .psc-bands{
+    display:flex;gap:3px;margin-top:12px;height:5px;border-radius:3px;overflow:hidden;
+  }
+  .psc-band{flex:1;background:rgba(80,140,240,.18)}
+  .psc-band.on{background:linear-gradient(90deg, var(--shai-blue), var(--shai-pink))}
+  .active .psc-tile:nth-child(1){animation:fadeUp .45s .10s both ease-out}
+  .active .psc-tile:nth-child(2){animation:fadeUp .45s .22s both ease-out}
+  .active .psc-tile:nth-child(3){animation:fadeUp .45s .34s both ease-out}
+  .active .psc-tile:nth-child(4){animation:fadeUp .45s .46s both ease-out}
+
+  /* ───── Scene 11: Owner letter ──────────────────────────────────── */
+  .letter{
+    background:#fff;color:#0B1F3A;width:100%;max-width:680px;border-radius:8px;
+    padding:32px 40px;box-shadow:0 30px 80px rgba(0,0,0,.4);
+    transform:translateY(30px);opacity:0;text-align:left;position:relative;
+    font-family:'Inter',sans-serif;
+  }
+  .letter.in{animation:fadeUp .7s both ease-out}
+  .letter-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2.5px;
+    text-transform:uppercase;color:var(--shai-pink);font-weight:600;margin-bottom:6px;
+  }
+  .letter-title{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 4px}
+  .letter-period{font-size:11.5px;color:var(--shai-slate);margin-bottom:14px;font-family:'JetBrains Mono',monospace}
+  .letter-body{font-size:12.5px;line-height:1.6;color:#1f2c44}
+  .letter-body p{margin:0 0 9px}
+  .letter-body .strong{font-weight:600;color:#0B1F3A}
+  .letter-stamp{
+    position:absolute;top:26px;right:30px;font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:2px;color:var(--shai-slate);
+  }
+
+  /* ───── Animations ──────────────────────────────────────────────── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)}}
+  @keyframes popIn{from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)}}
+
+  /* ───── Chrome (corners + progress + replay) ────────────────────── */
+  .progress{position:fixed;left:0;right:0;bottom:0;height:2px;background:rgba(80,140,240,.12);z-index:100}
+  .progress-fill{height:100%;background:linear-gradient(90deg, var(--shai-blue), var(--shai-pink));width:0%;transition:width 1s linear}
+
+  .corner-brand{
+    position:fixed;top:24px;left:32px;display:flex;align-items:center;gap:10px;
+    z-index:50;opacity:.85;
+  }
+  .corner-brand img{height:22px;width:auto;display:block}
+  .corner-brand .tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;
+    text-transform:uppercase;color:#8aa1c2;
+  }
+  .corner-time{
+    position:fixed;top:24px;right:32px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;
+    text-transform:uppercase;color:#8aa1c2;z-index:50;opacity:.7;
+  }
+  .corner-scene{
+    position:fixed;bottom:18px;right:32px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;
+    text-transform:uppercase;color:#6b7d99;z-index:50;opacity:.6;
+  }
+
+  .replay{
+    position:fixed;inset:0;background:rgba(11,31,58,.85);backdrop-filter:blur(10px);
+    display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;z-index:200;
+  }
+  .replay.show{display:flex}
+  .replay-btn{
+    padding:14px 32px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    background:var(--shai-pink);color:#fff;border:none;border-radius:999px;cursor:pointer;
+    letter-spacing:.5px;box-shadow:0 8px 28px rgba(255,45,178,.35);
+  }
+  .replay-btn:hover{transform:translateY(-1px)}
+  .replay-msg{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2.5px;
+    text-transform:uppercase;color:#b0c4de;
+  }
+
+  @media (max-width: 900px){
+    .head{font-size:24px}
+    .kpi-grid,.drift-grid,.psc-grid,.skills-grid,.wstr-grid{grid-template-columns:repeat(2,1fr)}
+    .scene{padding:24px}
+  }
+</style>
+</head>
+<body>
+
+<div class="corner-brand">
+  <img src="/brand/shai-banner.png" alt="SHAI" onerror="this.src='/brand/shai-mark-transparent.png';this.style.height='26px'" />
+  <span class="tag">Executive Hub · Teaser</span>
+</div>
+<div class="corner-time" id="cornerTime">00:00 / 01:53</div>
+<div class="corner-scene" id="cornerScene">scene 01 · 12</div>
+
+<!-- Voiceover audio. Hidden — controlled programmatically by the scene driver.
+     Kept invisible so it doesn't render the default audio controls overlay
+     on top of the reel. -->
+<audio id="teaser-vo" src="/teaser-vo.mp3" preload="auto" style="display:none" aria-hidden="true"></audio>
+
+<div class="stage" id="stage">
+
+  <!-- ============ SCENE 1 — Cold open (0:00–0:08) ============
+       Full-bleed animated SHAI splash via iframe (?clip suppresses
+       the splash's auto-redirect + chrome). Tagline overlay at bottom. -->
+  <section class="scene scene-1 fullbleed" data-scene="1">
+    <iframe class="splash-iframe" data-splash="1" src="/splash.html?clip" title="SHAI splash"></iframe>
+    <div class="splash-overlay">
+      <div class="overlay-text">One pane &nbsp;·&nbsp; 17 hotels &nbsp;·&nbsp; <span class="accent">Powered by SHAI</span></div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 2 — Portfolio cockpit (0:08–0:16) ============ -->
+  <section class="scene scene-2" data-scene="2">
+    <div class="scene-inner">
+      <div class="eyebrow">Live Portfolio Intelligence</div>
+      <h2 class="head">Every property. Every period. One source of truth.</h2>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Total Revenue · MTD</div>
+          <div class="kpi-value" data-counter="4.21" data-prefix="$" data-suffix="M" data-decimals="2">$0.00M</div>
+          <div class="kpi-delta up">▲ 8.4% vs LY</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Portfolio NOI · MTD</div>
+          <div class="kpi-value" data-counter="1.18" data-prefix="$" data-suffix="M" data-decimals="2">$0.00M</div>
+          <div class="kpi-delta up">▲ 28.0% margin</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Occupancy · True MTD</div>
+          <div class="kpi-value" data-counter="78.4" data-suffix="%" data-decimals="1">0.0%</div>
+          <div class="kpi-delta up">▲ 3.2 pts vs Bud</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">RevPAR</div>
+          <div class="kpi-value" data-counter="98.40" data-prefix="$" data-decimals="2">$0.00</div>
+          <div class="kpi-delta warn">RGI 102.4</div>
+        </div>
+      </div>
+      <div class="property-bar">
+        <span class="property-pill">17 Properties</span>
+        <span class="property-pill">Hilton</span>
+        <span class="property-pill">Marriott</span>
+        <span class="property-pill">IHG</span>
+        <span class="property-pill">Choice</span>
+        <span class="property-pill">7 States</span>
+        <span class="property-pill">6 Owners</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 3 — Daily Flash (0:16–0:24) ============ -->
+  <section class="scene scene-3" data-scene="3">
+    <div class="scene-inner">
+      <div class="eyebrow">Daily Flash</div>
+      <h2 class="head">PTD vs Full Period — every metric, every morning.</h2>
+      <div class="flash-table">
+        <div class="flash-thead">
+          <div></div>
+          <div class="group">PTD · Through Yesterday</div>
+          <div class="group2">Full Period</div>
+        </div>
+        <div class="flash-thead">
+          <div>Metric</div>
+          <div>LY</div>
+          <div>Actual</div>
+          <div>Bud</div>
+          <div>Var $</div>
+          <div>Live Fc</div>
+          <div>Day-1 Lock</div>
+          <div>Δ Drift</div>
+          <div>Bud</div>
+        </div>
+        <div class="flash-row"><div class="metric">Revenue</div><div>$3.91M</div><div>$4.21M</div><div>$3.96M</div><div class="pos">+$246K</div><div>$15.40M</div><div>$15.20M</div><div class="pos">+1.3%</div><div>$15.10M</div></div>
+        <div class="flash-row"><div class="metric">GOP</div><div>$1.06M</div><div>$1.20M</div><div>$1.10M</div><div class="pos">+$104K</div><div>$4.36M</div><div>$4.18M</div><div class="pos">+4.3%</div><div>$4.20M</div></div>
+        <div class="flash-row"><div class="metric">Occupancy</div><div>74.8%</div><div>78.4%</div><div>75.2%</div><div class="pos">+3.2 pts</div><div>76.1%</div><div>77.9%</div><div class="warn">−1.8 pts</div><div>74.5%</div></div>
+        <div class="flash-row"><div class="metric">ADR</div><div>$122.40</div><div>$125.60</div><div>$124.80</div><div class="pos">+$0.80</div><div>$126.20</div><div>$125.70</div><div class="pos">+0.4%</div><div>$125.10</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 4 — Forecast credibility (0:24–0:32) ============ -->
+  <section class="scene scene-4" data-scene="4">
+    <div class="scene-inner">
+      <div class="eyebrow">Forecast Credibility</div>
+      <h2 class="head">Day-1 locked. Drift visible. Owner-grade discipline.</h2>
+      <div class="drift-grid">
+        <div class="drift-chip green"><span class="lbl">Revenue</span><span class="val">+1.3%</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip green"><span class="lbl">RevPAR</span><span class="val">+1.1%</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip green"><span class="lbl">GOP</span><span class="val">+4.3%</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip warn"><span class="lbl">Occupancy</span><span class="val">−1.8 pts</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip green"><span class="lbl">ADR</span><span class="val">+0.4%</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip warn"><span class="lbl">F&amp;B Rev</span><span class="val">−4.2%</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip green"><span class="lbl">Room Rev</span><span class="val">+1.8%</span><span class="day1">vs Day-1 lock</span></div>
+        <div class="drift-chip green"><span class="lbl">Other Inc</span><span class="val">+2.6%</span><span class="day1">vs Day-1 lock</span></div>
+      </div>
+      <div class="sub">Eight metrics, locked on the first of the month. Drift tracked daily, scored per GM.</div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 5 — Daily forecast heatmap (0:32–0:40) ============ -->
+  <section class="scene scene-5" data-scene="5">
+    <div class="scene-inner">
+      <div class="eyebrow">Demand AI · Daily Forecast</div>
+      <h2 class="head">May 2026 — actuals overlay, day by day.</h2>
+      <div class="heatmap-wrap">
+        <div class="heatmap-legend">
+          <span><span class="swatch" style="background:rgba(22,163,74,.42)"></span>Snapshot actuals</span>
+          <span><span class="swatch" style="background:rgba(217,119,6,.4)"></span>Today / drift</span>
+          <span><span class="swatch" style="background:rgba(80,140,240,.2)"></span>Forecast</span>
+        </div>
+        <div class="heatmap" id="heatmap"></div>
+      </div>
+      <div class="sub">Claude Haiku-powered. 30-day projection with day-of-week shape, actuals replacing back-cast as snapshots accumulate.</div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 6 — STR Comp Set (0:40–0:48) ============ -->
+  <section class="scene scene-6" data-scene="6">
+    <div class="scene-inner">
+      <div class="eyebrow">STR Competitive Position</div>
+      <h2 class="head">RGI · ARI · MPI — auto-derived from ProfitSword.</h2>
+      <div class="str-table">
+        <div class="str-row head">
+          <div>Property</div><div>RGI</div><div>ARI</div><div>MPI</div><div>My RevPAR</div><div>Comp RevPAR</div>
+        </div>
+        <div class="str-row"><div class="pname">Embassy Naperville</div><div class="idx up">112.4</div><div class="idx up">108.2</div><div class="idx up">103.9</div><div>$118.60</div><div>$105.50</div></div>
+        <div class="str-row"><div class="pname">Hampton Schaumburg</div><div class="idx up">106.1</div><div class="idx up">104.0</div><div class="idx up">102.0</div><div>$94.20</div><div>$88.80</div></div>
+        <div class="str-row"><div class="pname">Holiday Inn Express Tinley</div><div class="idx warn">98.7</div><div class="idx warn">99.4</div><div class="idx warn">99.3</div><div>$82.10</div><div>$83.20</div></div>
+        <div class="str-row"><div class="pname">Home2 Fort Wayne</div><div class="idx up">114.8</div><div class="idx up">110.6</div><div class="idx up">103.8</div><div>$104.30</div><div>$90.90</div></div>
+        <div class="str-row"><div class="pname">Tru Greensboro</div><div class="idx warn">97.2</div><div class="idx warn">98.8</div><div class="idx warn">98.4</div><div>$76.40</div><div>$78.60</div></div>
+        <div class="str-row"><div class="pname">Comfort Inn Lexington</div><div class="idx down">88.9</div><div class="idx warn">96.1</div><div class="idx down">92.5</div><div>$64.20</div><div>$72.20</div></div>
+        <div class="str-row"><div class="pname">Avid Atlanta South</div><div class="idx up">108.4</div><div class="idx up">105.1</div><div class="idx up">103.1</div><div>$92.80</div><div>$85.60</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 7 — Weekly STR Commentary (0:48–0:56) ============ -->
+  <section class="scene scene-7" data-scene="7">
+    <div class="scene-inner">
+      <div class="eyebrow">Weekly STR Commentary</div>
+      <h2 class="head">Per-property narrative. The story behind the number.</h2>
+      <div class="wstr-grid">
+        <div class="wstr-card">
+          <div class="top">
+            <div class="pname">Embassy Naperville</div>
+            <div class="brand">Hilton</div>
+            <div class="week">Week ending 2026-05-03</div>
+          </div>
+          <div class="wstr-metrics">
+            <div class="wstr-cell"><div class="lbl">RGI</div><div class="val">112.4</div></div>
+            <div class="wstr-cell"><div class="lbl">ARI</div><div class="val">108.2</div></div>
+            <div class="wstr-cell"><div class="lbl">MPI</div><div class="val">103.9</div></div>
+            <div class="wstr-cell"><div class="lbl">My Occ</div><div class="val">82.1%</div></div>
+            <div class="wstr-cell"><div class="lbl">My ADR</div><div class="val">$144.50</div></div>
+            <div class="wstr-cell"><div class="lbl">My RevPAR</div><div class="val">$118.60</div></div>
+          </div>
+          <div class="wstr-comm">
+            Strong corporate transient pickup mid-week. Group displaced rate on Tue/Wed but held the ceiling on Thursday. Comp set softened ADR $3 — held our position. Watch weekend leisure pace next week.
+          </div>
+        </div>
+        <div class="wstr-card">
+          <div class="top">
+            <div class="pname">Comfort Inn Lexington</div>
+            <div class="brand">Choice</div>
+            <div class="week">Week ending 2026-05-03</div>
+          </div>
+          <div class="wstr-metrics">
+            <div class="wstr-cell"><div class="lbl">RGI</div><div class="val">88.9</div></div>
+            <div class="wstr-cell"><div class="lbl">ARI</div><div class="val">96.1</div></div>
+            <div class="wstr-cell"><div class="lbl">MPI</div><div class="val">92.5</div></div>
+            <div class="wstr-cell"><div class="lbl">My Occ</div><div class="val">68.4%</div></div>
+            <div class="wstr-cell"><div class="lbl">My ADR</div><div class="val">$93.80</div></div>
+            <div class="wstr-cell"><div class="lbl">My RevPAR</div><div class="val">$64.20</div></div>
+          </div>
+          <div class="wstr-comm">
+            Comp set added a renovated Holiday Inn Express; lost share on Fri/Sat leisure. ADR holding but occ gap widening. Reviewing rate floor and OTA mix next Tuesday with the GM.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 8 — AI Council (0:56–1:04) ============ -->
+  <section class="scene scene-8" data-scene="8">
+    <div class="scene-inner">
+      <div class="eyebrow">Strategic Deliberation</div>
+      <h2 class="head">Seven executives. One synthesized call. In minutes.</h2>
+      <div class="council">
+        <div class="council-row">
+          <div class="persona" data-persona="ceo"><div class="persona-avatar">CE</div><div class="persona-name">CEO</div></div>
+          <div class="persona" data-persona="coo"><div class="persona-avatar">TF</div><div class="persona-name">COO<br>Tim Foley</div></div>
+          <div class="persona" data-persona="cfo"><div class="persona-avatar">CF</div><div class="persona-name">CFO</div></div>
+          <div class="persona" data-persona="cdo"><div class="persona-avatar">CD</div><div class="persona-name">Chief Development</div></div>
+        </div>
+        <div class="council-row">
+          <div class="persona" data-persona="cio"><div class="persona-avatar">CI</div><div class="persona-name">Chief Investment</div></div>
+          <div class="persona" data-persona="vprm"><div class="persona-avatar">VP</div><div class="persona-name">VP Revenue Mgmt</div></div>
+          <div class="persona" data-persona="gc"><div class="persona-avatar">GC</div><div class="persona-name">General Counsel</div></div>
+        </div>
+        <div class="synthesis" id="synthesis">
+          <div class="synth-eyebrow">Synthesized Call</div>
+          <div class="synth-body">
+            <strong>Hold three; recommend disposition on the under-performing Comfort Inn.</strong>
+            Phase year-2 of the Schaumburg PIP. Embassy Naperville brand letter — outside counsel, 72-hour response.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 9 — Skills library (1:04–1:12) ============ -->
+  <section class="scene scene-9" data-scene="9">
+    <div class="scene-inner">
+      <div class="eyebrow">Skills Library</div>
+      <h2 class="head">Pre-built plays. Owner-grade output. One click.</h2>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-top"><div class="skill-icon">🗓</div><div class="skill-name">Chief of Staff — Monday Digest</div></div>
+          <div class="skill-desc">5-minute Monday read. Stuck decisions, overdue actions, watchlist movement, persona signal rot — three things only Chris can move.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-top"><div class="skill-icon">⚖</div><div class="skill-name">GC — Brand / HMA Letter Triage</div></div>
+          <div class="skill-desc">60-second read on a brand letter. The legal hook, the trap, the 24/72-hour move, outside-counsel trigger.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-top"><div class="skill-icon">🎯</div><div class="skill-name">PSC Review — GM Call Prep</div></div>
+          <div class="skill-desc">6-step monthly scorecard call. Headline, win, gap, forecast credibility, 5 lead questions, action capture.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-top"><div class="skill-icon">📍</div><div class="skill-name">Area GM — Property Pulse</div></div>
+          <div class="skill-desc">Per-property weekly prep. Top 3 risks (quantified), top 3 replicable wins, owner watch, the one-sentence Ask.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-top"><div class="skill-icon">✉</div><div class="skill-name">CFO — Monthly Owner Letter</div></div>
+          <div class="skill-desc">Calibrated to each owner's sophistication, format, hot buttons, red flags. Lender-grade default if no profile loaded.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-top"><div class="skill-icon">🏗</div><div class="skill-name">VP Capital — PIP Response</div></div>
+          <div class="skill-desc">Triage every PIP line. Accept / Negotiate / Reject with cost spread, phasing plan, owner brief, brand-response strategy.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 10 — PSC Scorecard (1:12–1:20) ============ -->
+  <section class="scene scene-10" data-scene="10">
+    <div class="scene-inner">
+      <div class="eyebrow">Performance Scorecard</div>
+      <h2 class="head">Stair-step scoring. NOI-anchored. Same rubric, every property.</h2>
+      <div class="psc-grid">
+        <div class="psc-tile">
+          <div class="psc-label">Forecast Accuracy</div>
+          <div class="psc-value">+2.3%</div>
+          <div class="psc-tier tier-a">Tier A · ±5%</div>
+          <div class="psc-bands"><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band"></div></div>
+        </div>
+        <div class="psc-tile">
+          <div class="psc-label">Flow-Through</div>
+          <div class="psc-value">54%</div>
+          <div class="psc-tier tier-a">Tier A · &gt;50%</div>
+          <div class="psc-bands"><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band"></div></div>
+        </div>
+        <div class="psc-tile">
+          <div class="psc-label">RevPAR Index</div>
+          <div class="psc-value">102.4</div>
+          <div class="psc-tier tier-b">Tier B · &gt;100</div>
+          <div class="psc-bands"><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band"></div><div class="psc-band"></div></div>
+        </div>
+        <div class="psc-tile">
+          <div class="psc-label">Composite Score</div>
+          <div class="psc-value">168<span style="font-size:18px;color:#8aa1c2">/200</span></div>
+          <div class="psc-tier tier-a">Tier A · &gt;160</div>
+          <div class="psc-bands"><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band on"></div><div class="psc-band"></div></div>
+        </div>
+      </div>
+      <div class="sub">Every property reviewed monthly against the same Superhost rubric. The call ends with action, owner, date, and dollar impact.</div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 11 — Owner letter (1:20–1:28) ============ -->
+  <section class="scene scene-11" data-scene="11">
+    <div class="scene-inner">
+      <div class="eyebrow">Lender-Grade Output</div>
+      <h2 class="head">Voice-consistent. Owner-calibrated. Period-on-period.</h2>
+      <div class="letter" id="letter">
+        <div class="letter-stamp">SHAI · GENERATED</div>
+        <div class="letter-eyebrow">Q2 2026 · Owner Letter</div>
+        <div class="letter-title">Lakhany Group — Portfolio Performance</div>
+        <div class="letter-period">May 2026 · Hampton Schaumburg · Embassy Naperville · Holiday Inn Express Tinley</div>
+        <div class="letter-body">
+          <p><span class="strong">The portfolio beat plan on NOI by $184K against a softer top-line.</span>
+            RevPAR ran +1.1% vs forecast on a 3.2-point occupancy lift; ADR held within 40 bps of plan.</p>
+          <p><span class="strong">Flow-through finished at 54%</span> against a 50% target — F&amp;B contribution at Embassy
+            Naperville drove the upside. Labor productivity inside brand benchmark.</p>
+          <p><span class="strong">Watch:</span> Schaumburg PIP scope is in negotiation. We've recommended phasing year-2
+            spend to preserve $420K of free cash flow against an undisturbed CapEx reserve.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 12 — Closer (1:28–1:36) ============
+       Mirror of scene 1: full-bleed animated splash with closing tagline. -->
+  <section class="scene scene-12 fullbleed" data-scene="12">
+    <iframe class="splash-iframe" data-splash="12" src="/splash.html?clip" title="SHAI splash"></iframe>
+    <div class="splash-overlay">
+      <div class="overlay-text"><span class="accent">Powered by SHAI</span> &nbsp;·&nbsp; Available now &nbsp;·&nbsp; Superhost Hospitality</div>
+    </div>
+  </section>
+
+</div>
+
+<div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- Autoplay-blocked overlay. Browsers block unmuted media autoplay until the
+     user has interacted with the page. If audio.play() rejects, this overlay
+     shows and a single click kicks off the synced reel. -->
+<div class="replay" id="autoplayGate" style="display:none">
+  <div class="replay-msg">Tap to play with sound</div>
+  <button class="replay-btn" onclick="startTeaser()">▶ Start teaser</button>
+</div>
+
+<div class="replay" id="replay">
+  <div class="replay-msg">End of teaser · 01:53</div>
+  <button class="replay-btn" onclick="startTeaser()">Play again ↻</button>
+</div>
+
+<script>
+  /* ──────────────────────────────────────────────────────────────────
+   * Teaser timeline driver — synced to the voiceover audio.
+   *
+   * Scenes are driven off `audio.currentTime` rather than wall-clock —
+   * so transitions track the VO precisely regardless of load delays,
+   * the user pausing/resuming, or the audio seeking. If the audio fails
+   * to load or play (e.g. file 404, autoplay blocked indefinitely), we
+   * fall back to wall-clock with the same SCENE_STARTS table.
+   *
+   * SCENE_STARTS is the start-time (in audio-seconds) of each scene.
+   * Seeded from the voiceover script's per-scene word counts (~0.55 s/word
+   * + ~0.4 s breath at each transition, summing to ~113 s / 1:53). If a
+   * scene boundary feels off when watching, nudge that index in the
+   * array — scenes resync on the next timeupdate tick (~250 ms).
+   * ───────────────────────────────────────────────────────────────── */
+
+  const SCENE_STARTS = [
+    0.0,    // 1  · Cold open (splash)
+    9.1,    // 2  · Portfolio cockpit
+    19.4,   // 3  · Daily Flash
+    28.5,   // 4  · Forecast credibility
+    38.2,   // 5  · Demand AI heatmap
+    48.4,   // 6  · STR Comp Set
+    57.6,   // 7  · Weekly STR Commentary
+    66.7,   // 8  · AI Council
+    77.5,   // 9  · Skills Library
+    87.7,   // 10 · PSC Scorecard
+    98.5,   // 11 · Owner letter
+    108.2   // 12 · Closer (splash)
+  ];
+  const SCENE_COUNT = SCENE_STARTS.length;
+  const TOTAL = 113;  // audio is 1:53 (113 s) — set as the timeline ceiling
+
+  const audioEl = document.getElementById('teaser-vo');
+  let currentScene = 0;
+  let progressInterval = null;
+  let fallbackInterval = null;
+  let usingFallback = false;
+  let timeouts = [];
+
+  function clearAllTimers(){
+    timeouts.forEach(t => clearTimeout(t));
+    timeouts = [];
+    if(progressInterval){ clearInterval(progressInterval); progressInterval = null; }
+    if(fallbackInterval){ clearInterval(fallbackInterval); fallbackInterval = null; }
+  }
+
+  function setActive(sceneN){
+    document.querySelectorAll('.scene').forEach(s => {
+      s.classList.toggle('active', Number(s.dataset.scene) === sceneN);
+    });
+    // Hide teaser chrome on splash bookends so the splash reads cleanly.
+    const isSplash = (sceneN === 1 || sceneN === 12);
+    document.body.classList.toggle('splash-scene', isSplash);
+    document.getElementById('cornerScene').textContent =
+      'scene ' + String(sceneN).padStart(2,'0') + ' · ' + SCENE_COUNT;
+    if(sceneN === 2)  animateCounters();
+    if(sceneN === 5)  buildHeatmap();
+    if(sceneN === 8)  animateCouncil();
+    if(sceneN === 11) animateLetter();
+  }
+
+  // Map audio currentTime → scene number, then activate if it changed.
+  function syncToTime(t){
+    let n = 1;
+    for(let i = SCENE_STARTS.length - 1; i >= 0; i--){
+      if(t >= SCENE_STARTS[i]){ n = i + 1; break; }
+    }
+    if(n !== currentScene){
+      currentScene = n;
+      setActive(n);
+    }
+  }
+
+  function animateCounters(){
+    document.querySelectorAll('.scene-2 [data-counter]').forEach(el => {
+      const target = parseFloat(el.dataset.counter);
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      const dur = 1400;
+      const t0 = performance.now();
+      function step(t){
+        const k = Math.min(1, (t - t0) / dur);
+        const eased = 1 - Math.pow(1 - k, 3);
+        el.textContent = prefix + (target * eased).toFixed(decimals) + suffix;
+        if(k < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  function buildHeatmap(){
+    const hm = document.getElementById('heatmap');
+    if(!hm) return;
+    hm.innerHTML = '';
+    const cells = [];
+    // 35 cells = 5 weeks. Day 8 is "today" in our narrative.
+    for(let i = 1; i <= 35; i++){
+      const day = i;
+      let cls = 'heatcell', dayLbl = '', rpLbl = '';
+      if(day <= 31){
+        dayLbl = day;
+        // Forecast RevPAR mock — DOW pattern, weekend lift
+        const dow = (day - 1) % 7; // 0=mon
+        const base = 92 + (dow >= 4 ? 14 : 0) + (dow === 6 ? -6 : 0);
+        const rp = Math.round(base + (day % 5) * 1.4);
+        rpLbl = '$' + rp;
+        if(day <= 4)        cls += ' fill1';
+        else if(day <= 6)   cls += ' fill2';
+        else if(day === 7)  cls += ' fill3';
+        else if(day === 8)  cls += ' fillwarn';
+        else                cls += ' future';
+      } else {
+        cls += ' future';
+      }
+      cells.push(`<div class="${cls}"><div class="day">${dayLbl}</div><div class="rp">${rpLbl}</div></div>`);
+    }
+    hm.innerHTML = cells.join('');
+    hm.querySelectorAll('.heatcell').forEach((el, i) => {
+      el.style.animationDelay = (0.35 + i * 0.014) + 's';
+    });
+  }
+
+  function animateCouncil(){
+    const personas = document.querySelectorAll('.scene-8 .persona');
+    personas.forEach(p => p.classList.remove('lit'));
+    document.getElementById('synthesis')?.classList.remove('in');
+    personas.forEach((p, i) => {
+      timeouts.push(setTimeout(() => p.classList.add('lit'), 250 + i * 230));
+    });
+    timeouts.push(setTimeout(() => {
+      document.getElementById('synthesis')?.classList.add('in');
+    }, 250 + personas.length * 230 + 250));
+  }
+
+  function animateLetter(){
+    const l = document.getElementById('letter');
+    if(l){ l.classList.remove('in'); void l.offsetWidth; l.classList.add('in'); }
+  }
+
+  function fmtTime(secs){
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(Math.floor(secs % 60)).padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  function updateProgressUI(t){
+    const pct = Math.min(100, (t / TOTAL) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('cornerTime').textContent =
+      fmtTime(Math.min(t, TOTAL)) + ' / ' + fmtTime(TOTAL);
+  }
+
+  // Audio drives the timeline. timeupdate fires ~4 Hz in modern browsers —
+  // plenty for scene boundaries. Adding a separate 250 ms tick for the UI
+  // so the clock and progress bar feel smooth even between timeupdate events.
+  function onAudioTimeUpdate(){
+    if(usingFallback) return;
+    syncToTime(audioEl.currentTime);
+  }
+  function onAudioEnded(){
+    clearAllTimers();
+    document.getElementById('replay').classList.add('show');
+  }
+
+  function tickAudioProgressUI(){
+    if(usingFallback) return;
+    updateProgressUI(audioEl.currentTime);
+  }
+
+  // Wall-clock fallback used only if audio fails to load or play. Keeps the
+  // visual reel running so the teaser doesn't sit dead — but without VO.
+  function startWallClockFallback(){
+    usingFallback = true;
+    const t0 = performance.now();
+    fallbackInterval = setInterval(() => {
+      const t = (performance.now() - t0) / 1000;
+      updateProgressUI(t);
+      syncToTime(t);
+      if(t >= TOTAL){
+        clearAllTimers();
+        document.getElementById('replay').classList.add('show');
+      }
+    }, 200);
+  }
+
+  function startTeaser(){
+    document.getElementById('replay').classList.remove('show');
+    document.getElementById('autoplayGate').style.display = 'none';
+    clearAllTimers();
+    usingFallback = false;
+    currentScene = 0;
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    const hm = document.getElementById('heatmap'); if(hm) hm.innerHTML = '';
+    document.getElementById('synthesis')?.classList.remove('in');
+    document.querySelectorAll('.scene-8 .persona').forEach(p => p.classList.remove('lit'));
+    // Refresh splash iframes with cache-busting so each replay re-fires the
+    // splash logoIn animation (and the aurora WebGL). Without this, the
+    // splash logo only animates on the very first playthrough.
+    document.querySelectorAll('iframe.splash-iframe').forEach(f => {
+      f.src = '/splash.html?clip&t=' + Date.now();
+    });
+    document.querySelectorAll('[data-counter]').forEach(el => {
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      const dec = parseInt(el.dataset.decimals || '0', 10);
+      el.textContent = prefix + (0).toFixed(dec) + suffix;
+    });
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('cornerTime').textContent = '00:00 / ' + fmtTime(TOTAL);
+    document.getElementById('cornerScene').textContent = 'scene 01 · ' + SCENE_COUNT;
+    // Reset audio and play. Browser autoplay policy may reject the first
+    // call before any user gesture — surface the tap-to-start overlay then.
+    try { audioEl.currentTime = 0; } catch(e) {}
+    const playPromise = audioEl.play();
+    if(playPromise && typeof playPromise.then === 'function'){
+      playPromise.then(() => {
+        // Audio playing — drive scenes off audio time. Set scene 1 immediately
+        // so we don't wait for the first timeupdate (~250 ms) to start.
+        setActive(1);
+        currentScene = 1;
+        progressInterval = setInterval(tickAudioProgressUI, 200);
+      }).catch(err => {
+        // Likely NotAllowedError — autoplay blocked. Show the gate; one click
+        // calls startTeaser() again, this time with a user gesture in scope.
+        console.warn('[teaser] autoplay blocked, showing gate:', err && err.name);
+        document.getElementById('autoplayGate').style.display = 'flex';
+      });
+    } else {
+      // Old browser / no promise returned — just kick off scene 1 + fallback.
+      setActive(1);
+      currentScene = 1;
+      progressInterval = setInterval(tickAudioProgressUI, 200);
+    }
+  }
+
+  // Audio failed entirely (404 / decode error / etc.) — fall back to wall clock.
+  audioEl.addEventListener('error', () => {
+    if(!usingFallback){
+      console.warn('[teaser] audio failed to load — using wall-clock fallback');
+      clearAllTimers();
+      setActive(1); currentScene = 1;
+      startWallClockFallback();
+    }
+  });
+  audioEl.addEventListener('timeupdate', onAudioTimeUpdate);
+  audioEl.addEventListener('ended', onAudioEnded);
+
+  document.addEventListener('click', e => {
+    if(e.target.closest('.replay-btn')) return;
+    const stage = document.getElementById('stage');
+    if(e.target === stage || (stage.contains(e.target) && !e.target.closest('.kpi, .persona, .panel, .letter, .synthesis, .skill-card, .psc-tile, .wstr-card, .str-row, .flash-row'))){
+      startTeaser();
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key === ' ' || e.key === 'Spacebar'){ e.preventDefault(); startTeaser(); }
+  });
+
+  window.addEventListener('load', () => setTimeout(startTeaser, 350));
+</script>
+
+</body>
+</html>

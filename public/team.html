@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHAI — Executive Team</title>
+<link rel="icon" type="image/svg+xml" href="brand/shai-icon-monogram.svg" />
+<script>(function(){try{var t=localStorage.getItem('shai-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<link rel="stylesheet" href="/styles/shai-theme.css" />
+<link rel="stylesheet" href="/styles/shai-cockpit-overrides.css" />
+<script defer src="/styles/shai-theme-toggle.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#141720;--bg2:#1C2030;--bg3:#232838;
+  --sidebar-bg:#181C28;--header-bg:#181C28;
+  --teal:#22D3EE;--teal2:#67E8F9;--teal-soft:rgba(34,211,238,.08);
+  --gold:#FBBF24;--gold2:#FCD34D;--gold-soft:rgba(251,191,36,.08);
+  --fg:#E8EAF0;--fg2:#C5C9D4;--fg3:#8B92A5;
+  --white:#1C2030;--off:#232838;
+  --gray:#6B7490;--gray2:#8B92A5;
+  --red:#F87171;--amber:#FBBF24;--green:#34D399;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.35),0 2px 4px -2px rgba(0,0,0,.25);
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow:hidden;font-size:13px}
+.app{display:flex;flex-direction:column;height:100vh}
+.body{display:flex;flex:1;overflow:hidden}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:var(--header-bg);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--teal),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-family:'DM Serif Display',serif;font-size:13px}
+.logo-name{font-family:'DM Serif Display',serif;font-size:15px}
+.logo-sub{font-size:8px;color:var(--fg3);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-btn{background:var(--teal);border:none;color:#111;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600}
+.hdr-btn.outline{background:transparent;border:1px solid var(--border);color:var(--fg3)}
+.hdr-btn.outline:hover{border-color:var(--teal);color:var(--fg)}
+
+/* sidebar — removed; the card grid in .team-roster is the persona picker.
+   Council role-picker and Memory dropdown render independently via /api/agents. */
+.sb-section{padding:0 10px;margin-bottom:14px}
+/* Sidebar section labels — brand gradient text. Pure decorative, but
+   communicates "this is a SHAI surface" at a glance. */
+.sb-label{
+  font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;
+  padding:0 8px;margin-bottom:6px;font-weight:700;
+  background:linear-gradient(90deg, #FF2DB2 0%, #1A6BFF 100%);
+  background-clip:text;-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+.persona{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .15s ease, border-color .15s ease;border:1px solid transparent;margin-bottom:2px;position:relative}
+.persona:hover{background:var(--bg3)}
+/* Active persona — brand gradient left rail + soft pink/blue tint.
+   The cockpit overrides also paint .persona.active::before with the gradient,
+   but explicit styles here ensure consistent rendering when team.html is
+   loaded standalone. */
+.persona.active{
+  background:linear-gradient(90deg, rgba(255,45,178,0.06) 0%, rgba(26,107,255,0.04) 100%);
+  border:1px solid rgba(255,45,178,0.18);
+  padding-left:12px;
+}
+.persona.active::before{
+  content:'';position:absolute;left:0;top:8%;bottom:8%;width:3px;
+  background:linear-gradient(180deg, #FF2DB2 0%, #1A6BFF 100%);
+  border-radius:0 2px 2px 0;
+  box-shadow:0 0 12px rgba(255,45,178,0.40);
+}
+.persona-name{font-size:12px;font-weight:600;color:var(--fg)}
+.persona-role{font-family:'DM Mono',monospace;font-size:9px;color:var(--fg3);text-transform:uppercase;letter-spacing:1px}
+/* Custom personas (intake-form-built) get a photo + completion badge */
+.persona.custom{display:flex;flex-direction:row;gap:9px;align-items:center;padding:6px 10px}
+.persona.custom .avatar{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:var(--bg3);overflow:hidden;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--fg3);
+}
+.persona.custom .avatar img{width:100%;height:100%;object-fit:cover}
+.persona.custom .meta{flex:1;min-width:0}
+.persona.custom .persona-name{font-size:12px;line-height:1.15}
+.persona.custom .persona-role{font-size:9px;line-height:1.3;text-transform:none;letter-spacing:0;color:var(--fg3);font-family:'Instrument Sans',sans-serif}
+.persona.custom .completion-badge{
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;font-weight:700;
+  padding:2px 5px;border-radius:4px;flex-shrink:0;
+}
+.persona.custom .completion-badge.empty{background:rgba(248,113,113,.15);color:var(--red)}
+.persona.custom .completion-badge.draft{background:rgba(251,191,36,.15);color:var(--gold)}
+.persona.custom .completion-badge.complete{background:rgba(52,211,153,.15);color:var(--green)}
+/* Edit-intake CTA in the empty state when an incomplete persona is selected */
+.intake-cta{
+  margin-top:14px;padding:10px 14px;border-radius:8px;
+  background:var(--gold-soft);border:1px solid rgba(251,191,36,.3);
+  font-size:12px;color:var(--fg2);text-align:left;
+}
+.intake-cta a{color:var(--gold);text-decoration:none;font-weight:600}
+.intake-cta a:hover{text-decoration:underline}
+
+/* main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-hdr{padding:14px 22px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;gap:14px}
+.main-hdr-l h1{font-family:'DM Serif Display',serif;font-size:18px;color:var(--fg);font-weight:400}
+.main-hdr-l p{font-size:11px;color:var(--fg3);margin-top:2px;max-width:680px;line-height:1.5}
+.main-hdr-r{display:flex;gap:8px;flex-shrink:0}
+.sel{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--fg);font-family:inherit;font-size:11px;cursor:pointer;outline:none;min-width:180px}
+.sel:focus{border-color:var(--teal)}
+
+/* chat */
+.chat{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:18px}
+.empty{margin:auto;text-align:center;color:var(--fg3);max-width:480px}
+.empty h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--fg2);font-weight:400;margin-bottom:8px}
+.empty p{font-size:12px;line-height:1.6}
+.empty .examples{margin-top:24px;display:flex;flex-direction:column;gap:6px;text-align:left}
+.empty .ex{padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--fg2);cursor:pointer;transition:.12s}
+.empty .ex:hover{border-color:var(--teal);color:var(--fg)}
+
+/* ── Corporate team roster — KPI cards above the empty state in the
+      Ask the Team chat view. Photo + name + position per card. Sourced
+      from public/brand/team/manifest.json (rebuilt by tools-fetch-leadership.py)
+      and joined to data.contacts.corporate for email/cell. */
+.team-roster{
+  display:flex;flex-direction:column;gap:12px;
+  margin:0 auto 8px;max-width:1180px;width:100%;
+  transition:max-height .25s ease;
+}
+.team-roster-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  padding:0 4px 4px;border-bottom:1px solid var(--border);
+}
+/* Filter bar — search by name/title, plus Status and Department selects.
+   Lives between the roster header and the card grid. */
+.team-filters{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:6px 4px 2px;
+}
+.team-filters input[type="search"]{
+  flex:1;min-width:180px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:7px 12px;color:var(--fg);font-family:'Instrument Sans',sans-serif;font-size:12px;
+  outline:none;transition:border-color .15s ease;
+}
+.team-filters input[type="search"]:focus{border-color:var(--teal)}
+.team-filters select{
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:7px 10px;color:var(--fg);font-family:'Instrument Sans',sans-serif;font-size:12px;
+  cursor:pointer;outline:none;min-width:140px;
+}
+.team-filters select:focus{border-color:var(--teal)}
+.team-filters .filter-count{
+  font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--fg3);margin-left:auto;padding-right:6px;
+}
+/* Compact mode — applied when an agent is selected. Cards shrink, grid becomes
+   a single-row horizontal scroller. Selected card highlighted. */
+.team-roster.compact .team-filters{display:none}
+.team-roster.compact .team-grid{
+  display:flex;gap:8px;overflow-x:auto;padding:6px 4px 8px;
+  grid-template-columns:none;
+}
+.team-roster.compact .team-card{
+  flex:0 0 auto;width:120px;padding:10px 8px 8px;gap:6px;
+}
+.team-roster.compact .team-card .avatar{width:48px;height:48px}
+.team-roster.compact .team-card .name{font-size:11px;line-height:1.2}
+.team-roster.compact .team-card .title{font-size:8px;letter-spacing:1px;min-height:0}
+.team-roster.compact .team-card .dept-badge,
+.team-roster.compact .team-card .contact-row{display:none}
+.team-roster.compact .team-card.agent-active{
+  border-color:var(--teal);
+  box-shadow:0 0 0 1px var(--teal), 0 6px 16px rgba(34,211,238,.20);
+}
+.team-roster-head h3{
+  font-family:'DM Serif Display',serif;font-size:16px;color:var(--fg);font-weight:400;
+}
+.team-roster-head .meta{
+  font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--fg3);
+}
+.team-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:12px;
+}
+.team-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 14px 12px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;
+  transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  position:relative;
+}
+.team-card:hover{
+  transform:translateY(-2px);
+  border-color:var(--teal);
+  box-shadow:0 6px 20px rgba(34,211,238,.10);
+}
+.team-card .avatar{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--bg3);
+  border:2px solid var(--border2);
+  overflow:hidden;flex-shrink:0;
+  position:relative;
+}
+.team-card .avatar img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.team-card .avatar.no-photo{
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:26px;color:var(--fg3);
+  background:linear-gradient(135deg, var(--bg3), var(--bg2));
+}
+.team-card .name{
+  font-size:13px;font-weight:600;color:var(--fg);line-height:1.25;
+}
+.team-card .title{
+  font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--fg3);line-height:1.4;
+  min-height:26px;
+}
+.team-card .dept-badge{
+  position:absolute;top:10px;right:10px;
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--gold);font-weight:600;
+  padding:2px 6px;border-radius:4px;background:var(--gold-soft);
+}
+.team-card .contact-row{
+  display:flex;gap:6px;width:100%;margin-top:auto;padding-top:6px;
+  border-top:1px dashed rgba(255,255,255,.06);
+}
+.team-card .contact-btn{
+  flex:1;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--fg3);font-weight:600;
+  padding:5px 6px;border-radius:5px;background:transparent;
+  border:1px solid var(--border);text-decoration:none;cursor:pointer;
+  transition:all .12s ease;text-align:center;
+}
+.team-card .contact-btn:hover{
+  border-color:var(--teal);color:var(--teal);background:var(--teal-soft);
+}
+.team-card .contact-btn:disabled,
+.team-card .contact-btn.disabled{
+  opacity:.4;cursor:default;pointer-events:none;
+}
+/* ── Intake / agent status ─────────────────────────────────────────────
+   Cards reflect their persona-intake status:
+   - .agent-ready   → 100% intake complete; whole card clickable, opens chat as that agent.
+   - .agent-draft   → intake started (1-99%); card clickable, opens persona-intake.html.
+   - .agent-empty   → no intake yet; card clickable, opens persona-intake.html.
+   The status badge sits where the dept-badge does on cards that don't have one. */
+.team-card.clickable{cursor:pointer}
+.team-card.agent-ready{
+  border-color:rgba(34,211,238,.35);
+  box-shadow:0 0 0 1px rgba(34,211,238,.12), 0 8px 22px rgba(34,211,238,.08);
+}
+.team-card.agent-ready:hover{
+  border-color:var(--teal);
+  box-shadow:0 0 0 1px var(--teal), 0 10px 28px rgba(34,211,238,.18);
+}
+.team-card.agent-draft:hover, .team-card.agent-empty:hover{
+  border-color:var(--gold);
+  box-shadow:0 6px 20px rgba(212,175,55,.10);
+}
+.team-card .agent-badge{
+  position:absolute;top:10px;left:10px;
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.2px;
+  text-transform:uppercase;font-weight:700;
+  padding:2px 6px;border-radius:4px;
+}
+.team-card.agent-ready .agent-badge{color:var(--teal);background:var(--teal-soft);}
+.team-card.agent-draft .agent-badge{color:var(--gold);background:var(--gold-soft);}
+.team-card.agent-empty .agent-badge{color:var(--fg3);background:rgba(255,255,255,.04);}
+
+/* Role Agents strip — sits below the corporate-team card grid. Compact chip
+   layout (not full cards) keeps the page clean. Click a chip → selectAgent()
+   with the file-backed role slug → chat routed through /api/ai/chat/:role
+   which fires the SECOND_LAYER_REVIEW_MANDATE server-side. */
+.role-strip{
+  margin-top:18px;padding:14px 16px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  position:relative;
+}
+.role-strip::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,#FF2DB2 0%,#1A6BFF 100%);
+  border-radius:10px 0 0 10px;
+}
+.role-strip-head{
+  display:flex;align-items:baseline;gap:14px;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.role-strip-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.8px;
+  text-transform:uppercase;font-weight:700;
+  background:linear-gradient(90deg,#FF2DB2 0%,#1A6BFF 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.role-strip-sub{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--fg3);font-weight:500;
+}
+.role-strip-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.role-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:999px;
+  background:var(--bg);border:1px solid var(--border);
+  font-family:'Instrument Sans',sans-serif;font-size:11.5px;
+  color:var(--fg);cursor:pointer;
+  transition:transform .12s, background .12s, border-color .12s, color .12s, box-shadow .12s;
+}
+.role-chip:hover{
+  background:linear-gradient(90deg,rgba(255,45,178,.10),rgba(26,107,255,.10));
+  border-color:rgba(255,45,178,.45);
+  transform:translateY(-1px);
+  box-shadow:0 2px 10px rgba(255,45,178,.12);
+}
+.role-chip.active{
+  background:linear-gradient(90deg,#FF2DB2 0%,#1A6BFF 100%);
+  color:#fff;border-color:transparent;
+  box-shadow:0 0 14px rgba(255,45,178,.30), 0 0 20px rgba(26,107,255,.22);
+}
+.role-chip-tag{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.2px;font-weight:700;
+  color:var(--fg2);
+}
+.role-chip.active .role-chip-tag{color:#fff}
+.role-chip-name{font-weight:500;letter-spacing:.2px}
+/* In compact mode (after an agent is selected), keep the strip but shrink it. */
+.team-roster.compact .role-strip{padding:10px 14px;margin-top:12px}
+.team-roster.compact .role-strip-head{margin-bottom:7px;padding-bottom:6px}
+.team-roster.compact .role-chip{padding:4px 9px;font-size:10.5px}
+.team-roster-loading{
+  text-align:center;padding:18px;color:var(--fg3);font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+}
+
+.msg{display:flex;flex-direction:column;gap:6px;max-width:880px}
+.msg-meta{font-size:9px;color:var(--fg3);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.msg-meta.user{color:var(--gold)}
+.msg-meta.agent{color:var(--teal)}
+.msg-body{padding:12px 16px;border-radius:9px;font-size:13px;line-height:1.6;color:var(--fg)}
+.msg.user .msg-body{background:var(--gold-soft);border:1px solid rgba(251,191,36,.15);align-self:flex-end;max-width:75%}
+.msg.agent .msg-body{background:var(--bg2);border:1px solid var(--border)}
+.msg-body p{margin-bottom:10px}
+.msg-body p:last-child{margin-bottom:0}
+.msg-body h1,.msg-body h2,.msg-body h3{font-family:'DM Serif Display',serif;font-weight:400;margin:14px 0 6px;color:var(--fg)}
+.msg-body h1{font-size:17px}.msg-body h2{font-size:15px}.msg-body h3{font-size:13px}
+.msg-body ul,.msg-body ol{margin:6px 0 10px 22px}
+.msg-body li{margin-bottom:4px}
+.msg-body strong{color:var(--fg);font-weight:700}
+.msg-body code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11.5px}
+.msg-body table{border-collapse:collapse;margin:10px 0;font-size:12px;width:100%}
+.msg-body th,.msg-body td{border:1px solid var(--border);padding:6px 9px;text-align:left}
+.msg-body th{background:var(--bg3);font-weight:600;color:var(--fg)}
+
+.thinking{display:flex;align-items:center;gap:8px;color:var(--fg3);font-size:12px;font-style:italic}
+.thinking-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.4s infinite}
+.thinking-dot:nth-child(2){animation-delay:.2s}
+.thinking-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
+
+/* composer */
+.composer{padding:14px 22px;border-top:1px solid var(--border);background:var(--bg2)}
+.composer-row{display:flex;gap:8px}
+.input{flex:1;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--fg);font-family:inherit;font-size:13px;outline:none;resize:none;min-height:42px;max-height:160px;line-height:1.5}
+.input:focus{border-color:var(--teal)}
+.send{background:var(--teal);border:none;color:#111;padding:0 18px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit}
+.send:hover{background:var(--teal2)}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.composer-meta{margin-top:6px;font-size:10px;color:var(--fg3);display:flex;justify-content:space-between}
+.composer-meta .who{color:var(--teal)}
+
+/* captured chips below agent response */
+.captured{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.cap-row{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:var(--bg3);border-left:2px solid var(--teal);border-radius:5px;font-size:11.5px;color:var(--fg2)}
+.cap-row.action{border-left-color:var(--gold)}
+.cap-row.watch{border-left-color:var(--red)}
+.cap-icon{font-size:11px;flex-shrink:0;font-family:'DM Mono',monospace;color:var(--teal);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.cap-row.action .cap-icon{color:var(--gold)}
+.cap-row.watch .cap-icon{color:var(--red)}
+.cap-text{flex:1}
+.cap-text strong{color:var(--fg);font-weight:600}
+.cap-meta{font-size:10px;color:var(--fg3);font-family:'DM Mono',monospace;margin-top:2px}
+
+/* cockpit view */
+.cockpit{flex:1;overflow-y:auto;padding:18px 22px;display:none}
+.cockpit.active{display:block}
+.chat.hidden, .composer.hidden{display:none}
+
+.cock-summary{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px 13px}
+.kpi-num{font-family:'DM Serif Display',serif;font-size:24px;color:var(--fg);line-height:1.1}
+.kpi-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);margin-top:4px;font-weight:600}
+.kpi.warn .kpi-num{color:var(--amber)}
+.kpi.bad .kpi-num{color:var(--red)}
+.kpi.good .kpi-num{color:var(--green)}
+
+.cock-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.cock-col h3{font-family:'DM Serif Display',serif;font-size:15px;color:var(--fg);font-weight:400;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline}
+.cock-col h3 .count{font-family:'DM Mono',monospace;font-size:10px;color:var(--fg3);font-weight:500}
+.cock-list{display:flex;flex-direction:column;gap:7px}
+.cock-empty{font-size:11px;color:var(--fg3);font-style:italic;padding:14px 0;text-align:center}
+
+.item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:12px;cursor:pointer;transition:.12s;border-left:2px solid var(--teal)}
+.item:hover{border-color:var(--teal)}
+.item.action{border-left-color:var(--gold)}
+.item.watch{border-left-color:var(--red)}
+.item.overdue{border-left-color:var(--red);background:rgba(248,113,113,.05)}
+.item-title{color:var(--fg);font-weight:600;margin-bottom:3px;line-height:1.35}
+.item-meta{font-size:9.5px;color:var(--fg3);font-family:'DM Mono',monospace;display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.pill{display:inline-flex;align-items:center;padding:1px 7px;border-radius:9px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-family:'DM Mono',monospace}
+.pill.proposed{background:rgba(34,211,238,.12);color:var(--teal)}
+.pill.decided{background:rgba(251,191,36,.15);color:var(--gold)}
+.pill.in-progress{background:rgba(251,191,36,.15);color:var(--gold)}
+.pill.done{background:rgba(52,211,153,.12);color:var(--green)}
+.pill.open{background:rgba(34,211,238,.12);color:var(--teal)}
+.pill.blocked,.pill.rejected,.pill.cancelled{background:rgba(248,113,113,.12);color:var(--red)}
+.pill.active{background:rgba(248,113,113,.12);color:var(--red)}
+.pill.exited,.pill.graduated{background:rgba(52,211,153,.12);color:var(--green)}
+
+.item-rationale{font-size:11px;color:var(--fg2);margin-top:5px;line-height:1.5}
+.item-actions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.item-btn{background:transparent;border:1px solid var(--border);color:var(--fg3);padding:2px 8px;border-radius:5px;font-size:10px;cursor:pointer;font-family:inherit}
+.item-btn:hover{border-color:var(--teal);color:var(--fg)}
+.item-btn.danger:hover{border-color:var(--red);color:var(--red)}
+
+.view-toggle{display:flex;background:var(--bg3);border-radius:7px;padding:2px;gap:2px}
+.view-toggle button{background:transparent;border:none;color:var(--fg3);padding:5px 12px;border-radius:5px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;transition:.15s}
+.view-toggle button.active{background:var(--teal);color:#111}
+
+/* owners view */
+.owners-view{flex:1;overflow-y:auto;padding:18px 22px;display:none}
+.owners-view.active{display:block}
+.owners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.owner-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.owner-card-hdr{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.owner-card-hdr h3{font-family:'DM Serif Display',serif;font-size:15px;color:var(--fg);font-weight:400}
+.owner-card-hdr .meta{font-size:10px;color:var(--fg3);font-family:'DM Mono',monospace;margin-top:3px;letter-spacing:.5px}
+.owner-derived{display:flex;gap:14px;padding:10px 14px;background:var(--teal-soft);border-bottom:1px solid var(--border)}
+.owner-derived .stat{display:flex;flex-direction:column}
+.owner-derived .stat .v{font-family:'DM Serif Display',serif;font-size:16px;color:var(--teal)}
+.owner-derived .stat .l{font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--fg3);font-weight:600}
+.owner-form{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);font-weight:700}
+.field input,.field select,.field textarea{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 9px;color:var(--fg);font-family:inherit;font-size:12px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal)}
+.field textarea{resize:vertical;min-height:42px;font-family:inherit;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tag-input{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px;min-height:32px;align-items:center}
+.tag-input.focus{border-color:var(--teal)}
+.tag{background:var(--teal-soft);color:var(--teal);border:1px solid rgba(34,211,238,.25);border-radius:5px;padding:2px 7px;font-size:11px;display:inline-flex;align-items:center;gap:4px}
+.tag .x{cursor:pointer;font-weight:700;opacity:.6}
+.tag .x:hover{opacity:1}
+.tag-input input{flex:1;background:transparent;border:none;color:var(--fg);font-family:inherit;font-size:11.5px;outline:none;min-width:80px;padding:3px}
+.owner-properties{padding:9px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--fg3);background:var(--bg)}
+.owner-properties .ttl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:3px;color:var(--fg3)}
+.owner-properties .pl{display:flex;flex-direction:column;gap:2px;color:var(--fg2)}
+.owner-save{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--bg3);border-top:1px solid var(--border)}
+.owner-save .saved{font-size:10px;color:var(--green);font-family:'DM Mono',monospace;opacity:0;transition:opacity .3s}
+.owner-save .saved.show{opacity:1}
+.owner-save button{background:var(--teal);border:none;color:#111;padding:6px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700}
+.owner-save button:hover{background:var(--teal2)}
+
+/* scan view */
+.scan-view{flex:1;overflow-y:auto;padding:18px 22px;display:none}
+.scan-view.active{display:block}
+.scan-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
+.scan-toolbar h2{font-family:'DM Serif Display',serif;font-size:18px;color:var(--fg);font-weight:400}
+.scan-run{background:var(--gold);border:none;color:#111;padding:9px 22px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px}
+.scan-run:hover{background:var(--gold2)}
+.scan-run:disabled{opacity:.6;cursor:wait}
+.scan-run .spin{display:none;width:11px;height:11px;border:2px solid rgba(0,0,0,.2);border-top-color:#111;border-radius:50%;animation:spin .8s linear infinite}
+.scan-run.running .spin{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-progress{font-size:11px;color:var(--fg3);margin-bottom:10px;font-family:'DM Mono',monospace}
+
+.scan-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.scan-list-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.12s}
+.scan-list-item:hover{border-color:var(--teal)}
+.scan-list-item.active{border-color:var(--teal);border-left:3px solid var(--teal);background:var(--teal-soft)}
+.scan-li-l{display:flex;flex-direction:column;gap:3px}
+.scan-li-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--fg3)}
+.scan-li-title{font-size:13px;color:var(--fg);font-weight:600}
+.scan-li-r{display:flex;gap:9px;font-size:10px;color:var(--fg3);font-family:'DM Mono',monospace}
+.scan-li-r b{color:var(--teal);font-weight:700}
+
+.scan-detail{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none}
+.scan-detail.active{display:block}
+.scan-detail-hdr{padding:14px 18px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.scan-detail-hdr h3{font-family:'DM Serif Display',serif;font-size:17px;color:var(--fg);font-weight:400}
+.scan-detail-hdr .meta{font-size:10px;color:var(--fg3);font-family:'DM Mono',monospace;margin-top:2px}
+
+.synth{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--gold-soft)}
+.synth-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px}
+.synth-text{font-size:13px;line-height:1.65;color:var(--fg)}
+.synth-text h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:15px;color:var(--fg);margin:14px 0 6px}
+.synth-text h2:first-child{margin-top:0}
+.synth-text ul{margin:4px 0 8px 22px}
+.synth-text li{margin-bottom:5px}
+
+.synth-actions{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.synth-action{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 11px;font-size:12px}
+.synth-action-l{flex:1}
+.synth-action-l strong{color:var(--fg)}
+.synth-action-meta{font-size:10px;color:var(--fg3);font-family:'DM Mono',monospace;margin-top:3px}
+.promote-btn{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:3px 9px;border-radius:5px;font-family:inherit;font-size:10px;font-weight:600;cursor:pointer}
+.promote-btn:hover{background:var(--gold);color:#111}
+.promote-btn.dec{border-color:var(--teal);color:var(--teal)}
+.promote-btn.dec:hover{background:var(--teal);color:#111}
+
+.scanners-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--border)}
+.scanner-pane{padding:14px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.scanner-pane:nth-child(2n){border-right:none}
+.scanner-pane h4{font-family:'DM Serif Display',serif;font-size:14px;color:var(--teal);font-weight:400;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline}
+.scanner-pane h4 .badge{font-size:9px;color:var(--fg3);font-family:'DM Mono',monospace}
+.pattern{margin-bottom:11px;padding-bottom:10px;border-bottom:1px dashed var(--border)}
+.pattern:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.pattern-title{font-size:12px;font-weight:700;color:var(--fg);margin-bottom:4px;line-height:1.4}
+.pattern-row{font-size:11px;color:var(--fg2);line-height:1.5;margin-bottom:2px}
+.pattern-row strong{color:var(--fg3);font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-right:5px;font-weight:700}
+.pattern-actions{margin-top:6px;display:flex;gap:5px}
+</style>
+</head>
+<body class="shai-saas">
+<div class="app">
+  <header>
+    <a class="logo" href="/" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:12px">
+      <img src="/brand/shai-banner.png" alt="SHAI — Superhost Hospitality AI" style="height:42px;width:auto;display:block;border-radius:4px;object-fit:contain">
+      <div style="border-left:1px solid rgba(255,255,255,0.18);padding-left:12px;margin-left:2px">
+        <div class="logo-sub" style="font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.62)">EXECUTIVE TEAM</div>
+      </div>
+    </a>
+    <div class="hdr-right">
+      <div class="shai-theme-toggle" title="Toggle light/dark theme"></div>
+      <div class="view-toggle">
+        <button id="view-team" class="active" onclick="setView('team')">Ask the Team</button>
+        <button id="view-cockpit" onclick="setView('cockpit')">Cockpit</button>
+        <button id="view-scan" onclick="setView('scan')">Weekly Scan</button>
+        <button id="view-council" onclick="setView('council')">Council</button>
+        <button id="view-owners" onclick="setView('owners')">Owners</button>
+        <button id="view-bench" onclick="setView('bench')">Bench</button>
+        <button id="view-memory" onclick="setView('memory')">Memory</button>
+      </div>
+      <a href="/dashboard.html" class="hdr-btn outline">← Dashboard</a>
+    </div>
+  </header>
+
+  <div class="body">
+    <div class="main">
+      <div class="main-hdr">
+        <div class="main-hdr-l">
+          <h1 id="active-name">Pick an agent to start</h1>
+          <p id="active-desc">The 24 executive and property-leadership personas ship with the hub. Each one sees live ProfitSage data — portfolio snapshot, optional property focus, current period — and answers in their voice.</p>
+        </div>
+        <div class="main-hdr-r">
+          <select id="property-sel" class="sel"><option value="">All properties</option></select>
+          <select id="period-sel" class="sel"><option value="">Current period</option></select>
+        </div>
+      </div>
+
+      <div class="chat" id="chat">
+        <!-- Corporate team roster — KPI cards for the 14 leaders from
+             superhosthospitality.com/leadership. Always visible at the top of
+             the chat view (alongside the empty-state CTA below). Each card has
+             photo + name + position; cards with email/cell from the contacts
+             import get clickable Email / Call buttons. -->
+        <div class="team-roster" id="team-roster">
+          <div class="team-roster-head">
+            <h3>Corporate Team</h3>
+            <span class="meta" id="team-roster-meta">Loading…</span>
+            <button type="button" class="hdr-btn outline" id="team-exit-agent" onclick="exitAgent()" style="display:none;font-size:10px;padding:3px 9px;margin-left:8px">← Show all</button>
+          </div>
+          <div class="team-filters" id="team-filters">
+            <input type="search" id="team-search" placeholder="Search by name or title…" autocomplete="off" />
+            <select id="team-status-filter">
+              <option value="">All statuses</option>
+              <option value="ready">★ Agent ready (100%)</option>
+              <option value="draft">Intake draft (1-99%)</option>
+              <option value="empty">No intake yet</option>
+            </select>
+            <select id="team-dept-filter">
+              <option value="">All departments</option>
+            </select>
+            <span class="filter-count" id="team-filter-count"></span>
+          </div>
+          <div class="team-grid" id="team-grid">
+            <div class="team-roster-loading">Loading corporate roster…</div>
+          </div>
+
+          <!-- Role Agents — second-layer QA personas (CEO / COO / CFO / VPs /
+               Regional / AGM). Compact chip strip below the leader cards.
+               These are file-backed archetypes that scrutinize the corp team's
+               analytics; the corp team above speaks in named-leader voice. -->
+          <div class="role-strip" id="role-strip">
+            <div class="role-strip-head">
+              <span class="role-strip-label">Role Agents</span>
+              <span class="role-strip-sub">Second-Layer Review · QA on the corp team's analytics</span>
+            </div>
+            <div class="role-strip-chips" id="role-chips">
+              <div class="team-roster-loading" style="grid-column:1/-1">Loading role agents…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty" id="empty">
+          <h2>Ask the team</h2>
+          <p>Pick a persona on the left, optionally focus on one property, then ask. The agent reads from the hub: portfolio scorecard, ProfitSage actuals/budget/forecast, owner notes.</p>
+          <div class="examples" id="examples"></div>
+        </div>
+      </div>
+
+      <div class="cockpit" id="cockpit">
+        <div class="cock-summary" id="cock-summary"></div>
+        <div class="cock-cols">
+          <div class="cock-col">
+            <h3>Decisions <span class="count" id="dec-count">0</span></h3>
+            <div class="cock-list" id="dec-list"></div>
+          </div>
+          <div class="cock-col">
+            <h3>Actions <span class="count" id="act-count">0</span></h3>
+            <div class="cock-list" id="act-list"></div>
+          </div>
+          <div class="cock-col">
+            <h3>Watchlist <span class="count" id="wl-count">0</span></h3>
+            <div class="cock-list" id="wl-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="owners-view" id="owners-view">
+        <div class="owners-grid" id="owners-grid"></div>
+      </div>
+
+      <div class="owners-view" id="bench-view">
+        <div class="cock-summary" id="bench-summary" style="margin-bottom:14px"></div>
+        <div class="owners-grid" id="bench-grid"></div>
+      </div>
+
+      <div class="scan-view" id="memory-view" style="display:none">
+        <div class="scan-toolbar">
+          <h2>Persona Memory</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="mem-role-sel" class="sel" onchange="loadMemory()" style="min-width:220px"></select>
+            <button class="item-btn danger" id="mem-clear-btn" onclick="clearMemory()">Clear all for this persona</button>
+          </div>
+        </div>
+        <div class="scan-progress" id="mem-meta"></div>
+        <div class="scan-list" id="mem-list"></div>
+      </div>
+
+      <div class="scan-view" id="council-view">
+        <div class="scan-toolbar">
+          <h2>Convene the Council</h2>
+          <button class="scan-run" id="council-run" onclick="runCouncil()"><span class="spin"></span><span class="lbl">Convene</span></button>
+        </div>
+        <div class="shai-card" style="margin-bottom:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px">
+          <div class="field" style="margin-bottom:10px">
+            <label style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);font-weight:700;margin-bottom:4px;display:block">Question for the council</label>
+            <textarea id="council-question" placeholder="e.g. We received a 3-property RFP from a new owner — pursue or pass?" rows="2" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;color:var(--fg);font-family:inherit;font-size:13px;resize:vertical;outline:none"></textarea>
+          </div>
+          <div class="field-row" style="margin-bottom:10px">
+            <div class="field"><label style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);font-weight:700;margin-bottom:4px">Property focus (optional)</label>
+              <select id="council-prop" class="sel" style="width:100%"><option value="">All properties</option></select>
+            </div>
+            <div class="field"><label style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);font-weight:700;margin-bottom:4px">Period (optional)</label>
+              <select id="council-period" class="sel" style="width:100%"><option value="">Current</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);font-weight:700;margin-bottom:6px;display:block">Pick personas (2–8)</label>
+            <div id="council-roles" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+          </div>
+        </div>
+        <div class="scan-progress" id="council-progress"></div>
+        <div class="scan-list" id="council-list"></div>
+        <div class="scan-detail" id="council-detail"></div>
+      </div>
+
+      <div class="scan-view" id="scan-view">
+        <div class="scan-toolbar">
+          <h2>Weekly Cross-Portfolio Scan</h2>
+          <button class="scan-run" id="scan-run" onclick="runScan()"><span class="spin"></span><span class="lbl">Run new scan</span></button>
+        </div>
+        <div class="scan-progress" id="scan-progress"></div>
+        <div class="scan-list" id="scan-list"></div>
+        <div class="scan-detail" id="scan-detail"></div>
+      </div>
+
+      <div class="composer" id="composer">
+        <div class="composer-row">
+          <textarea class="input" id="input" placeholder="Pick an agent first…" rows="1" disabled></textarea>
+          <button class="send" id="send" disabled>Send</button>
+        </div>
+        <div class="composer-meta">
+          <span>Enter to send · Shift+Enter for newline</span>
+          <span class="who" id="who"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const HUB_PIN_TOKEN = sessionStorage.getItem('hubToken') || '';
+const headers = HUB_PIN_TOKEN ? {'Content-Type':'application/json','x-hub-token':HUB_PIN_TOKEN} : {'Content-Type':'application/json'};
+
+const EXAMPLES = {
+  'ceo': ['What are the 3 biggest risks across the portfolio this quarter?', 'Should we be pursuing more Gulfstream-owned properties?', 'Draft a board update on portfolio NOI vs budget.'],
+  'coo': ['Which 3 properties belong on the watchlist this period?', 'GSS is slipping at one of the Home2s — diagnose.', 'Build the regional ops review agenda for Mark.'],
+  'cfo': ['Walk me through this period\'s flow-through anomalies.', 'Which properties are at covenant risk?', 'Draft the lender package narrative.'],
+  'vp-revenue-management': ['Rank the 17 hotels by RGI gap.', 'Which properties have a compset audit issue?', 'My OTA mix is creeping at 3 properties — plan.'],
+  'vp-sales-marketing': ['Group ceiling status across the full-service hotels?', 'Which DOSMs are coasting on inbound?', 'Pre-opening sales ramp for Home2 Fort Wayne.'],
+  'vp-people': ['Where is GM bench thin?', 'Turnover hot spots this period.', 'Comp framework for AGM band — propose.'],
+  'general-counsel': ['HMA termination risk — assess the portfolio.', 'PIP letter just landed — initial read.', 'Two-owner concentration — what\'s the legal exposure?']
+};
+
+let activeRole = null;
+let history = [];
+
+async function loadAgents() {
+  const r = await fetch('/api/agents', {headers});
+  const j = await r.json();
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  // Ask-the-Team is scoped to the actual Superhost corporate team only —
+  // the 15 leaders from public/brand/team/manifest.json. The file-backed
+  // C-Suite / Corporate VPs / Regional personas remain available for
+  // Council deliberation and Memory inspection, just not surfaced here.
+  for (const [group, agents] of Object.entries(j.groups || {})) {
+    if (group !== 'Corporate Team') continue;
+    if (!agents.length) continue;
+    const sec = document.createElement('div');
+    sec.className = 'sb-section';
+    sec.innerHTML = `<div class="sb-label">${group}</div>`;
+    for (const a of agents) {
+      const el = document.createElement('div');
+      el.dataset.role = a.role;
+      if (a.custom) {
+        // Custom persona — render with photo, real name, real title, completion badge
+        el.className = 'persona custom';
+        const init = String(a.name||'').replace(/\(.*?\)/g,'').trim().split(/\s+/)
+          .map(p => p[0]||'').join('').slice(0,2).toUpperCase();
+        const photoHtml = a.photo
+          ? `<img src="${a.photo}" alt="${esc(a.name)}" onerror="this.parentElement.textContent='${esc(init)}'">`
+          : esc(init);
+        const status = a.intakeStatus || (a.completionPct >= 100 ? 'complete' : (a.completionPct > 0 ? 'draft' : 'empty'));
+        el.innerHTML = `
+          <div class="avatar">${photoHtml}</div>
+          <div class="meta">
+            <div class="persona-name">${esc(a.name)}</div>
+            <div class="persona-role">${esc(a.title || '')}</div>
+          </div>
+          <span class="completion-badge ${status}">${a.completionPct}%</span>`;
+      } else {
+        el.className = 'persona';
+        el.innerHTML = `<div class="persona-name">${friendly(a.role)}</div><div class="persona-role">${a.role}</div>`;
+      }
+      el.onclick = () => selectAgent(a);
+      sec.appendChild(el);
+    }
+    sb.appendChild(sec);
+  }
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function friendly(role) {
+  return role.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    .replace('Vp ', 'VP ').replace('Cfo','CFO').replace('Ceo','CEO').replace('Coo','COO')
+    .replace('Cdo','CDO').replace('Cto','CTO').replace('Cmo','CMO');
+}
+
+async function loadProperties() {
+  try {
+    const r = await fetch('/api/properties', {headers});
+    const j = await r.json();
+    const sel = document.getElementById('property-sel');
+    const list = (j.properties || j || []);
+    list.forEach(p => { propertyMap[p.id] = p; });
+    list.filter(p => p.active).forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id; opt.textContent = `${p.name} (${p.brand})`;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+async function loadPeriods() {
+  try {
+    const r = await fetch('/api/periods', {headers});
+    const j = await r.json();
+    const sel = document.getElementById('period-sel');
+    (j.periods || []).forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p; opt.textContent = p;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+function selectAgent(a) {
+  activeRole = a.role;
+  history = [];
+  document.querySelectorAll('.persona').forEach(el => el.classList.toggle('active', el.dataset.role === a.role));
+  // For custom personas use the actual person's name + title; for file-backed
+  // personas keep the friendly() label.
+  const displayName = a.custom ? a.name : friendly(a.role);
+  const displayDesc = a.custom
+    ? (a.title + (a.completionPct >= 50 ? ' — speaking in their voice (intake ' + a.completionPct + '% complete).' : ' — intake form not yet filled out.'))
+    : (a.description ? (a.description.slice(0, 320) + (a.description.length > 320 ? '…' : '')) : '');
+  document.getElementById('active-name').textContent = displayName;
+  document.getElementById('active-desc').textContent = displayDesc;
+  document.getElementById('input').disabled = false;
+  document.getElementById('send').disabled = false;
+  document.getElementById('input').placeholder = `Ask ${displayName}…`;
+  document.getElementById('who').textContent = `talking to ${displayName}`;
+  document.getElementById('chat').innerHTML = '';
+
+  // re-render empty state with examples
+  const empty = document.createElement('div');
+  empty.className = 'empty';
+  let bodyHtml = `<h2>${esc(displayName)}</h2><p>${esc(displayDesc)}</p><div class="examples"></div>`;
+  if (a.custom && a.completionPct < 50) {
+    bodyHtml += `<div class="intake-cta">
+      <strong>Profile is ${a.completionPct}% complete.</strong> The persona will respond with limited authenticity until the intake form is filled in.
+      <br><a href="/persona-intake.html?slug=${encodeURIComponent(a.slug)}" target="_blank">→ Open intake form for ${esc(a.name)}</a>
+    </div>`;
+  }
+  empty.innerHTML = bodyHtml;
+  // Examples — file-backed personas have curated examples; custom personas
+  // get a generic set tailored to "ask in this person's voice".
+  const exes = a.custom
+    ? [
+        `What's your read on this period's portfolio performance?`,
+        `Draft an owner update for the property I'm focused on, in your voice.`,
+        `Walk through how you'd diagnose a 10% RevPAR drop at one of our properties.`
+      ]
+    : (EXAMPLES[a.role] || ['Run a portfolio diagnostic.', 'What are the top 3 risks in your function this quarter?', 'Draft your 30-day priority list.']);
+  exes.forEach(q => {
+    const e = document.createElement('div'); e.className='ex'; e.textContent=q;
+    e.onclick = () => { document.getElementById('input').value = q; send(); };
+    empty.querySelector('.examples').appendChild(e);
+  });
+  document.getElementById('chat').appendChild(empty);
+  document.getElementById('input').focus();
+}
+
+let propertyMap = {};
+
+function propName(id) {
+  return propertyMap[id]?.name || (id ? `Property ${id}` : 'Portfolio');
+}
+
+function addMsg(role, text, captured) {
+  const empty = document.querySelector('#chat .empty');
+  if (empty) empty.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+  let capturedHtml = '';
+  if (role === 'agent' && captured && (captured.decisions?.length || captured.actions?.length || captured.watchlist?.length)) {
+    const rows = [];
+    for (const d of captured.decisions || []) {
+      rows.push(`<div class="cap-row"><span class="cap-icon">DEC</span><div class="cap-text"><strong>${escapeHtml(d.title)}</strong>${d.rationale?` — ${escapeHtml(d.rationale)}`:''}<div class="cap-meta">${d.recommendedOwner?'owner: '+escapeHtml(d.recommendedOwner)+' · ':''}${d.dueDate?'due '+d.dueDate+' · ':''}${d.propertyId?escapeHtml(propName(d.propertyId)):'portfolio'} · proposed</div></div></div>`);
+    }
+    for (const a of captured.actions || []) {
+      rows.push(`<div class="cap-row action"><span class="cap-icon">ACT</span><div class="cap-text"><strong>${escapeHtml(a.title)}</strong><div class="cap-meta">${a.owner?'owner: '+escapeHtml(a.owner)+' · ':''}${a.dueDate?'due '+a.dueDate+' · ':''}${a.propertyId?escapeHtml(propName(a.propertyId)):'portfolio'} · open</div></div></div>`);
+    }
+    for (const w of captured.watchlist || []) {
+      rows.push(`<div class="cap-row watch"><span class="cap-icon">WCH</span><div class="cap-text"><strong>${escapeHtml(propName(w.propertyId))}</strong> — ${escapeHtml(w.reason)}<div class="cap-meta">${w.metric?'metric: '+escapeHtml(w.metric)+' · ':''}${w.current?'current: '+escapeHtml(w.current)+' · ':''}${w.exitCriteria?'exit: '+escapeHtml(w.exitCriteria):''}</div></div></div>`);
+    }
+    capturedHtml = `<div class="captured">${rows.join('')}</div>`;
+  }
+  wrap.innerHTML = `<div class="msg-meta ${role}">${role==='user'?'You':friendly(activeRole)}</div><div class="msg-body">${role==='agent' ? marked.parse(text) : escapeHtml(text)}</div>${capturedHtml}`;
+  document.getElementById('chat').appendChild(wrap);
+  document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function addThinking() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg agent';
+  wrap.id = 'thinking';
+  wrap.innerHTML = `<div class="msg-meta agent">${friendly(activeRole)}</div><div class="msg-body"><div class="thinking"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div></div>`;
+  document.getElementById('chat').appendChild(wrap);
+  document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+}
+
+async function send() {
+  const input = document.getElementById('input');
+  const q = input.value.trim();
+  if (!q || !activeRole) return;
+  input.value = '';
+  input.style.height = 'auto';
+  addMsg('user', q);
+  addThinking();
+  document.getElementById('send').disabled = true;
+
+  const propertyId = document.getElementById('property-sel').value || null;
+  const period = document.getElementById('period-sel').value || null;
+
+  try {
+    const r = await fetch(`/api/agent/${activeRole}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ question: q, propertyId, period, history })
+    });
+    const j = await r.json();
+    document.getElementById('thinking')?.remove();
+    if (j.error) addMsg('agent', `**Error:** ${j.error}`);
+    else {
+      addMsg('agent', j.response, j.captured);
+      history.push({role:'user', content: q});
+      history.push({role:'assistant', content: j.response});
+    }
+  } catch (e) {
+    document.getElementById('thinking')?.remove();
+    addMsg('agent', `**Error:** ${e.message}`);
+  } finally {
+    document.getElementById('send').disabled = false;
+    input.focus();
+  }
+}
+
+document.getElementById('send').onclick = send;
+document.getElementById('input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+document.getElementById('input').addEventListener('input', e => {
+  e.target.style.height = 'auto';
+  e.target.style.height = Math.min(160, e.target.scrollHeight) + 'px';
+});
+
+// ─── VIEW TOGGLE ──────────────────────────────────────────────────────────
+function setView(view) {
+  const views = ['team','cockpit','scan','council','owners','bench','memory'];
+  views.forEach(v => document.getElementById('view-'+v).classList.toggle('active', v===view));
+  document.getElementById('chat').classList.toggle('hidden', view!=='team');
+  document.getElementById('composer').classList.toggle('hidden', view!=='team');
+  document.getElementById('cockpit').classList.toggle('active', view==='cockpit');
+  document.getElementById('owners-view').classList.toggle('active', view==='owners');
+  document.getElementById('scan-view').classList.toggle('active', view==='scan');
+  const councilEl = document.getElementById('council-view');
+  if (councilEl) councilEl.classList.toggle('active', view==='council');
+  const benchEl = document.getElementById('bench-view');
+  if (benchEl) benchEl.classList.toggle('active', view==='bench');
+  const memEl = document.getElementById('memory-view');
+  if (memEl) memEl.style.display = view==='memory' ? 'block' : 'none';
+  document.getElementById('sidebar').style.display = view==='team' ? '' : 'none';
+  document.querySelector('.main-hdr-r').style.display = view==='team' ? '' : 'none';
+  if (view==='team') {
+    document.getElementById('active-name').textContent = activeRole ? friendly(activeRole) : 'Pick an agent to start';
+  } else if (view==='cockpit') {
+    document.getElementById('active-name').textContent = 'Corporate Cockpit';
+    document.getElementById('active-desc').textContent = 'Decisions, actions, and watchlist captured by the team. Source of truth for what we said we\'d do — and what we actually did.';
+    loadCockpit();
+  } else if (view==='owners') {
+    document.getElementById('active-name').textContent = 'Owner Profiles';
+    document.getElementById('active-desc').textContent = 'How each owner wants to be talked to. Personas read these profiles when you scope a question to a property — sophistication, format, hot buttons, red flags, tone. Calibrated reports beat templates.';
+    loadOwners();
+  } else if (view==='scan') {
+    document.getElementById('active-name').textContent = 'Weekly Cross-Portfolio Scan';
+    document.getElementById('active-desc').textContent = 'Four scanners (COO, CFO, VP RM, VP People) run in parallel — each surfaces 2-3 multi-property patterns from their lens. Chief of Staff synthesizes a leadership brief. This is the pattern detection no single property review can show you.';
+    loadScans();
+  } else if (view==='memory') {
+    document.getElementById('active-name').textContent = 'Persona Memory';
+    document.getElementById('active-desc').textContent = 'Each persona accumulates durable conclusions across conversations. The most recent 8 entries (5 property-scoped + 5 portfolio-wide) auto-inject into the next call so personas pick up where they left off. Edit, delete, or wipe a persona\'s memory here.';
+    populateMemoryRoleSel();
+    loadMemory();
+  } else if (view==='bench') {
+    document.getElementById('active-name').textContent = 'GM Bench';
+    document.getElementById('active-desc').textContent = 'One record per active property. Performance × potential 9-box. Successor coverage. Retention risk. VP People, COO, Regional VP and the GM persona itself read this when a property is in focus — so the answer is calibrated to who\'s actually running the hotel.';
+    loadBench();
+  } else if (view==='council') {
+    document.getElementById('active-name').textContent = 'Council Mode';
+    document.getElementById('active-desc').textContent = 'Convene 2–8 personas around a single strategic question. Each speaks in their voice. Chief of Staff synthesizes the leadership recommendation — alignment, tensions, the call, specific moves to commit. The deliberation no single-persona conversation can produce.';
+    initCouncil();
+  }
+}
+
+function isOverdue(item) {
+  return item.dueDate && new Date(item.dueDate) < new Date() && item.status !== 'done' && item.status !== 'cancelled';
+}
+
+function fmtDate(s) { return s ? s.slice(0,10) : '—'; }
+
+function renderItem(item, kind) {
+  const overdue = isOverdue(item);
+  const cls = `item ${kind}${overdue?' overdue':''}`;
+  const propLabel = item.propertyId ? propName(item.propertyId) : 'Portfolio';
+  let html = `<div class="${cls}" data-id="${item.id}">`;
+  html += `<div class="item-title">${escapeHtml(item.title || item.reason || '(untitled)')}</div>`;
+  if (kind === 'decision' && item.rationale) html += `<div class="item-rationale">${escapeHtml(item.rationale)}</div>`;
+  if (kind === 'watch') {
+    html += `<div class="item-rationale">`;
+    if (item.metric) html += `metric: <strong>${escapeHtml(item.metric)}</strong>`;
+    if (item.current) html += ` · current: <strong>${escapeHtml(item.current)}</strong>`;
+    if (item.exitCriteria) html += ` · exit: ${escapeHtml(item.exitCriteria)}`;
+    html += `</div>`;
+  }
+  html += `<div class="item-meta">`;
+  html += `<span class="pill ${item.status}">${item.status}${overdue?' · overdue':''}</span>`;
+  if (item.owner || item.recommendedOwner) html += `<span>${escapeHtml(item.owner || item.recommendedOwner)}</span>`;
+  if (item.dueDate) html += `<span>due ${fmtDate(item.dueDate)}</span>`;
+  html += `<span>${escapeHtml(propLabel)}</span>`;
+  html += `<span>${escapeHtml(item.proposedBy || item.createdBy || item.addedBy || '')}</span>`;
+  html += `</div>`;
+
+  // status advance buttons
+  html += `<div class="item-actions">`;
+  if (kind === 'decision') {
+    if (item.status === 'proposed') html += btn('Decide', `advance('decisions','${item.id}','decided')`);
+    if (item.status === 'decided') html += btn('In progress', `advance('decisions','${item.id}','in-progress')`);
+    if (item.status === 'in-progress') html += btn('Done', `advance('decisions','${item.id}','done')`);
+    if (item.status !== 'done' && item.status !== 'rejected') html += btn('Reject', `advance('decisions','${item.id}','rejected')`, 'danger');
+  } else if (kind === 'action') {
+    if (item.status === 'open') html += btn('Start', `advance('actions','${item.id}','in-progress')`);
+    if (item.status === 'open' || item.status === 'in-progress') html += btn('Done', `advance('actions','${item.id}','done')`);
+    if (item.status === 'open' || item.status === 'in-progress') html += btn('Block', `advance('actions','${item.id}','blocked')`, 'danger');
+  } else if (kind === 'watch') {
+    if (item.status === 'active') html += btn('Exit', `advance('watchlist','${item.id}','exited')`);
+    if (item.status === 'active') html += btn('Graduate', `advance('watchlist','${item.id}','graduated')`);
+  }
+  html += btn('Delete', `remove('${kind === 'watch' ? 'watchlist' : kind+'s'}','${item.id}')`, 'danger');
+  html += `</div></div>`;
+  return html;
+}
+
+function btn(label, onclick, cls) {
+  return `<button class="item-btn ${cls||''}" onclick="${onclick}">${label}</button>`;
+}
+
+async function loadCockpit() {
+  try {
+    const r = await fetch('/api/cockpit', {headers});
+    const j = await r.json();
+    const sm = j.summary;
+    document.getElementById('cock-summary').innerHTML = `
+      <div class="kpi"><div class="kpi-num">${sm.decisionsProposed}</div><div class="kpi-label">Decisions Proposed</div></div>
+      <div class="kpi good"><div class="kpi-num">${sm.decisionsDecided}</div><div class="kpi-label">Decisions Decided</div></div>
+      <div class="kpi"><div class="kpi-num">${sm.actionsOpen}</div><div class="kpi-label">Actions Open</div></div>
+      <div class="kpi warn"><div class="kpi-num">${sm.actionsThisWeek}</div><div class="kpi-label">Due This Week</div></div>
+      <div class="kpi bad"><div class="kpi-num">${sm.actionsOverdue}</div><div class="kpi-label">Overdue</div></div>
+      <div class="kpi bad"><div class="kpi-num">${sm.watchlistActive}</div><div class="kpi-label">On Watch</div></div>
+    `;
+    const decs = j.decisions || [];
+    const acts = j.actions || [];
+    const wls  = j.watchlist || [];
+    document.getElementById('dec-count').textContent = decs.length;
+    document.getElementById('act-count').textContent = acts.length;
+    document.getElementById('wl-count').textContent  = wls.length;
+    document.getElementById('dec-list').innerHTML = decs.length ? decs.map(d => renderItem(d,'decision')).join('') : '<div class="cock-empty">No decisions yet. Ask a persona — they\'ll propose some.</div>';
+    document.getElementById('act-list').innerHTML = acts.length ? acts.map(a => renderItem(a,'action')).join('') : '<div class="cock-empty">No actions yet.</div>';
+    document.getElementById('wl-list').innerHTML  = wls.length  ? wls.map(w => renderItem(w,'watch')).join('')   : '<div class="cock-empty">No properties on watch.</div>';
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+window.advance = async function(kind, id, status) {
+  await fetch(`/api/${kind}/${id}`, {method:'PATCH', headers, body: JSON.stringify({status})});
+  loadCockpit();
+};
+window.remove = async function(kind, id) {
+  if (!confirm('Delete this item?')) return;
+  await fetch(`/api/${kind}/${id}`, {method:'DELETE', headers});
+  loadCockpit();
+};
+
+// ─── OWNERS ───────────────────────────────────────────────────────────────
+const TYPES = ['', 'family office', 'private investor', 'PE fund', 'REIT', 'publicly held', 'developer-operator'];
+const SOPHS = ['low','medium','high'];
+const FMTS  = ['letter','deck','excel','email'];
+const CADS  = ['monthly','quarterly'];
+
+function fmtMoney(n) {
+  if (n == null || n === 0) return '—';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+  return '$' + n.toFixed(0);
+}
+
+async function loadOwners() {
+  const grid = document.getElementById('owners-grid');
+  grid.innerHTML = '<div style="color:var(--fg3);font-size:12px">Loading owners…</div>';
+  const r = await fetch('/api/owners', {headers});
+  const j = await r.json();
+  grid.innerHTML = '';
+  for (const o of j.owners) {
+    grid.appendChild(renderOwnerCard(o));
+  }
+}
+
+function renderOwnerCard(o) {
+  const card = document.createElement('div');
+  card.className = 'owner-card';
+  card.dataset.id = o.id;
+  const p = o.profile || {};
+  const opts = (vals, cur) => vals.map(v => `<option value="${v}"${v===cur?' selected':''}>${v||'— select —'}</option>`).join('');
+  const propsList = o.properties.filter(pr => pr.active).map(pr => `<div>${pr.name} <span style="color:var(--fg3)">· ${pr.brand} · ${pr.state}</span></div>`).join('');
+
+  card.innerHTML = `
+    <div class="owner-card-hdr">
+      <div>
+        <h3>${escapeHtml(o.name)}</h3>
+        <div class="meta">${o.activeCount} active · ${o.brandFamilies.join(', ')} · ${o.states.join(', ')}</div>
+      </div>
+    </div>
+    <div class="owner-derived">
+      <div class="stat"><div class="v">${o.activeCount}</div><div class="l">Hotels</div></div>
+      <div class="stat"><div class="v">${fmtMoney(o.derived.revenue)}</div><div class="l">Period Rev</div></div>
+      <div class="stat"><div class="v">${fmtMoney(o.derived.gop)}</div><div class="l">Period GOP</div></div>
+      <div class="stat"><div class="v">${o.derived.avgScore != null ? o.derived.avgScore : '—'}</div><div class="l">Avg Score</div></div>
+      <div class="stat"><div class="v">${o.derived.propertyOpenIssues}</div><div class="l">Open Actions</div></div>
+    </div>
+    <div class="owner-form">
+      <div class="field-row">
+        <div class="field"><label>Owner type</label><select data-k="type">${opts(TYPES, p.type||'')}</select></div>
+        <div class="field"><label>Sophistication</label><select data-k="sophistication">${opts(SOPHS, p.sophistication||'medium')}</select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Format</label><select data-k="format">${opts(FMTS, p.format||'letter')}</select></div>
+        <div class="field"><label>Cadence</label><select data-k="cadence">${opts(CADS, p.cadence||'monthly')}</select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Primary contact name</label><input data-k="primaryContact.name" value="${escapeHtml(p.primaryContact?.name||'')}"></div>
+        <div class="field"><label>Title</label><input data-k="primaryContact.title" value="${escapeHtml(p.primaryContact?.title||'')}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input data-k="primaryContact.email" value="${escapeHtml(p.primaryContact?.email||'')}"></div>
+        <div class="field"><label>Phone</label><input data-k="primaryContact.phone" value="${escapeHtml(p.primaryContact?.phone||'')}"></div>
+      </div>
+      <div class="field"><label>Decision style</label><input data-k="decisionStyle" placeholder="e.g. data-first, will push back on soft commentary" value="${escapeHtml(p.decisionStyle||'')}"></div>
+      <div class="field"><label>Fund-life / hold thesis</label><input data-k="fundLife" placeholder="e.g. evergreen · 2027 sale · 2029 refi" value="${escapeHtml(p.fundLife||'')}"></div>
+      <div class="field"><label>Hot buttons (Enter to add)</label><div class="tag-input" data-k="hotButtons">${(p.hotButtons||[]).map(t => tagHtml(t)).join('')}<input placeholder="add tag…"></div></div>
+      <div class="field"><label>Red flags (Enter to add)</label><div class="tag-input" data-k="redFlags">${(p.redFlags||[]).map(t => tagHtml(t)).join('')}<input placeholder="add tag…"></div></div>
+      <div class="field"><label>Priorities</label><div class="tag-input" data-k="priorities">${(p.priorities||[]).map(t => tagHtml(t)).join('')}<input placeholder="add tag…"></div></div>
+      <div class="field"><label>Constraints</label><div class="tag-input" data-k="constraints">${(p.constraints||[]).map(t => tagHtml(t)).join('')}<input placeholder="add tag…"></div></div>
+      <div class="field"><label>Tone</label><textarea data-k="tone" placeholder="e.g. Direct. NOI-first. No softening of bad news. Lead with bullet points.">${escapeHtml(p.tone||'')}</textarea></div>
+      <div class="field"><label>Notes</label><textarea data-k="notes" placeholder="Anything the team should remember about this owner.">${escapeHtml(p.notes||'')}</textarea></div>
+    </div>
+    <div class="owner-properties">
+      <div class="ttl">Properties</div>
+      <div class="pl">${propsList}</div>
+    </div>
+    <div class="owner-save">
+      <span class="saved">✓ saved · ${p.updatedAt ? p.updatedAt.slice(0,16).replace('T',' ') : 'never'}</span>
+      <button onclick="saveOwner('${o.id}')">Save profile</button>
+    </div>
+  `;
+
+  // wire tag inputs
+  card.querySelectorAll('.tag-input').forEach(ti => {
+    const inp = ti.querySelector('input');
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && inp.value.trim()) {
+        e.preventDefault();
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `${escapeHtml(inp.value.trim())} <span class="x" onclick="this.parentElement.remove()">×</span>`;
+        ti.insertBefore(tag, inp);
+        inp.value = '';
+      } else if (e.key === 'Backspace' && !inp.value) {
+        const last = ti.querySelectorAll('.tag');
+        if (last.length) last[last.length-1].remove();
+      }
+    });
+    inp.addEventListener('focus', () => ti.classList.add('focus'));
+    inp.addEventListener('blur',  () => ti.classList.remove('focus'));
+  });
+
+  return card;
+}
+
+function tagHtml(text) {
+  return `<span class="tag">${escapeHtml(text)} <span class="x" onclick="this.parentElement.remove()">×</span></span>`;
+}
+
+// ─── WEEKLY SCAN ─────────────────────────────────────────────────────────
+let activeScanId = null;
+
+async function loadScans() {
+  const r = await fetch('/api/scans', {headers});
+  const j = await r.json();
+  const list = document.getElementById('scan-list');
+  list.innerHTML = '';
+  if (!j.scans || !j.scans.length) {
+    list.innerHTML = '<div style="color:var(--fg3);font-size:12px;padding:14px;text-align:center;background:var(--bg2);border:1px dashed var(--border);border-radius:8px">No scans yet. Click <strong>Run new scan</strong> to surface this week\'s cross-portfolio patterns.</div>';
+    document.getElementById('scan-detail').classList.remove('active');
+    return;
+  }
+  j.scans.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'scan-list-item' + (s.id === activeScanId ? ' active' : '');
+    el.dataset.id = s.id;
+    const dt = new Date(s.createdAt);
+    const head = (s.headlines && s.headlines[0]) || `${s.scannerCount} scanners · ${s.patternCount} patterns`;
+    el.innerHTML = `
+      <div class="scan-li-l">
+        <div class="scan-li-date">${dt.toLocaleDateString()} ${dt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · period ${s.period}</div>
+        <div class="scan-li-title">${escapeHtml(head.slice(0,140))}${head.length>140?'…':''}</div>
+      </div>
+      <div class="scan-li-r">
+        <span><b>${s.patternCount}</b> patterns</span>
+        <span><b>${s.headlineCount}</b> headlines</span>
+        <span><b>${s.actionCount}</b> moves</span>
+      </div>`;
+    el.onclick = () => loadScanDetail(s.id);
+    list.appendChild(el);
+  });
+  // auto-open most recent if nothing selected
+  if (!activeScanId && j.scans.length) loadScanDetail(j.scans[0].id);
+}
+
+async function loadScanDetail(id) {
+  activeScanId = id;
+  document.querySelectorAll('.scan-list-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+  const r = await fetch(`/api/scans/${id}`, {headers});
+  const j = await r.json();
+  const s = j.scan;
+  if (!s) return;
+  const dt = new Date(s.createdAt);
+  const detail = document.getElementById('scan-detail');
+  detail.classList.add('active');
+
+  let synthHtml = '';
+  if (s.synthesis.rawText) {
+    synthHtml += `<div class="synth-text">${marked.parse(s.synthesis.rawText)}</div>`;
+  }
+  if (s.synthesis.actions && s.synthesis.actions.length) {
+    synthHtml += `<div class="synth-actions">`;
+    s.synthesis.actions.forEach((a, i) => {
+      synthHtml += `<div class="synth-action">
+        <div class="synth-action-l">
+          <strong>${escapeHtml(a.title)}</strong>
+          <div class="synth-action-meta">${a.owner?'owner: '+escapeHtml(a.owner)+' · ':''}${a.dueDate?'due '+a.dueDate:''}${a.propertyId?' · prop '+a.propertyId:''}</div>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="promote-btn dec" onclick="promote('${s.id}','synthesis',${i},'decision','${escapeAttr(a.owner||'')}','${a.dueDate||''}',${a.propertyId||'null'})">+ Decision</button>
+          <button class="promote-btn"     onclick="promote('${s.id}','synthesis',${i},'action','${escapeAttr(a.owner||'')}','${a.dueDate||''}',${a.propertyId||'null'})">+ Action</button>
+        </div>
+      </div>`;
+    });
+    synthHtml += `</div>`;
+  }
+
+  let scannersHtml = '<div class="scanners-grid">';
+  s.scanners.forEach(sc => {
+    scannersHtml += `<div class="scanner-pane">
+      <h4>${friendly(sc.role)} <span class="badge">${sc.patterns.length} patterns</span></h4>`;
+    if (!sc.patterns.length) {
+      scannersHtml += `<div style="font-size:11px;color:var(--fg3);font-style:italic">${sc.error ? 'error: '+escapeHtml(sc.error) : '(no patterns surfaced)'}</div>`;
+    }
+    sc.patterns.forEach((p, i) => {
+      scannersHtml += `<div class="pattern">
+        <div class="pattern-title">${escapeHtml(p.title || '(untitled)')}</div>
+        <div class="pattern-row"><strong>Evidence</strong>${escapeHtml(p.evidence||'')}</div>
+        <div class="pattern-row"><strong>Why</strong>${escapeHtml(p.why||'')}</div>
+        <div class="pattern-row"><strong>Recommend</strong>${escapeHtml(p.recommendation||'')}</div>
+        <div class="pattern-actions">
+          <button class="promote-btn dec" onclick="promote('${s.id}','${sc.role}',${i},'decision','','',null)">+ Decision</button>
+          <button class="promote-btn"     onclick="promote('${s.id}','${sc.role}',${i},'action','','',null)">+ Action</button>
+        </div>
+      </div>`;
+    });
+    scannersHtml += `</div>`;
+  });
+  scannersHtml += '</div>';
+
+  detail.innerHTML = `
+    <div class="scan-detail-hdr">
+      <div>
+        <h3>Leadership Brief</h3>
+        <div class="meta">${dt.toLocaleString()} · period ${s.period} · ${s.scanners.length} scanners</div>
+      </div>
+      <button class="item-btn danger" onclick="deleteScan('${s.id}')">Delete</button>
+    </div>
+    ${synthHtml ? `<div class="synth"><div class="synth-label">Synthesis · Chief of Staff</div>${synthHtml}</div>` : ''}
+    ${scannersHtml}
+  `;
+}
+
+function escapeAttr(s) { return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+
+window.runScan = async function() {
+  const btn = document.getElementById('scan-run');
+  const lbl = btn.querySelector('.lbl');
+  btn.disabled = true;
+  btn.classList.add('running');
+  lbl.textContent = 'Scanning…';
+  document.getElementById('scan-progress').textContent = 'COO, CFO, VP RM, VP People scanning in parallel — Chief of Staff synthesizing — usually 25-40 seconds.';
+  try {
+    const r = await fetch('/api/scan/weekly', {method:'POST', headers, body: JSON.stringify({})});
+    const j = await r.json();
+    if (j.error) {
+      document.getElementById('scan-progress').textContent = 'Error: ' + j.error;
+    } else {
+      activeScanId = j.scan.id;
+      document.getElementById('scan-progress').textContent = '';
+      await loadScans();
+    }
+  } catch (e) {
+    document.getElementById('scan-progress').textContent = 'Error: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('running');
+    lbl.textContent = 'Run new scan';
+  }
+};
+
+window.promote = async function(scanId, scannerRole, patternIndex, kind, owner, dueDate, propertyId) {
+  const ownerVal = prompt(`Owner for this ${kind}?`, owner || '');
+  if (ownerVal === null) return;
+  const dateVal = prompt(`Due date (YYYY-MM-DD, optional)?`, dueDate || '');
+  if (dateVal === null) return;
+  const r = await fetch(`/api/scans/${scanId}/promote`, {
+    method:'POST', headers,
+    body: JSON.stringify({ kind, scannerRole, patternIndex, owner: ownerVal||null, dueDate: dateVal||null, propertyId })
+  });
+  const j = await r.json();
+  if (j.error) { alert('Error: '+j.error); return; }
+  alert(`✓ Promoted to ${kind}. View it in the Cockpit.`);
+};
+
+window.deleteScan = async function(id) {
+  if (!confirm('Delete this scan?')) return;
+  await fetch(`/api/scans/${id}`, {method:'DELETE', headers});
+  if (activeScanId === id) activeScanId = null;
+  loadScans();
+};
+
+// ─── PERSONA MEMORY ───────────────────────────────────────────────────────
+async function populateMemoryRoleSel() {
+  const sel = document.getElementById('mem-role-sel');
+  if (!sel) return;
+  if (sel.options.length > 0) return; // already populated
+  // Use the same agent list we already fetched
+  const r = await fetch('/api/agents', {headers});
+  const j = await r.json();
+  const all = j.agents || [];
+  sel.innerHTML = '<option value="">— Pick a persona —</option>' +
+    all.map(a => `<option value="${a.role}">${friendly(a.role)}</option>`).join('');
+}
+
+async function loadMemory() {
+  const role = document.getElementById('mem-role-sel').value;
+  const list = document.getElementById('mem-list');
+  const meta = document.getElementById('mem-meta');
+  if (!role) {
+    list.innerHTML = '<div style="color:var(--fg3);font-size:12px;padding:14px;text-align:center;background:var(--bg2);border:1px dashed var(--border);border-radius:8px">Pick a persona above to see what they remember.</div>';
+    meta.textContent = '';
+    return;
+  }
+  const r = await fetch(`/api/memory/${role}`, {headers});
+  const j = await r.json();
+  const entries = j.entries || [];
+  meta.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} stored. Capacity 60.`;
+  if (!entries.length) {
+    list.innerHTML = '<div style="color:var(--fg3);font-size:12px;padding:14px;text-align:center;background:var(--bg2);border:1px dashed var(--border);border-radius:8px">No memory yet for ' + escapeHtml(friendly(role)) + '. As they answer questions, durable insights will accumulate here.</div>';
+    return;
+  }
+  list.innerHTML = entries.map(e => renderMemoryEntry(e, role)).join('');
+}
+
+function renderMemoryEntry(e, role) {
+  const date = (e.at || '').slice(0, 10);
+  const time = (e.at || '').slice(11, 16);
+  const propLabel = e.propertyId ? propName(e.propertyId) : 'Portfolio';
+  const tags = (e.tags || []).map(t => `<span class="shai-badge blue" style="margin-right:4px">${escapeHtml(t)}</span>`).join('');
+  return `<div class="item" data-id="${e.id}">
+    <div class="item-title">${escapeHtml(e.title || '(untitled)')}</div>
+    ${e.conclusion ? `<div class="item-rationale">${escapeHtml(e.conclusion)}</div>` : ''}
+    <div class="item-meta">
+      <span class="pill blue">${escapeHtml(propLabel)}</span>
+      <span>${date} ${time}</span>
+      ${tags}
+    </div>
+    <div class="item-actions">
+      <button class="item-btn danger" onclick="deleteMemoryEntry('${role}','${e.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+window.deleteMemoryEntry = async function(role, id) {
+  if (!confirm('Delete this memory entry?')) return;
+  await fetch(`/api/memory/${role}/${id}`, {method:'DELETE', headers});
+  loadMemory();
+};
+
+window.clearMemory = async function() {
+  const role = document.getElementById('mem-role-sel').value;
+  if (!role) { alert('Pick a persona first.'); return; }
+  if (!confirm(`Clear ALL memory for ${friendly(role)}? This cannot be undone.`)) return;
+  await fetch(`/api/memory/${role}`, {method:'DELETE', headers});
+  loadMemory();
+};
+
+// ─── GM BENCH TRACKER ─────────────────────────────────────────────────────
+const TIERS = ['', 'HIGH', 'MID', 'LOW'];
+const RISKS = ['GREEN', 'YELLOW', 'RED'];
+const READINESS = ['EXPOSED', 'BRIDGE', 'COVERED'];
+const SUCC_ROLES = ['', 'AGM', 'DOO', 'FOM', 'External'];
+
+async function loadBench() {
+  const r = await fetch('/api/gms', {headers});
+  const j = await r.json();
+  const grid = document.getElementById('bench-grid');
+  const summary = document.getElementById('bench-summary');
+
+  // Summary KPIs
+  const sm = j.summary;
+  summary.innerHTML = `
+    <div class="kpi"><div class="kpi-num">${sm.total}</div><div class="kpi-label">Properties</div></div>
+    <div class="kpi good"><div class="kpi-num">${sm.populated}</div><div class="kpi-label">GMs Logged</div></div>
+    <div class="kpi good"><div class="kpi-num">${sm.stars}</div><div class="kpi-label">★ Stars</div></div>
+    <div class="kpi warn"><div class="kpi-num">${sm.watchRisk}</div><div class="kpi-label">Watch Risk</div></div>
+    <div class="kpi bad"><div class="kpi-num">${sm.flightRisk}</div><div class="kpi-label">Flight Risk</div></div>
+    <div class="kpi bad"><div class="kpi-num">${sm.successionExposed}</div><div class="kpi-label">Succession Exposed</div></div>
+  `;
+
+  grid.innerHTML = '';
+  for (const g of j.gms) {
+    grid.appendChild(renderBenchCard(g));
+  }
+}
+
+function renderBenchCard(g) {
+  const card = document.createElement('div');
+  card.className = 'owner-card';
+  card.dataset.propertyId = g.propertyId;
+  const b = g.bench || {};
+  const opts = (vals, cur) => vals.map(v => `<option value="${v}"${(v||'')===String(cur||'').toUpperCase()?' selected':''}>${v||'— select —'}</option>`).join('');
+  const succRole = b.successor?.role || '';
+  const succReadOpts = READINESS.map(r => `<option value="${r}"${r===String(b.successor?.readiness||'EXPOSED')?' selected':''}>${r}</option>`).join('');
+  const succRoleOpts = SUCC_ROLES.map(r => `<option value="${r}"${r===succRole?' selected':''}>${r||'— role —'}</option>`).join('');
+  const boxLabel = g.box || '—';
+
+  card.innerHTML = `
+    <div class="owner-card-hdr">
+      <div>
+        <h3>${escapeHtml(g.propertyName)}</h3>
+        <div class="meta">${escapeHtml(g.brand||'')} · ${escapeHtml(g.state||'')} · RDO: ${escapeHtml(g.rdo||'')} · Owner: ${escapeHtml(g.owner||'')}</div>
+      </div>
+    </div>
+    <div class="owner-derived">
+      <div class="stat"><div class="v">${g.derived.score ?? '—'}</div><div class="l">Score</div></div>
+      <div class="stat"><div class="v">$${g.derived.revpar ?? '—'}</div><div class="l">RevPAR</div></div>
+      <div class="stat"><div class="v">${g.derived.gop != null ? g.derived.gop+'%' : '—'}</div><div class="l">GOP %</div></div>
+      <div class="stat"><div class="v">${g.derived.flow != null ? Math.round(g.derived.flow)+'%' : '—'}</div><div class="l">Flow</div></div>
+    </div>
+    <div class="owner-form">
+      <div class="field-row">
+        <div class="field"><label>GM name</label><input data-k="gmName" value="${escapeHtml(b.gmName||'')}" placeholder="Mark Smith"></div>
+        <div class="field"><label>GM email (optional)</label><input data-k="gmEmail" value="${escapeHtml(b.gmEmail||'')}" placeholder="m.smith@..."></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Tenure at property</label><input data-k="gmTenureAtProperty" value="${escapeHtml(b.gmTenureAtProperty||'')}" placeholder="e.g. 3 years"></div>
+        <div class="field"><label>Tenure with company</label><input data-k="gmTenureWithCompany" value="${escapeHtml(b.gmTenureWithCompany||'')}" placeholder="e.g. 5 years"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Performance</label><select data-k="performance">${opts(TIERS, b.performance)}</select></div>
+        <div class="field"><label>Potential</label><select data-k="potential">${opts(TIERS, b.potential)}</select></div>
+      </div>
+      <div class="field" style="background:var(--accent-2-soft,rgba(26,107,255,0.08));border-radius:6px;padding:6px 9px">
+        <label style="margin-bottom:0">9-box read</label>
+        <div class="ninebox-label" style="font-size:11.5px;color:var(--fg);font-weight:500;margin-top:2px">${escapeHtml(boxLabel)}</div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Risk level</label><select data-k="riskLevel">${RISKS.map(r=>`<option value="${r}"${r===String(b.riskLevel||'GREEN')?' selected':''}>${r}</option>`).join('')}</select></div>
+        <div class="field"><label>Risk reason (optional)</label><input data-k="riskReason" value="${escapeHtml(b.riskReason||'')}" placeholder="comp gap · interview activity · …"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Successor name</label><input data-k="successor.name" value="${escapeHtml(b.successor?.name||'')}" placeholder="AGM name or external"></div>
+        <div class="field"><label>Successor role</label><select data-k="successor.role">${succRoleOpts}</select></div>
+      </div>
+      <div class="field"><label>Succession readiness</label><select data-k="successor.readiness">${succReadOpts}</select></div>
+      <div class="field"><label>Tags (Enter to add)</label><div class="tag-input" data-k="tags">${(b.tags||[]).map(t => tagHtml(t)).join('')}<input placeholder="add tag…"></div></div>
+      <div class="field"><label>Notes</label><textarea data-k="notes" placeholder="Anything the team should remember about this GM.">${escapeHtml(b.notes||'')}</textarea></div>
+    </div>
+    <div class="owner-save">
+      <span class="saved">${b.updatedAt ? '✓ saved · ' + b.updatedAt.slice(0,16).replace('T',' ') : ''}</span>
+      <button onclick="saveBench(${g.propertyId})">Save</button>
+    </div>
+  `;
+
+  // wire tag input
+  const ti = card.querySelector('.tag-input');
+  if (ti) {
+    const inp = ti.querySelector('input');
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && inp.value.trim()) {
+        e.preventDefault();
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `${escapeHtml(inp.value.trim())} <span class="x" onclick="this.parentElement.remove()">×</span>`;
+        ti.insertBefore(tag, inp);
+        inp.value = '';
+      } else if (e.key === 'Backspace' && !inp.value) {
+        const last = ti.querySelectorAll('.tag');
+        if (last.length) last[last.length-1].remove();
+      }
+    });
+    inp.addEventListener('focus', () => ti.classList.add('focus'));
+    inp.addEventListener('blur',  () => ti.classList.remove('focus'));
+  }
+
+  // live 9-box update on perf/pot change
+  const updateBox = () => {
+    const perf = card.querySelector('[data-k="performance"]').value;
+    const pot  = card.querySelector('[data-k="potential"]').value;
+    const labelEl = card.querySelector('.ninebox-label');
+    if (!perf || !pot) { labelEl.textContent = '—'; return; }
+    const map = {
+      'HIGH-HIGH': '★ Star — succession candidate, retention priority',
+      'HIGH-MID':  'Develop up — load with stretch',
+      'HIGH-LOW':  'Specialist — keep in role',
+      'MID-HIGH':  'Latent talent — develop performance',
+      'MID-MID':   'Steady — protect, develop in place',
+      'MID-LOW':   'Low priority — coach lightly',
+      'LOW-HIGH':  'Misplaced — reassign or rescope',
+      'LOW-MID':   'Performance gap — coach with 90-day timeline',
+      'LOW-LOW':   '✗ Exit-plan candidate — performance management'
+    };
+    labelEl.textContent = map[perf+'-'+pot] || '—';
+  };
+  card.querySelector('[data-k="performance"]').addEventListener('change', updateBox);
+  card.querySelector('[data-k="potential"]').addEventListener('change', updateBox);
+
+  return card;
+}
+
+// ─── COUNCIL MODE ──────────────────────────────────────────────────────────
+let councilInited = false;
+let activeCouncilId = null;
+
+async function initCouncil() {
+  if (councilInited) { loadCouncils(); return; }
+  councilInited = true;
+  // Populate property + period selectors (reuse already-loaded properties)
+  const propSel = document.getElementById('council-prop');
+  Object.values(propertyMap).filter(p => p.active).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = `${p.name} (${p.brand})`;
+    propSel.appendChild(opt);
+  });
+  // Periods — copy from existing dropdown
+  const srcSel = document.getElementById('period-sel');
+  if (srcSel) {
+    const periodSel = document.getElementById('council-period');
+    Array.from(srcSel.options).forEach(o => {
+      if (!o.value) return;
+      const opt = document.createElement('option');
+      opt.value = o.value; opt.textContent = o.textContent;
+      periodSel.appendChild(opt);
+    });
+  }
+  // Roles checkbox grid
+  const rolesEl = document.getElementById('council-roles');
+  const r = await fetch('/api/agents', {headers});
+  const j = await r.json();
+  // Default selection: top-level strategic personas
+  const defaultPick = new Set(['ceo','coo','cfo','chief-development-officer']);
+  rolesEl.innerHTML = (j.agents || []).map(a => {
+    const checked = defaultPick.has(a.role) ? 'checked' : '';
+    return `<label class="council-role-pill" data-role="${a.role}" style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;font-size:11px;cursor:pointer;background:var(--bg2)">
+      <input type="checkbox" value="${a.role}" ${checked} style="cursor:pointer">${friendly(a.role)}
+    </label>`;
+  }).join('');
+  // Click anywhere on label toggles
+  rolesEl.querySelectorAll('label').forEach(lbl => {
+    const cb = lbl.querySelector('input');
+    cb.addEventListener('change', () => {
+      lbl.style.background = cb.checked ? 'var(--accent-2-soft, rgba(26,107,255,0.10))' : 'var(--bg2)';
+      lbl.style.borderColor = cb.checked ? 'rgba(26,107,255,0.30)' : 'var(--border)';
+    });
+    if (cb.checked) cb.dispatchEvent(new Event('change'));
+  });
+  loadCouncils();
+}
+
+async function loadCouncils() {
+  const r = await fetch('/api/councils', {headers});
+  const j = await r.json();
+  const list = document.getElementById('council-list');
+  list.innerHTML = '';
+  if (!j.councils || !j.councils.length) {
+    list.innerHTML = '<div style="color:var(--fg3);font-size:12px;padding:14px;text-align:center;background:var(--bg2);border:1px dashed var(--border);border-radius:8px">No council sessions yet. Pose a question above and click <strong>Convene</strong>.</div>';
+    document.getElementById('council-detail').classList.remove('active');
+    return;
+  }
+  j.councils.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'scan-list-item' + (s.id === activeCouncilId ? ' active' : '');
+    el.dataset.id = s.id;
+    const dt = new Date(s.createdAt);
+    const head = s.headline || (s.question.length > 80 ? s.question.slice(0, 80) + '…' : s.question);
+    el.innerHTML = `
+      <div class="scan-li-l">
+        <div class="scan-li-date">${dt.toLocaleDateString()} ${dt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${s.roles.length} personas</div>
+        <div class="scan-li-title">${escapeHtml(head)}</div>
+      </div>
+      <div class="scan-li-r">
+        <span><b>${s.actionCount}</b> moves</span>
+      </div>`;
+    el.onclick = () => loadCouncilDetail(s.id);
+    list.appendChild(el);
+  });
+  if (!activeCouncilId && j.councils.length) loadCouncilDetail(j.councils[0].id);
+}
+
+async function loadCouncilDetail(id) {
+  activeCouncilId = id;
+  document.querySelectorAll('#council-list .scan-list-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+  const r = await fetch(`/api/councils/${id}`, {headers});
+  const j = await r.json();
+  const s = j.session;
+  if (!s) return;
+  const dt = new Date(s.createdAt);
+  const detail = document.getElementById('council-detail');
+  detail.classList.add('active');
+
+  // Synthesis
+  let synthHtml = '';
+  if (s.synthesis.rawText) {
+    synthHtml += `<div class="synth-text">${marked.parse(s.synthesis.rawText)}</div>`;
+  }
+  if (s.synthesis.actions && s.synthesis.actions.length) {
+    synthHtml += `<div class="synth-actions">`;
+    s.synthesis.actions.forEach((a, i) => {
+      synthHtml += `<div class="synth-action">
+        <div class="synth-action-l">
+          <strong>${escapeHtml(a.title)}</strong>
+          <div class="synth-action-meta">${a.owner?'owner: '+escapeHtml(a.owner)+' · ':''}${a.dueDate?'due '+a.dueDate:''}${a.propertyId?' · prop '+a.propertyId:''}</div>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="promote-btn dec" onclick="promoteCouncil('${s.id}',${i},'decision')">+ Decision</button>
+          <button class="promote-btn"     onclick="promoteCouncil('${s.id}',${i},'action')">+ Action</button>
+        </div>
+      </div>`;
+    });
+    synthHtml += `</div>`;
+  }
+
+  // Each participant's voice
+  let pHtml = '<div class="scanners-grid">';
+  s.participants.forEach(p => {
+    pHtml += `<div class="scanner-pane">
+      <h4>${friendly(p.role)}</h4>
+      ${p.error ? `<div style="font-size:11px;color:var(--fg3);font-style:italic">error: ${escapeHtml(p.error)}</div>` : `<div class="msg-body" style="background:transparent;border:none;padding:0;font-size:12.5px">${marked.parse(p.response||'')}</div>`}
+    </div>`;
+  });
+  pHtml += '</div>';
+
+  detail.innerHTML = `
+    <div class="scan-detail-hdr">
+      <div>
+        <h3>${escapeHtml(s.synthesis.headline || s.question)}</h3>
+        <div class="meta">${dt.toLocaleString()} · ${s.roles.length} personas · period ${s.period}${s.propertyId ? ' · '+escapeHtml(propName(s.propertyId)):''}</div>
+      </div>
+      <button class="item-btn danger" onclick="deleteCouncil('${s.id}')">Delete</button>
+    </div>
+    <div style="padding:14px 18px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:12px;color:var(--fg2);font-style:italic">"${escapeHtml(s.question)}"</div>
+    ${synthHtml ? `<div class="synth"><div class="synth-label">Synthesis · Chief of Staff</div>${synthHtml}</div>` : ''}
+    ${pHtml}
+  `;
+}
+
+window.runCouncil = async function() {
+  const question = document.getElementById('council-question').value.trim();
+  if (!question) { alert('Pose a question for the council.'); return; }
+  const checked = Array.from(document.querySelectorAll('#council-roles input:checked')).map(i => i.value);
+  if (checked.length < 2) { alert('Pick at least 2 personas.'); return; }
+  if (checked.length > 8) { alert('Max 8 personas per session.'); return; }
+  const propertyId = document.getElementById('council-prop').value || null;
+  const period = document.getElementById('council-period').value || null;
+
+  const btn = document.getElementById('council-run');
+  const lbl = btn.querySelector('.lbl');
+  btn.disabled = true;
+  btn.classList.add('running');
+  lbl.textContent = 'Convening…';
+  document.getElementById('council-progress').textContent = `${checked.length} personas deliberating in parallel · Chief of Staff synthesizing — usually 30-60 seconds.`;
+
+  try {
+    const r = await fetch('/api/council', {
+      method:'POST', headers,
+      body: JSON.stringify({ question, roles: checked, propertyId, period })
+    });
+    const j = await r.json();
+    if (j.error) {
+      document.getElementById('council-progress').textContent = 'Error: ' + j.error;
+    } else {
+      activeCouncilId = j.session.id;
+      document.getElementById('council-progress').textContent = '';
+      await loadCouncils();
+    }
+  } catch (e) {
+    document.getElementById('council-progress').textContent = 'Error: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('running');
+    lbl.textContent = 'Convene';
+  }
+};
+
+window.promoteCouncil = async function(sessionId, actionIndex, kind) {
+  const ownerVal = prompt(`Owner for this ${kind}?`, '');
+  if (ownerVal === null) return;
+  const dateVal = prompt(`Due date (YYYY-MM-DD, optional)?`, '');
+  if (dateVal === null) return;
+  const r = await fetch(`/api/councils/${sessionId}/promote`, {
+    method:'POST', headers,
+    body: JSON.stringify({ kind, actionIndex, owner: ownerVal||null, dueDate: dateVal||null })
+  });
+  const j = await r.json();
+  if (j.error) { alert('Error: '+j.error); return; }
+  alert(`✓ Promoted to ${kind}. View it in the Cockpit.`);
+};
+
+window.deleteCouncil = async function(id) {
+  if (!confirm('Delete this council session?')) return;
+  await fetch(`/api/councils/${id}`, {method:'DELETE', headers});
+  if (activeCouncilId === id) activeCouncilId = null;
+  loadCouncils();
+};
+
+window.saveBench = async function(propertyId) {
+  const card = document.querySelector(`.owner-card[data-property-id="${propertyId}"]`);
+  if (!card) return;
+  const bench = { successor: {} };
+  card.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (el.classList.contains('tag-input')) {
+      bench[k] = Array.from(el.querySelectorAll('.tag')).map(t => t.firstChild.textContent.trim());
+    } else if (k.startsWith('successor.')) {
+      const child = k.split('.')[1];
+      bench.successor[child] = el.value;
+    } else {
+      bench[k] = el.value;
+    }
+  });
+  const r = await fetch(`/api/gms/${propertyId}`, {method:'PUT', headers, body: JSON.stringify(bench)});
+  const j = await r.json();
+  if (j.bench) {
+    const saved = card.querySelector('.saved');
+    saved.textContent = `✓ saved · ${j.bench.updatedAt.slice(0,16).replace('T',' ')}`;
+    saved.classList.add('show');
+    setTimeout(() => saved.classList.remove('show'), 2500);
+    // Reload to refresh summary KPIs
+    setTimeout(loadBench, 600);
+  }
+};
+
+window.saveOwner = async function(id) {
+  const card = document.querySelector(`.owner-card[data-id="${id}"]`);
+  const profile = { primaryContact: {} };
+  card.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (el.classList.contains('tag-input')) {
+      profile[k] = Array.from(el.querySelectorAll('.tag')).map(t => t.firstChild.textContent.trim());
+    } else if (k.includes('.')) {
+      const [parent, child] = k.split('.');
+      profile[parent] = profile[parent] || {};
+      profile[parent][child] = el.value;
+    } else {
+      profile[k] = el.value;
+    }
+  });
+  const r = await fetch(`/api/owners/${id}`, {method:'PUT', headers, body: JSON.stringify(profile)});
+  const j = await r.json();
+  if (j.profile) {
+    const saved = card.querySelector('.saved');
+    saved.textContent = `✓ saved · ${j.profile.updatedAt.slice(0,16).replace('T',' ')}`;
+    saved.classList.add('show');
+    setTimeout(() => saved.classList.remove('show'), 2500);
+  }
+};
+
+// loadAgents() removed — the card grid in loadTeamRoster() is now the only
+// persona picker. Council and Memory views fetch /api/agents independently
+// so they still see all file-backed personas for deliberation/inspection.
+loadProperties();
+loadPeriods();
+loadTeamRoster();
+loadRoleStrip();
+
+// ─── Corporate Team roster ─────────────────────────────────────────────
+// Loads /brand/team/manifest.json (built by tools-fetch-leadership.py) and
+// joins each leader to data.contacts.corporate by slug — so cards with a
+// matching corporate-contact entry get clickable Email / Call buttons.
+//
+// Also drives the filter bar (search, status, department) and acts as the
+// page's persona picker — click a card with a 100%-complete intake → that
+// agent loads into the in-page chat via selectAgent(). The sidebar list
+// was retired; this grid IS the picker.
+let _rosterState = { leaders: [], corpBySlug: {}, intakeBySlug: {} };
+async function loadTeamRoster() {
+  const grid = document.getElementById('team-grid');
+  const meta = document.getElementById('team-roster-meta');
+  if (!grid) return;
+
+  // Fetch manifest + corporate contacts + intake status in parallel. If any of
+  // the endpoints isn't up yet (server not restarted), the cards still render —
+  // contacts/intake just degrade gracefully (no buttons, no agent badge).
+  // Ownership (Ash, Samir) is filtered out of Ask-the-Team — they're owners,
+  // not agents the team chats *with*. They remain in manifest.json for team.html
+  // and elsewhere; this filter is scoped to Ask-the-Team only.
+  const ROSTER_EXCLUDE = new Set(['ashraf-ash-lakhany', 'samir-lakhany']);
+  let leaders = [], corporate = [], intakeBySlug = {};
+  try {
+    const manifest = await fetch('/brand/team/manifest.json', { cache: 'no-store' }).then(r => r.json());
+    leaders = (manifest.leaders || []).filter(L => !ROSTER_EXCLUDE.has(L.slug));
+  } catch (e) {
+    grid.innerHTML = `<div class="team-roster-loading" style="color:var(--red)">
+      Could not load /brand/team/manifest.json. Run <code>python tools-fetch-leadership.py</code>.
+    </div>`;
+    meta.textContent = 'manifest missing';
+    return;
+  }
+  try {
+    const resp = await fetch('/api/contacts/corporate', { cache: 'no-store' });
+    if (resp.ok) {
+      const j = await resp.json();
+      corporate = j.contacts || [];
+    }
+  } catch (e) { /* ok — cards render without contact buttons */ }
+  try {
+    const resp = await fetch('/api/personas/list', { cache: 'no-store' });
+    if (resp.ok) {
+      const j = await resp.json();
+      for (const p of (j.personas || [])) intakeBySlug[p.slug] = p;
+    }
+  } catch (e) { /* ok — cards render with empty intake state */ }
+
+  const corpBySlug = {};
+  for (const c of corporate) corpBySlug[c.slug] = c;
+  _rosterState.leaders = leaders;
+  _rosterState.corpBySlug = corpBySlug;
+  _rosterState.intakeBySlug = intakeBySlug;
+  // Populate the Department filter from observed contact records
+  const deptSel = document.getElementById('team-dept-filter');
+  if (deptSel && deptSel.options.length <= 1) {
+    const depts = [...new Set(corporate.map(c => c.department).filter(Boolean))].sort();
+    for (const d of depts) {
+      const opt = document.createElement('option');
+      opt.value = d; opt.textContent = d;
+      deptSel.appendChild(opt);
+    }
+  }
+  // Wire filter listeners once
+  if (!loadTeamRoster._filtersBound) {
+    ['team-search','team-status-filter','team-dept-filter'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', renderTeamRoster);
+    });
+    loadTeamRoster._filtersBound = true;
+  }
+  renderTeamRoster();
+}
+
+function renderTeamRoster() {
+  const grid = document.getElementById('team-grid');
+  const meta = document.getElementById('team-roster-meta');
+  const countEl = document.getElementById('team-filter-count');
+  if (!grid) return;
+  const { leaders, corpBySlug, intakeBySlug } = _rosterState;
+
+  // Fuzzy-match a leader name to a corporate-contacts slug. The website
+  // uses display names like "Ashraf (Ash) Lakhany" while the contacts sheet
+  // uses "Ashraf Lakhany" — so we try a few simple normalizations.
+  const escSlug = s => String(s||'').toLowerCase()
+    .replace(/\([^)]*\)/g,' ')        // strip parens
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const findContact = (leaderName) => {
+    const candidates = [
+      escSlug(leaderName),
+      escSlug(leaderName.split(' ').filter(p => !p.startsWith('(')).join(' ')),
+      escSlug(leaderName.replace(/\(.*?\)/g,'').replace(/\s+/g,' ')),
+    ];
+    for (const slug of candidates) {
+      if (corpBySlug[slug]) return corpBySlug[slug];
+    }
+    // Fall back: last-name match
+    const lastName = leaderName.replace(/\(.*?\)/g,'').trim().split(/\s+/).pop();
+    if (lastName) {
+      const lnSlug = lastName.toLowerCase();
+      for (const slug in corpBySlug) {
+        if (slug.endsWith('-' + lnSlug) || slug === lnSlug) return corpBySlug[slug];
+      }
+    }
+    return null;
+  };
+
+  const escHtml = s => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const initials = name => name.replace(/\(.*?\)/g,'').trim().split(/\s+/)
+    .map(p => p[0]||'').join('').slice(0,2).toUpperCase();
+
+  meta.textContent = `${leaders.length} leaders · sourced from superhosthospitality.com/leadership`;
+
+  // Read current filter state. Status filter values: '' / ready / draft / empty.
+  const q = (document.getElementById('team-search')?.value || '').trim().toLowerCase();
+  const statusF = document.getElementById('team-status-filter')?.value || '';
+  const deptF = document.getElementById('team-dept-filter')?.value || '';
+
+  // Pre-compute per-leader { contact, dept, status, pct } so we can both filter
+  // and render in one pass without recomputing.
+  const enriched = leaders.map(L => {
+    const contact = findContact(L.name);
+    const intake = intakeBySlug[L.slug];
+    const pct = intake?.completionPct ?? 0;
+    const status = pct >= 100 ? 'ready' : pct > 0 ? 'draft' : 'empty';
+    return { L, contact, pct, status, dept: contact?.department || '' };
+  });
+
+  const filtered = enriched.filter(({ L, contact, status, dept }) => {
+    if (statusF && status !== statusF) return false;
+    if (deptF && dept !== deptF) return false;
+    if (q) {
+      const hay = `${L.name} ${L.title} ${contact?.email || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (countEl) {
+    countEl.textContent = filtered.length === leaders.length
+      ? `${leaders.length} shown`
+      : `${filtered.length} of ${leaders.length}`;
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="team-roster-loading" style="color:var(--fg3);grid-column:1/-1">
+      No leaders match the current filters. Adjust search or clear filters above.
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(({ L, contact, pct, status, dept }) => {
+    const email = contact?.email || '';
+    const cell  = contact?.cell  || '';
+    const photo = L.local_path ? `<img src="${escHtml(L.local_path)}" alt="${escHtml(L.name)}" loading="lazy"
+      onerror="this.parentElement.classList.add('no-photo');this.parentElement.textContent='${escHtml(initials(L.name))}'">` : '';
+
+    const emailBtn = email
+      ? `<a class="contact-btn" href="mailto:${escHtml(email)}" title="${escHtml(email)}" onclick="event.stopPropagation()">✉ Email</a>`
+      : `<span class="contact-btn disabled" title="No email on file">✉ Email</span>`;
+    const callBtn = cell
+      ? `<a class="contact-btn" href="tel:${escHtml(String(cell).replace(/[^0-9+]/g,''))}" title="${escHtml(cell)}" onclick="event.stopPropagation()">☎ Call</a>`
+      : `<span class="contact-btn disabled" title="No phone on file">☎ Call</span>`;
+
+    // Intake / agent status — drives the whole-card click behavior and styling.
+    // ready (100%) → selects the agent in-page (selectAgent + compact-mode strip)
+    // draft / empty → opens persona-intake.html?slug=… in a new tab
+    const agentBadge = status === 'ready'
+      ? '<span class="agent-badge" title="Persona intake complete — click card to chat as this agent">★ Agent</span>'
+      : status === 'draft'
+      ? `<span class="agent-badge" title="Intake ${pct}% complete — click to finish">${pct}%</span>`
+      : '<span class="agent-badge" title="No intake yet — click to start">Intake</span>';
+    const tooltip = status === 'ready' ? `Chat as ${L.name}` : `Open intake form for ${L.name}`;
+    const activeCls = (activeRole === 'custom:' + L.slug) ? ' agent-active' : '';
+
+    return `
+      <div class="team-card clickable agent-${status}${activeCls}" data-slug="${escHtml(L.slug)}" title="${escHtml(tooltip)}" onclick="pickRosterCard('${escHtml(L.slug)}')">
+        ${agentBadge}
+        <div class="avatar">${photo || escHtml(initials(L.name))}</div>
+        <div class="name">${escHtml(L.name)}</div>
+        <div class="title">${escHtml(L.title)}</div>
+        <div class="contact-row">${emailBtn}${callBtn}</div>
+      </div>`;
+  }).join('');
+}
+
+// Exit the currently selected agent — un-collapses the roster back to full
+// grid view and clears the chat-active state. Triggered by the "← Show all"
+// button that only appears while in compact mode.
+function exitAgent() {
+  activeRole = null;
+  history = [];
+  const roster = document.getElementById('team-roster');
+  if (roster) roster.classList.remove('compact');
+  document.getElementById('team-exit-agent').style.display = 'none';
+  // Reset the empty state so the user knows nothing's selected.
+  document.getElementById('active-name').textContent = 'Pick an agent to start';
+  document.getElementById('active-desc').textContent = 'Click any ★ Agent card below to chat as that leader in their voice.';
+  document.getElementById('input').disabled = true;
+  document.getElementById('send').disabled = true;
+  document.getElementById('input').placeholder = 'Pick an agent first…';
+  document.getElementById('who').textContent = '';
+  document.getElementById('chat').innerHTML = '';
+  renderTeamRoster();
+  renderRoleStrip();
+}
+
+// ─── Role Agents strip — second-layer file-backed personas ───────────────
+// File-backed role-archetype personas (CEO, COO, CFO, VPs, Regional, AGM).
+// Live below the leader card grid on Ask the Team. Click a chip → selectAgent
+// routes through /api/ai/chat/:role which injects the SECOND_LAYER_REVIEW_
+// MANDATE server-side so role chats challenge the corp team's analytics.
+const ROLE_ABBREV = {
+  'ceo':'CEO','coo':'COO','cfo':'CFO','cto':'CTO','cmo':'CMO',
+  'chief-development-officer':'CDO','chief-investment-officer':'CIO',
+  'chief-compliance-officer':'CCO','chief-of-staff':'COS',
+  'general-counsel':'GC','regional-vp':'RVP','area-general-manager':'AGM',
+  'vp-revenue-management':'VP','vp-sales-marketing':'VP','vp-people':'VP',
+  'vp-fb':'VP','vp-capital-projects':'VP'
+};
+const ROLE_FULL = {
+  'ceo':'Chief Executive Officer',
+  'coo':'Chief Operating Officer',
+  'cfo':'Chief Financial Officer',
+  'cto':'Chief Technology Officer',
+  'cmo':'Chief Marketing Officer',
+  'chief-development-officer':'Chief Development Officer',
+  'chief-investment-officer':'Chief Investment Officer',
+  'chief-compliance-officer':'Chief Compliance Officer',
+  'chief-of-staff':'Chief of Staff',
+  'general-counsel':'General Counsel',
+  'regional-vp':'Regional VP of Operations',
+  'area-general-manager':'Area General Manager',
+  'vp-revenue-management':'VP Revenue Management',
+  'vp-sales-marketing':'VP Sales & Marketing',
+  'vp-people':'VP People',
+  'vp-fb':'VP Food & Beverage',
+  'vp-capital-projects':'VP Capital Projects'
+};
+function roleAbbrev(r){ return ROLE_ABBREV[r] || r.split('-').map(p => p[0] || '').join('').toUpperCase(); }
+function roleFullName(r){ return ROLE_FULL[r] || friendly(r); }
+
+let _roleAgents = null;
+async function loadRoleStrip(){
+  try {
+    const r = await fetch('/api/agents', { headers, cache: 'no-store' });
+    if (!r.ok) return;
+    const j = await r.json();
+    _roleAgents = (j.agents || []).filter(a => !String(a.role || '').startsWith('custom:'));
+    renderRoleStrip();
+  } catch (e) {
+    const chips = document.getElementById('role-chips');
+    if (chips) chips.innerHTML = '<span style="color:var(--fg3);font-size:11px">Could not load role agents.</span>';
+  }
+}
+
+function renderRoleStrip(){
+  const chips = document.getElementById('role-chips');
+  if (!chips || !_roleAgents) return;
+  if (!_roleAgents.length) { chips.innerHTML = '<span style="color:var(--fg3);font-size:11px">No role agents registered.</span>'; return; }
+  chips.innerHTML = _roleAgents.map(a => {
+    const abbr = roleAbbrev(a.role);
+    const full = roleFullName(a.role);
+    const isActive = (activeRole === a.role) ? ' active' : '';
+    return `<button class="role-chip${isActive}" title="${escHtml(full)} — second-layer review" onclick="pickRoleAgent('${escHtml(a.role)}')">
+      <span class="role-chip-tag">${escHtml(abbr)}</span>
+      <span class="role-chip-name">${escHtml(full)}</span>
+    </button>`;
+  }).join('');
+}
+
+function pickRoleAgent(role){
+  const a = (_roleAgents || []).find(x => x.role === role);
+  if (!a) return;
+  selectAgent({
+    role: a.role,
+    name: roleFullName(role),
+    description: a.description || '',
+    custom: false
+  });
+  const roster = document.getElementById('team-roster');
+  if (roster) roster.classList.add('compact');
+  const exitBtn = document.getElementById('team-exit-agent');
+  if (exitBtn) exitBtn.style.display = '';
+  renderRoleStrip();          // re-paint to highlight the active chip
+  renderTeamRoster();         // re-paint leader cards (active-state cleanup)
+}
+
+// Card click handler — drives the in-page persona selector. Replaces the
+// retired sidebar list. Ready agents load into chat; draft/empty open intake.
+function pickRosterCard(slug) {
+  const L = (_rosterState.leaders || []).find(x => x.slug === slug);
+  if (!L) return;
+  const intake = _rosterState.intakeBySlug[slug];
+  const pct = intake?.completionPct ?? 0;
+  if (pct < 100) {
+    window.open('/persona-intake.html?slug=' + encodeURIComponent(slug), '_blank');
+    return;
+  }
+  // Build the same agent shape that the old sidebar handed to selectAgent().
+  selectAgent({
+    role: 'custom:' + slug,
+    name: L.name,
+    title: L.title,
+    slug,
+    photo: L.local_path,
+    completionPct: pct,
+    custom: true,
+    description: (L.title || '') + ' — speaking in their voice (intake complete).'
+  });
+  // Collapse the roster to a strip so chat takes the rest of the screen,
+  // and surface the "← Show all" exit button in the roster header.
+  const roster = document.getElementById('team-roster');
+  if (roster) roster.classList.add('compact');
+  const exitBtn = document.getElementById('team-exit-agent');
+  if (exitBtn) exitBtn.style.display = '';
+  renderTeamRoster(); // re-paint to highlight the active card
+}
+</script>
+</body>
+</html>

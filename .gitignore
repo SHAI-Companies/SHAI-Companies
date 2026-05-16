@@ -1,0 +1,25 @@
+node_modules/
+.env
+.env.local
+config.json
+data.json
+uploads/
+*.log
+.DS_Store
+
+# Persona memory + runtime-only directories
+superhost-agents/memory/
+superhost-agents/logs/
+superhost-agents/data/cache/
+superhost-agents/data/inbox/
+superhost-agents/data/outbox/
+
+# Old backup files — kept locally for reference, not in repo
+*_final.js
+*_final.json
+
+# OS / editor cruft
+Thumbs.db
+*.swp
+.vscode/
+.idea/

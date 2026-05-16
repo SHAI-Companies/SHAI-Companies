@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "version": 1,
+    "title": "Persona Intake Form",
+    "subtitle": "Captures everything needed for the hub's AI to authentically represent this person — voice, judgment, decision style, ownership-facing approach.",
+    "estimated_minutes": 45,
+    "save_strategy": "auto-save per field on blur; localStorage fallback; explicit Submit promotes to data.personas[slug]"
+  },
+  "sections": [
+    {
+      "id": "identity",
+      "title": "A. Identity & Role",
+      "description": "Who you are, who you report to, and the scope of what you own.",
+      "fields": [
+        { "id": "fullName",       "type": "text",     "label": "Full name",                       "required": true,  "prefillFromContact": "name" },
+        { "id": "preferredName",  "type": "text",     "label": "Preferred name / what you go by", "placeholder": "e.g. Tim, not Timothy" },
+        { "id": "title",          "type": "text",     "label": "Current title",                   "required": true,  "prefillFromContact": "title" },
+        { "id": "department",     "type": "select",   "label": "Department", "required": true, "options": ["Executive", "Operations", "Revenue Management", "Sales & Marketing", "Finance & Accounting", "HR & Legal", "Construction & Capital", "Systems & Analytics", "Asset Management", "Other"] },
+        { "id": "reportsTo",      "type": "text",     "label": "Reports to (name + title)",        "required": true, "placeholder": "e.g. Samir Lakhany — President" },
+        { "id": "directReports",  "type": "textarea", "label": "Direct reports — names + roles + count", "rows": 3, "placeholder": "List who reports to you, by name. If 10+ indirect, summarize." },
+        { "id": "yearsInRole",    "type": "number",   "label": "Years in current role" },
+        { "id": "yearsAtSuperhost","type": "number",   "label": "Years with Superhost" },
+        { "id": "yearsInIndustry","type": "number",   "label": "Years in hospitality" },
+        { "id": "geoScope",       "type": "textarea", "label": "Geographic / regional scope you cover", "rows": 2, "placeholder": "States, regions, or specific properties you own day-to-day" },
+        { "id": "brandFamilies",  "type": "multiselect", "label": "Brand families you have direct expertise in", "options": ["Hilton", "Marriott", "IHG", "Choice", "Wyndham", "Independent", "Other"] },
+        { "id": "credentials",    "type": "textarea", "label": "Certifications, designations, specializations (e.g. CHA, MBA, CPA)", "rows": 2 }
+      ]
+    },
+    {
+      "id": "authority",
+      "title": "B. Domain & Authority",
+      "description": "What you own. What you don't. The decisions that need someone above you.",
+      "fields": [
+        { "id": "primaryDomains", "type": "multiselect", "label": "Primary domains you own (pick all that apply)", "options": ["Operations", "F&B", "Revenue Management", "Sales", "Marketing", "HR / Talent", "Legal / ER", "Accounting", "Finance / Treasury", "IT / Systems", "Compliance / Risk", "Construction / PIPs", "Capital Allocation", "Development / M&A", "Asset Management", "Brand / Franchise"] },
+        { "id": "unilateralAuthority", "type": "textarea", "label": "Decisions you can make unilaterally (no escalation needed)", "rows": 4, "placeholder": "Be specific: dollar thresholds, decision types, vendor approvals, hiring level..." },
+        { "id": "escalationRequired",  "type": "textarea", "label": "Decisions that need Samir / Ash / Board sign-off",                  "rows": 4 },
+        { "id": "deferToOthers",       "type": "textarea", "label": "Things you DON'T own / always defer to a peer (and to whom)",     "rows": 3, "placeholder": "e.g. Legal disputes -> Kori; capital allocation -> Samir" },
+        { "id": "vendorRelationships","type": "textarea", "label": "Key vendor / partner relationships YOU personally manage",         "rows": 3, "placeholder": "e.g. Hilton FQM contacts, M3 account exec, primary insurance broker" }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "C. How You Read Data",
+      "description": "When a report lands on your desk, what do your eyes go to first? What triggers you to act vs monitor?",
+      "fields": [
+        { "id": "topMetric1", "type": "text", "label": "First metric you check on any report", "required": true, "placeholder": "e.g. NOI flow-through vs plan" },
+        { "id": "topMetric2", "type": "text", "label": "Second metric you check",              "required": true },
+        { "id": "topMetric3", "type": "text", "label": "Third metric you check",               "required": true },
+        { "id": "actionThreshold", "type": "textarea", "label": "Variance thresholds — what makes you monitor vs call the GM vs treat as crisis?", "rows": 4, "required": true, "placeholder": "e.g. 'RevPAR -5% I monitor, -8% I call the GM, -12% it's an emergency'. Repeat for the metrics that matter to you." },
+        { "id": "analyticalSequence", "type": "radio", "label": "How do you sequence analysis?", "options": ["Top-down (portfolio -> region -> property)", "Bottom-up (property -> region -> portfolio)", "Variance-first (find what's off, dig in)", "Pace-first (forward-look before backward-look)", "GM-first (talk to the GM, then look at numbers)"] },
+        { "id": "comparisonsRanked", "type": "ranked", "label": "Rank the comparisons that matter most to you (1 = most important)", "options": ["vs Budget", "vs LY", "vs Forecast", "vs Comp Set", "vs RevPAR Index target", "vs Brand Standard", "vs Sister property"] },
+        { "id": "reportPetPeeves", "type": "textarea", "label": "Things in a report that make you roll your eyes", "rows": 3, "placeholder": "e.g. 'Hiding bad news in the third paragraph', 'Citing variances without dollar magnitude'" },
+        { "id": "commonAnalyticalErrors", "type": "textarea", "label": "Common analytical mistakes you see others make", "rows": 3 }
+      ]
+    },
+    {
+      "id": "ownership",
+      "title": "D. How You Respond to Ownership",
+      "description": "The mechanics and the style of your owner-facing communication. Get this right and the persona reads like you.",
+      "fields": [
+        { "id": "reportingCadence", "type": "radio", "label": "Default reporting cadence with owners you cover", "options": ["Weekly", "Bi-weekly", "Monthly", "Quarterly", "Ad-hoc only"] },
+        { "id": "formatPreference", "type": "radio", "label": "Format preference for owner updates", "options": ["Numbers first, narrative second", "Narrative first, numbers as support", "Mixed — depends on the owner"] },
+        { "id": "detailPreference", "type": "radio", "label": "Detail level you default to", "options": ["Headlines only", "Headlines + supporting paragraph", "Full granular detail"] },
+        { "id": "badNewsDelivery",  "type": "radio", "label": "How do you deliver bad news in writing?", "options": ["Lead with it", "Set context first, then deliver", "Soften with a positive framing first", "Pick up the phone instead of writing"] },
+        { "id": "ownerPushbackResponse", "type": "textarea", "label": "How do you handle owner pushback on a recommendation?", "rows": 3, "required": true },
+        { "id": "neverInWriting", "type": "textarea", "label": "Things you NEVER put in writing to owners", "rows": 3 },
+        { "id": "openingLineDefault", "type": "textarea", "label": "Your go-to opening line for an owner update", "rows": 2, "placeholder": "e.g. 'Three things to know about [property] this period:...'" },
+        { "id": "ownerSpecificStyle", "type": "textarea", "label": "Calibration notes for specific owners — anything the persona must know about how to talk to a particular ownership group", "rows": 4, "placeholder": "e.g. 'Lakhany prefers oral updates; Capitol One wants written; Gulfstream cares more about balance sheet than P&L...'" }
+      ]
+    },
+    {
+      "id": "voice",
+      "title": "E. Voice & Style",
+      "description": "How you sound in writing. The single most important section for the AI to land your voice.",
+      "fields": [
+        { "id": "sentenceLength", "type": "radio", "label": "Sentence length you default to", "options": ["Short and punchy (5-12 words)", "Medium (15-25 words)", "Long, structured (25+ words with clauses)"] },
+        { "id": "formality", "type": "slider", "label": "Formality (1 = casual / 10 = lender-grade formal)", "min": 1, "max": 10, "default": 6 },
+        { "id": "jargonLevel", "type": "radio", "label": "Industry / brand jargon", "options": ["Plain English always — define any acronym", "Insider language when it's more efficient", "Insider always — assume the reader knows the lingo"] },
+        { "id": "phrasesYouUse", "type": "textarea", "label": "Phrases or expressions you use often (give us 5-10)", "rows": 4, "placeholder": "e.g. 'The call is...', 'What we know vs what we believe', 'Let me be direct...'" },
+        { "id": "phrasesYouAvoid", "type": "textarea", "label": "Phrases or words you'd NEVER use", "rows": 4, "placeholder": "e.g. 'synergy', 'leverage' (as a verb), 'circle back', 'deep-dive', 'bandwidth'" },
+        { "id": "humorStyle", "type": "radio", "label": "Use of humor", "options": ["None — keep it strictly professional", "Dry / understated when it lands", "Warm / collegial", "Sharp / pointed"] },
+        { "id": "emotionalRegister", "type": "radio", "label": "Emotional register", "options": ["Cool / measured even under pressure", "Direct / matter-of-fact", "Warm / relational", "Passionate / energetic"] },
+        { "id": "selfDescription3Words", "type": "text", "label": "Three words you'd use to describe how you sound", "placeholder": "e.g. Direct, dry, owner-fluent" },
+        { "id": "openingClosingStyle", "type": "textarea", "label": "How do you typically open and close a written deliverable?", "rows": 3, "placeholder": "e.g. open with 'The headline:'; close with 'My ask:'" }
+      ]
+    },
+    {
+      "id": "decisions",
+      "title": "F. Decision-Making Style",
+      "description": "How you decide. Speed, risk, what info you need, how you communicate disagreement.",
+      "fields": [
+        { "id": "riskTolerance", "type": "slider", "label": "Risk tolerance (1 = conservative / 10 = aggressive)", "min": 1, "max": 10, "default": 5 },
+        { "id": "decisionSpeed", "type": "radio", "label": "Decision speed", "options": ["Fast trigger — decide on first read", "Quick gather, then act (24-48 hr)", "Heavy data first (1-2 weeks)", "Consensus-first — never alone"] },
+        { "id": "preDecisionInfo", "type": "textarea", "label": "What information do you need before you can decide?", "rows": 3, "placeholder": "List the 3-4 items. e.g. 'Dollar magnitude, precedent, who owns execution, downside if I'm wrong'" },
+        { "id": "disagreementStyle", "type": "textarea", "label": "How do you communicate disagreement — with peers, with reports, with ownership?", "rows": 4 },
+        { "id": "decisionWalkthrough", "type": "textarea", "label": "Tell us about a recent decision you made (anonymize if needed) — what data, what process, what outcome", "rows": 6, "placeholder": "200-400 words. The persona will use this as a model for how you reason." }
+      ]
+    },
+    {
+      "id": "priorities",
+      "title": "G. Strategic Priorities",
+      "description": "What's actually on your mind right now. Refresh this section quarterly.",
+      "fields": [
+        { "id": "priority1", "type": "text", "label": "Top priority this quarter", "required": true },
+        { "id": "priority2", "type": "text", "label": "Second priority" },
+        { "id": "priority3", "type": "text", "label": "Third priority" },
+        { "id": "frustration1", "type": "text", "label": "Top operational frustration right now", "required": true },
+        { "id": "frustration2", "type": "text", "label": "Second frustration" },
+        { "id": "frustration3", "type": "text", "label": "Third frustration" },
+        { "id": "wouldChange", "type": "textarea", "label": "Three things you'd change about the portfolio if you had a free hand", "rows": 4 },
+        { "id": "propertiesExtraAttention", "type": "textarea", "label": "Properties getting extra attention from you right now — name them and why", "rows": 4 },
+        { "id": "ownerInsight", "type": "textarea", "label": "Owners you have particular insight on — what does the persona need to know about each?", "rows": 4 }
+      ]
+    },
+    {
+      "id": "samples",
+      "title": "H. Voice Training Samples",
+      "description": "The persona learns your voice by example. Spend the most time here. Write naturally — paste actual past examples if you have them.",
+      "fields": [
+        { "id": "diagnosisExample", "type": "textarea", "label": "Walk-through: how would you diagnose a sudden 10% RevPAR drop at one property over a single week?", "rows": 8, "placeholder": "Write 5-8 sentences in your own voice. The persona uses this as the canonical 'how this person reasons aloud' sample.", "required": true },
+        { "id": "ownerEmailSample", "type": "textarea", "label": "Sample owner email: an owner asks 'why did GOP miss plan?' — draft your reply in your own voice", "rows": 8, "placeholder": "100-200 words. Real or hypothetical, doesn't matter — what does matter is that it sounds like YOU.", "required": true },
+        { "id": "gmConversationSample", "type": "textarea", "label": "Sample team conversation: a GM tells you turnover spiked 6 points last month — your response on a call", "rows": 5, "placeholder": "Capture the real spoken cadence — short turns, follow-up questions, how you push." },
+        { "id": "memoOpenerSample", "type": "textarea", "label": "Sample memo opener: write the first 2-3 sentences of a strategic memo you'd send up to Samir/Ash on a topic you've been chewing on", "rows": 4 },
+        { "id": "boardSlideSample", "type": "textarea", "label": "Sample board comment: write the talking points you'd say out loud presenting your function's update to the leadership team (1-2 minute version)", "rows": 6 },
+        { "id": "pastWritingURL", "type": "text", "label": "Optional — link to any past public writing in your voice (LinkedIn post, press quote, internal memo we can pull)", "placeholder": "Pasting a URL helps the persona calibrate further." }
+      ]
+    },
+    {
+      "id": "constraints",
+      "title": "I. Constraints & Boundaries",
+      "description": "What the AI persona MUST NOT say or do in your name. Treat as the legal-and-ethics fence.",
+      "fields": [
+        { "id": "neverOpine", "type": "textarea", "label": "Topics the persona should NEVER opine on (defer to a real person)", "rows": 4, "placeholder": "e.g. capital structure, refinancing, personnel terminations, ongoing litigation, individual guest complaints" },
+        { "id": "alwaysEscalate", "type": "textarea", "label": "Topics that ALWAYS require escalation to a real person — and to whom", "rows": 4, "placeholder": "e.g. brand-letter formal response -> Kori; owner termination notice -> Samir; lender covenant question -> CFO" },
+        { "id": "confidentialityLines", "type": "textarea", "label": "Confidentiality boundaries — what the persona must not write down in any output", "rows": 3 },
+        { "id": "standardDisclaimers", "type": "textarea", "label": "Standard disclaimers you always include on certain types of output (e.g., on draft owner memos, on capital recommendations)", "rows": 3 },
+        { "id": "doNotImpersonateScenarios", "type": "textarea", "label": "Specific scenarios where the persona must explicitly say 'this needs the actual [name]' rather than answer", "rows": 3, "placeholder": "e.g. anything involving an active EEOC charge; any dollar number going on a signed PIP response" }
+      ]
+    },
+    {
+      "id": "personal",
+      "title": "J. Personal Touches (optional but recommended)",
+      "description": "Small things that make the persona feel like a real person, not a job description. Keep it human.",
+      "fields": [
+        { "id": "industryHero", "type": "text", "label": "An industry mentor or hero who shaped how you think" },
+        { "id": "bestBook", "type": "text", "label": "Best book on hospitality or leadership you'd hand a new GM" },
+        { "id": "mostOverusedWord", "type": "text", "label": "A word you know you overuse" },
+        { "id": "mostUnderusedQuestion", "type": "text", "label": "A question you wish more people asked you" },
+        { "id": "bestMeetingTime", "type": "radio", "label": "Best time of day to do real thinking", "options": ["Early morning (5-8am)", "Mid-morning (8-11am)", "Midday (11-2)", "Afternoon (2-5)", "After hours (5-8pm)", "Late night"] },
+        { "id": "communicationChannel", "type": "radio", "label": "Preferred channel for non-urgent things", "options": ["Email", "Phone", "Text", "Slack / Teams", "In person", "Whichever — no preference"] },
+        { "id": "personalNote", "type": "textarea", "label": "Anything else the persona should know about you that wasn't asked", "rows": 4 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520">
+<rect width="1600" height="520" fill="#0B1F3A"/>
+<g transform="translate(220,135)">
+  <text x="0" y="150" font-family="Inter Display, Inter, Arial, sans-serif" font-size="180" font-weight="800" letter-spacing="24" fill="#FF2DB2">SH</text>
+  <path d="M610 150 L710 0 L810 150 L760 150 L710 70 L660 150 Z" fill="#1A6BFF"/>
+  <circle cx="710" cy="120" r="18" fill="#1A6BFF"/>
+  <rect x="855" y="0" width="28" height="150" rx="2" fill="#1A6BFF"/>
+  <line x1="0" y1="235" x2="60" y2="235" stroke="#FF2DB2" stroke-width="5"/>
+  <text x="85" y="252" font-family="Inter Display, Inter, Arial, sans-serif" font-size="36" font-weight="500" letter-spacing="16" fill="#FFFFFF">SUPERHOST HOSPITALITY AI</text>
+  <line x1="850" y1="235" x2="910" y2="235" stroke="#FF2DB2" stroke-width="5"/>
+</g></svg>
