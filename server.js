@@ -11,6 +11,8 @@ const https   = require('https');
 const fs      = require('fs');
 const fsp     = require('fs/promises');
 const path    = require('path');
+const os      = require('os');
+const { spawn } = require('child_process');
 const multer  = require('multer');
 const pdfParse = require('pdf-parse');
 require('dotenv').config();
@@ -5612,7 +5614,9 @@ app.get('/api/personas/list', checkAuth, (req, res) => {
   const data = ensureShape(loadData());
   const schema = loadIntakeSchema();
   const manifest = loadTeamManifest();
+  const manifestSlugs = new Set();
   const list = (manifest.leaders || []).filter(L => !INTAKE_EXCLUDE_SLUGS.has(L.slug)).map(L => {
+    manifestSlugs.add(L.slug);
     const persona = (data.personas || {})[L.slug] || null;
     const pct = persona ? intakeCompletion(persona.intake, schema) : 0;
     return {
@@ -5623,10 +5627,87 @@ app.get('/api/personas/list', checkAuth, (req, res) => {
       hasIntake: !!persona,
       completionPct: pct,
       status: persona ? (pct >= 100 ? 'complete' : 'draft') : 'empty',
-      updatedAt: persona?.updatedAt || null
+      updatedAt: persona?.updatedAt || null,
+      custom: false
     };
   });
+  // Merge in custom-created personas — entries in data.personas that aren't
+  // in the team manifest. These come from POST /api/personas/create.
+  for (const [slug, persona] of Object.entries(data.personas || {})) {
+    if (manifestSlugs.has(slug) || INTAKE_EXCLUDE_SLUGS.has(slug)) continue;
+    const pct = intakeCompletion(persona.intake, schema);
+    list.push({
+      slug,
+      name: persona.name || slug,
+      title: persona.title || '',
+      photo: persona.photo || null,
+      hasIntake: true,
+      completionPct: pct,
+      status: pct >= 100 ? 'complete' : 'draft',
+      updatedAt: persona.updatedAt || null,
+      custom: true
+    });
+  }
+  // Stable sort: manifest first, custom last, alphabetical within each group
+  list.sort((a, b) => {
+    if (a.custom !== b.custom) return a.custom ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
   res.json({ personas: list, schemaVersion: schema?.meta?.version || 1, count: list.length });
+});
+
+// POST /api/personas/create — adds a new persona/client to data.personas.
+// Used by the "+ New Client" button on persona-intake.html. The created
+// persona is NOT added to manifest.json (manifest is the corp-team roster);
+// it lives only in data.personas and appears in the list with `custom:true`.
+//
+// Body: { name: string (required), title?: string, slug?: string (optional override) }
+// Returns: { ok:true, slug, persona }
+app.post('/api/personas/create', checkAuth, (req, res) => {
+  const data = ensureShape(loadData());
+  const schema = loadIntakeSchema();
+  const name = String(req.body?.name || '').trim();
+  if (!name) return res.status(400).json({ error: 'name required' });
+  const title = String(req.body?.title || '').trim();
+  // Slugify: lowercase, replace non-alphanum with hyphens, collapse, trim
+  let slug = (req.body?.slug ? String(req.body.slug) : name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60);
+  if (!slug) return res.status(400).json({ error: 'unable to slugify name' });
+  // Avoid collisions with manifest entries and existing personas
+  const manifest = loadTeamManifest();
+  const manifestSlugs = new Set((manifest.leaders || []).map(L => L.slug));
+  if (manifestSlugs.has(slug) || data.personas[slug]) {
+    // Suffix with -2, -3, etc. until unique
+    let i = 2;
+    while (manifestSlugs.has(`${slug}-${i}`) || data.personas[`${slug}-${i}`]) i++;
+    slug = `${slug}-${i}`;
+  }
+  // Empty intake shell
+  const empty = {};
+  for (const sec of (schema.sections || [])) {
+    empty[sec.id] = {};
+    for (const f of (sec.fields || [])) empty[sec.id][f.id] = '';
+  }
+  if (name) empty.identity = empty.identity || {}, empty.identity.fullName = name;
+  if (title) empty.identity = empty.identity || {}, empty.identity.title = title;
+  const now = new Date().toISOString();
+  data.personas[slug] = {
+    slug,
+    name,
+    title,
+    photo: null,
+    intake: empty,
+    intakeSchemaVersion: schema?.meta?.version || 1,
+    completionPct: intakeCompletion(empty, schema),
+    custom: true,
+    createdAt: now,
+    updatedAt: now
+  };
+  saveData(data);
+  res.json({ ok: true, slug, persona: data.personas[slug] });
 });
 
 app.get('/api/personas/intake/:slug', checkAuth, (req, res) => {
@@ -5670,8 +5751,12 @@ app.post('/api/personas/intake/:slug', checkAuth, (req, res) => {
   const slug = req.params.slug;
   const manifest = loadTeamManifest();
   const m = (manifest.leaders || []).find(L => L.slug === slug);
-  if (!m && !req.body.allowUnlistedSlug) {
-    return res.status(404).json({ error: `slug '${slug}' not in /brand/team/manifest.json — pass allowUnlistedSlug:true to override` });
+  // Allow if: (a) slug is in manifest, OR (b) persona was already created
+  // via POST /api/personas/create (lives in data.personas), OR (c) caller
+  // explicitly passes allowUnlistedSlug:true to override.
+  const customExists = !!data.personas[slug];
+  if (!m && !customExists && !req.body.allowUnlistedSlug) {
+    return res.status(404).json({ error: `slug '${slug}' not in /brand/team/manifest.json — create via POST /api/personas/create or pass allowUnlistedSlug:true` });
   }
   const incoming = req.body.intake || {};
   // Merge by section: replace each provided section, leave unprovided sections alone
@@ -5681,16 +5766,20 @@ app.post('/api/personas/intake/:slug', checkAuth, (req, res) => {
     merged[secId] = { ...(existing[secId] || {}), ...secData };
   }
   const now = new Date().toISOString();
+  const prev = data.personas[slug] || {};
   data.personas[slug] = {
     slug,
-    name: m?.name || req.body.name || slug,
-    title: m?.title || req.body.title || '',
-    photo: m?.local_path || null,
+    // Precedence: manifest > caller-provided > previously-saved > slug
+    name: m?.name || req.body.name || prev.name || slug,
+    title: m?.title || req.body.title || prev.title || '',
+    photo: m?.local_path || prev.photo || null,
     intake: merged,
     intakeSchemaVersion: schema?.meta?.version || 1,
     completionPct: intakeCompletion(merged, schema),
+    // Preserve custom flag (set on create) so /api/personas/list keeps grouping
+    custom: prev.custom === true || (!m && !!prev.custom) || (!m && req.body.allowUnlistedSlug === true),
     updatedAt: now,
-    createdAt: data.personas[slug]?.createdAt || now
+    createdAt: prev.createdAt || now
   };
   saveData(data);
   res.json({ ok: true, persona: data.personas[slug] });
@@ -5716,6 +5805,70 @@ app.get('/api/personas/:slug/prompt', checkAuth, (req, res) => {
     title: persona.title,
     completionPct: persona.completionPct,
     prompt: buildPersonaPrompt(persona)
+  });
+});
+
+// GET /api/personas/intake/:slug/pdf — generates a fresh PDF on-the-fly
+// using tools-generate-intake-pdf.py. Streams back as application/pdf so
+// the browser can preview inline (in a new tab) or save. Replaces the
+// older static-file pattern at /downloads/SHAI-Persona-Intake-*.pdf,
+// which was unsafe (publicly served personnel data) and stale (had to
+// be regenerated manually after every intake edit).
+//
+// Query: ?download=1  forces Content-Disposition: attachment (download
+//                     instead of inline preview)
+// Special slug 'blank' returns the empty template.
+app.get('/api/personas/intake/:slug/pdf', checkAuth, async (req, res) => {
+  const slug = req.params.slug;
+  const isBlank = slug === 'blank' || slug === '_blank' || slug === 'new';
+  if (!isBlank) {
+    const data = ensureShape(loadData());
+    const manifest = loadTeamManifest();
+    const inManifest = (manifest.leaders || []).some(L => L.slug === slug);
+    if (!inManifest && !data.personas[slug]) {
+      return res.status(404).json({ error: `no persona for slug '${slug}'` });
+    }
+  }
+  // Write to OS temp dir so the public/downloads/ tree stays clean.
+  const tmpDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'shai-pdf-'));
+  const outPath = path.join(tmpDir, isBlank ? 'intake-blank.pdf' : `intake-${slug}.pdf`);
+  const args = ['tools-generate-intake-pdf.py'];
+  if (!isBlank) args.push('--slug', slug);
+  args.push('--out', outPath);
+  // Resolve python: prefer PYTHON env, else 'python' (Windows), fall back to 'python3'
+  const pythonBin = process.env.PYTHON || 'python';
+  const proc = spawn(pythonBin, args, { cwd: __dirname });
+  let stderr = '';
+  proc.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+  proc.on('error', async (e) => {
+    try { await fsp.rm(tmpDir, { recursive: true, force: true }); } catch {}
+    return res.status(500).json({ error: 'pdf generator spawn failed: ' + e.message });
+  });
+  proc.on('close', async (code) => {
+    if (code !== 0) {
+      try { await fsp.rm(tmpDir, { recursive: true, force: true }); } catch {}
+      return res.status(500).json({ error: 'pdf generator exited with code ' + code, stderr: stderr.slice(0, 1200) });
+    }
+    try {
+      const stat = await fsp.stat(outPath);
+      const disposition = req.query.download ? 'attachment' : 'inline';
+      const filename = isBlank
+        ? 'SHAI-Persona-Intake-Form.pdf'
+        : `SHAI-Persona-Intake-${slug}.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Length', stat.size);
+      res.setHeader('Content-Disposition', `${disposition}; filename="${filename}"`);
+      // Browsers cache PDFs aggressively; force fresh while in dev
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
+      const stream = fs.createReadStream(outPath);
+      stream.pipe(res);
+      stream.on('close', async () => {
+        try { await fsp.rm(tmpDir, { recursive: true, force: true }); } catch {}
+      });
+    } catch (e) {
+      try { await fsp.rm(tmpDir, { recursive: true, force: true }); } catch {}
+      return res.status(500).json({ error: 'pdf read failed: ' + e.message });
+    }
   });
 });
 

@@ -92,19 +92,42 @@ def load_corp_contacts():
 
 
 def get_leader(slug):
-    """Returns dict with name, title, email, cell, photo or None."""
+    """Returns dict with name, title, email, cell, photo or None.
+
+    Lookup precedence:
+      1) public/brand/team/manifest.json — the corporate-team roster
+      2) data.json -> personas[slug] — custom-created clients added via the
+         POST /api/personas/create endpoint (the "+ New Client" button in
+         persona-intake.html). These do NOT live in the manifest.
+    """
+    # 1) Manifest lookup (corp team)
     manifest = load_manifest()
     leader = next((L for L in manifest.get("leaders", []) if L.get("slug") == slug), None)
-    if not leader:
-        return None
-    corp = load_corp_contacts().get(slug, {})
-    return {
-        "slug": slug,
-        "name": leader.get("name", ""),
-        "title": leader.get("title", ""),
-        "email": corp.get("email", "") if corp else "",
-        "cell": corp.get("cell", "") if corp else "",
-    }
+    if leader:
+        corp = load_corp_contacts().get(slug, {})
+        return {
+            "slug": slug,
+            "name": leader.get("name", ""),
+            "title": leader.get("title", ""),
+            "email": corp.get("email", "") if corp else "",
+            "cell": corp.get("cell", "") if corp else "",
+        }
+    # 2) data.json -> personas[slug] (custom-created clients)
+    if DATA_JSON.exists():
+        try:
+            data = json.loads(DATA_JSON.read_text(encoding="utf-8"))
+        except Exception:
+            data = {}
+        persona = (data.get("personas") or {}).get(slug)
+        if persona:
+            return {
+                "slug": slug,
+                "name": persona.get("name", "") or slug,
+                "title": persona.get("title", ""),
+                "email": "",
+                "cell": "",
+            }
+    return None
 
 
 def styles():

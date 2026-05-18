@@ -327,9 +327,11 @@
     <a href="/persona-intake.html" class="active">Intake</a>
   </nav>
   <div class="picker-wrap">
-    <label for="leader-picker">Leader</label>
+    <label for="leader-picker">Client</label>
     <select id="leader-picker" class="picker"></select>
-    <button class="action-btn" onclick="downloadPdf()" title="Download a polished PDF of this intake form to email">📥 Download PDF</button>
+    <button class="action-btn" onclick="openNewClientModal()" title="Add a new client / persona to the intake roster">+ New Client</button>
+    <button class="action-btn" onclick="previewPdf()" title="Generate and preview a fresh PDF of this intake (opens in a new tab)">👁 Preview PDF</button>
+    <button class="action-btn" onclick="downloadPdf()" title="Generate and download a polished PDF of this intake form to email">📥 Download PDF</button>
     <button class="action-btn" onclick="window.print()" title="Print this page (browser print)">⎙ Print page</button>
     <button class="action-btn" onclick="previewPrompt()" title="Preview generated AI persona prompt">Preview Prompt</button>
   </div>
@@ -381,6 +383,34 @@
     <pre id="modal-prompt">Loading…</pre>
     <div class="modal-actions">
       <button class="action-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── New Client modal ────────────────────────────────────────── -->
+<div class="modal-bg" id="newclient-bg" onclick="if(event.target===this)closeNewClientModal()">
+  <div class="modal" style="max-width:480px">
+    <h2>Add a new client</h2>
+    <p style="font-size:12px;color:#b8c5d9;margin-bottom:14px">
+      Creates a new persona/client entry. They'll appear in the Client dropdown with a
+      <em>(custom)</em> tag. You can fill out their intake immediately after.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8c0e8;margin-bottom:6px">Name <span style="color:var(--shai-pink)">*</span></div>
+        <input id="newclient-name" type="text" placeholder="e.g. Jane Doe" autocomplete="off"
+               style="width:100%;background:var(--field-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:'Inter',sans-serif">
+      </div>
+      <div>
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8c0e8;margin-bottom:6px">Title</div>
+        <input id="newclient-title" type="text" placeholder="e.g. Director of Revenue Management" autocomplete="off"
+               style="width:100%;background:var(--field-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:'Inter',sans-serif">
+      </div>
+      <div id="newclient-error" style="font-size:12px;color:var(--status-down);display:none"></div>
+    </div>
+    <div class="modal-actions" style="margin-top:18px">
+      <button class="action-btn" onclick="closeNewClientModal()">Cancel</button>
+      <button class="action-btn primary" onclick="submitNewClient()" id="newclient-submit">Create &amp; Open</button>
     </div>
   </div>
 </div>
@@ -438,9 +468,17 @@
 
   function populatePicker() {
     const sel = $('leader-picker');
-    sel.innerHTML = LEADERS.map(L =>
-      `<option value="${escHtml(L.slug)}">${escHtml(L.name)} — ${escHtml(L.title)} (${L.completionPct}%)</option>`
-    ).join('');
+    const manifest = LEADERS.filter(L => !L.custom);
+    const custom   = LEADERS.filter(L =>  L.custom);
+    const renderOpt = L =>
+      `<option value="${escHtml(L.slug)}">${escHtml(L.name)} — ${escHtml(L.title || '—')} (${L.completionPct}%)</option>`;
+    const parts = [];
+    parts.push(...manifest.map(renderOpt));
+    if (custom.length) {
+      parts.push('<option disabled>──────── Custom clients ────────</option>');
+      parts.push(...custom.map(renderOpt));
+    }
+    sel.innerHTML = parts.join('');
     sel.onchange = () => selectLeader(sel.value);
   }
 
@@ -707,30 +745,91 @@
     if (dirty) { e.preventDefault(); e.returnValue = ''; }
   });
 
-  // ─── Download PDF intake form ──────────────────────────────────
-  // Pre-generated PDFs live in public/downloads/. Filename pattern:
-  //   blank: SHAI-Persona-Intake-Form.pdf
-  //   per-leader: SHAI-Persona-Intake-<Title-Cased-Slug>.pdf
-  // To regenerate (e.g. after schema change), run:
-  //   python tools-generate-intake-pdf.py --all
+  // ─── PDF: preview inline or download ───────────────────────────
+  // Both buttons hit /api/personas/intake/:slug/pdf which generates a
+  // fresh PDF on-the-fly from the current intake data. The blank
+  // template is reachable as ?slug=blank when no client is selected.
+  //
+  // Preview opens the PDF in a new browser tab (Content-Disposition:
+  // inline) so you can review it without committing to a download.
+  // Download forces an attachment via ?download=1.
+  function _pdfUrlForCurrent(downloadMode) {
+    // Save first if dirty so the generated PDF reflects the latest edits
+    // (fire-and-forget; the user can preview after save completes).
+    if (dirty) forceSave().catch(() => {});
+    const slug = CURRENT_SLUG || 'blank';
+    return `/api/personas/intake/${encodeURIComponent(slug)}/pdf${downloadMode ? '?download=1' : ''}`;
+  }
+  function previewPdf() {
+    const url = _pdfUrlForCurrent(false);
+    window.open(url, '_blank', 'noopener');
+  }
   function downloadPdf() {
-    let url, name;
-    if (CURRENT_SLUG) {
-      const friendly = CURRENT_SLUG.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-');
-      url = `/downloads/SHAI-Persona-Intake-${friendly}.pdf`;
-      name = `SHAI-Persona-Intake-${friendly}.pdf`;
-    } else {
-      url = '/downloads/SHAI-Persona-Intake-Form.pdf';
-      name = 'SHAI-Persona-Intake-Form.pdf';
-    }
-    // Force a download rather than opening in-browser
+    // For download we use an <a download> so the browser respects the
+    // Content-Disposition: attachment header from the server.
+    const url = _pdfUrlForCurrent(true);
     const a = document.createElement('a');
     a.href = url;
-    a.download = name;
+    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     a.remove();
   }
+
+  // ─── New client modal ──────────────────────────────────────────
+  function openNewClientModal() {
+    $('newclient-name').value = '';
+    $('newclient-title').value = '';
+    $('newclient-error').style.display = 'none';
+    $('newclient-submit').disabled = false;
+    $('newclient-submit').textContent = 'Create & Open';
+    $('newclient-bg').classList.add('show');
+    // Focus the name field after the modal animation
+    setTimeout(() => $('newclient-name').focus(), 60);
+  }
+  function closeNewClientModal() {
+    $('newclient-bg').classList.remove('show');
+  }
+  async function submitNewClient() {
+    const name = $('newclient-name').value.trim();
+    const title = $('newclient-title').value.trim();
+    const err = $('newclient-error');
+    if (!name) {
+      err.textContent = 'Name is required.';
+      err.style.display = 'block';
+      $('newclient-name').focus();
+      return;
+    }
+    err.style.display = 'none';
+    const btn = $('newclient-submit');
+    btn.disabled = true;
+    btn.textContent = 'Creating…';
+    try {
+      const resp = await api('/api/personas/create', {
+        method: 'POST',
+        body: JSON.stringify({ name, title })
+      });
+      // Reload the leader list and switch to the new persona
+      const listResp = await api('/api/personas/list');
+      LEADERS = listResp.personas;
+      populatePicker();
+      $('leader-picker').value = resp.slug;
+      await selectLeader(resp.slug);
+      closeNewClientModal();
+    } catch (e) {
+      err.textContent = 'Create failed: ' + e.message;
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Create & Open';
+    }
+  }
+  // Submit-on-Enter for the new-client form
+  document.addEventListener('keydown', (e) => {
+    const open = $('newclient-bg')?.classList.contains('show');
+    if (!open) return;
+    if (e.key === 'Enter') { e.preventDefault(); submitNewClient(); }
+    if (e.key === 'Escape') { e.preventDefault(); closeNewClientModal(); }
+  });
 
   // ─── Preview prompt ────────────────────────────────────────────
   async function previewPrompt() {
