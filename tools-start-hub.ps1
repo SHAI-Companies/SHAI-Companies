@@ -1,26 +1,27 @@
-# Auto-start SHAI Hub. Triggered by Windows Task Scheduler at user logon.
-# Uses WMI Win32_Process.Create to spawn node DETACHED — the hub survives the
+# Auto-start SHAI Companies Hub. Triggered by Windows Task Scheduler at user logon.
+# Uses WMI Win32_Process.Create to spawn node DETACHED -- the hub survives the
 # wrapper's exit, unlike `& npm start` which gets killed when the task's job
-# object terminates.
+# object terminates. See HUB_OPERATIONS.md for the history of this gotcha.
 
-$HubDir  = 'C:\Users\Owner\Superhost Hub'
-$LogPath = Join-Path $HubDir 'hub.log'
+$HubDir  = 'C:\Users\Owner\SHAI Companies'
+$LogPath = Join-Path $HubDir 'shai-companies.log'
+$Port    = 3001
 
 Set-Location -Path $HubDir
 $ts = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
-Add-Content -Path $LogPath -Value "`n[$ts] === SHAI Hub auto-start ==="
+Add-Content -Path $LogPath -Value "`n[$ts] === SHAI Companies Hub auto-start ==="
 
-# Skip if already running on port 3000
-$inUse = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
+# Skip if already running on the bound port
+$inUse = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
 if ($inUse) {
-    Add-Content -Path $LogPath -Value "[$ts] Port 3000 already in use - skipping auto-start."
+    Add-Content -Path $LogPath -Value "[$ts] Port $Port already in use - skipping auto-start."
     exit 0
 }
 
-# Defensive layer — also bail if any node.exe is already running server.js
-# from this hub directory. Catches the race where port 3000 is briefly free
+# Defensive layer -- also bail if any node.exe is already running server.js
+# from this hub directory. Catches the race where the port is briefly free
 # (TIME_WAIT or just-started node not yet bound) but a hub instance already
-# exists. Without this we accumulated 7 zombie nodes on 2026-05-06.
+# exists. Mirrors the zombie-prevention pattern from Superhost Hub.
 try {
     $existing = Get-CimInstance Win32_Process -Filter "Name='node.exe'" -ErrorAction SilentlyContinue |
         Where-Object { $_.CommandLine -match 'server\.js' -and $_.CommandLine -match [regex]::Escape($HubDir) }
